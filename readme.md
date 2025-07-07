@@ -36,13 +36,13 @@ Key Features:
 
 ---
 
-## 🏆 Development Process (for Windsurf)
+## 🏆 Development Process (for LLM IDE)
 
 This project uses a task-based workflow. All development steps are broken into atomic, testable tasks in `tasks.md`. Architecture and file structure are outlined in `architecture.md`.
 
-### How to Use With Windsurf
+### How to Use With LLM IDE
 
-1. Load this repo into Windsurf
+1. Load this repo into LLM IDE
 2. Start with task #1 in `tasks.md`
 3. Let LLM complete each task and commit the changes
 4. Test the result in Xcode
@@ -53,7 +53,7 @@ This project uses a task-based workflow. All development steps are broken into a
 ## ✅ Milestone Progression (from tasks.md)
 
 * [x] Initialize project
-* [ ] CoreData models
+* [x] CoreData models
 * [ ] Add inspiration views (text, image, url, video)
 * [ ] Save logic to CoreData
 * [ ] Collections browser (organized & unorganized)
@@ -72,10 +72,6 @@ Sparks/
 │   ├── Views/
 │   └── Utilities/
 ├── Tests/
-├── architecture.md
-├── tasks.md    
-├── README.md
-├── codingStyling.md
 
 ---
 
