@@ -62,17 +62,6 @@ This project uses a task-based workflow. All development steps are broken into a
 * [ ] Notification reminders
 * [ ] Settings screen
 
-## repo
-
-Sparks/
-├── Sources/
-│   ├── App/
-│   ├── Models/
-│   ├── ViewModels/
-│   ├── Views/
-│   └── Utilities/
-├── Tests/
-
 ---
 
 ## 💬 Feedback & Future Plans
