@@ -11,13 +11,25 @@ struct SparksApp: App {
     var body: some Scene {
         WindowGroup {
             TabView {
-                ContentView(context: persistenceController.container.viewContext)
-                    .tabItem {
-                        Label("Home", systemImage: "house")
-                    }
                 InspirationListView(context: persistenceController.container.viewContext)
                     .tabItem {
-                        Label("Inspiration", systemImage: "lightbulb")
+                        Label("Collection", systemImage: "lightbulb")
+                    }
+                TaskListView()
+                    .tabItem {
+                        Label("Tasks", systemImage: "checkmark.circle")
+                    }
+                ContentView(context: persistenceController.container.viewContext)
+                    .tabItem {
+                        Label("Add", systemImage: "plus.circle")
+                    }
+                DashboardView()
+                    .tabItem {
+                        Label("Dashboard", systemImage: "chart.bar")
+                    }
+                SettingsView()
+                    .tabItem {
+                        Label("Settings", systemImage: "gear")
                     }
             }
             .environmentObject(appState)

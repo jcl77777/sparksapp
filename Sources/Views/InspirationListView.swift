@@ -3,6 +3,7 @@ import CoreData
 
 struct InspirationListView: View {
     @StateObject private var viewModel: InspirationViewModel
+    @State private var showingAddSheet = false
     
     init(context: NSManagedObjectContext) {
         _viewModel = StateObject(wrappedValue: InspirationViewModel(context: context))
@@ -26,9 +27,19 @@ struct InspirationListView: View {
                     indexSet.map { viewModel.inspirations[$0] }.forEach(viewModel.deleteInspiration)
                 }
             }
-            .navigationTitle("Inspiration List")
+            .navigationTitle("Collection")
             .toolbar {
-                EditButton()
+                ToolbarItem(placement: .navigationBarLeading) {
+                    EditButton()
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: { showingAddSheet = true }) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddSheet) {
+                AddInspirationView(viewModel: viewModel)
             }
         }
     }
