@@ -1,18 +1,14 @@
 import SwiftUI
 import CoreData
-import UIKit
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-@FetchRequest(
-    sortDescriptors: [SortDescriptor(\Inspiration.createdAt)],
-    predicate: NSPredicate(format: "title CONTAINS[cd] %@", "example"),
-    animation: .default)
-private var inspirations: FetchedResults<Inspiration>
-    
-    @State private var showingAddInspiration = false
+    @StateObject private var viewModel: InspirationViewModel
     @State private var newInspirationTitle = ""
-    
+
+    init(context: NSManagedObjectContext) {
+        _viewModel = StateObject(wrappedValue: InspirationViewModel(context: context))
+    }
+
     var body: some View {
         NavigationView {
             VStack {
@@ -26,18 +22,21 @@ private var inspirations: FetchedResults<Inspiration>
                         .fontWeight(.bold)
                 }
                 .padding(.top)
-                
+
                 // Test form to add a simple inspiration
                 VStack(alignment: .leading) {
                     Text("Test CoreData Setup")
                         .font(.headline)
                         .padding(.top)
-                    
+
                     TextField("Enter inspiration title", text: $newInspirationTitle)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .padding(.vertical, 8)
-                    
-                    Button(action: addInspiration) {
+
+                    Button(action: {
+                        viewModel.addInspiration(title: newInspirationTitle)
+                        newInspirationTitle = ""
+                    }) {
                         Text("Add Test Inspiration")
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -48,82 +47,41 @@ private var inspirations: FetchedResults<Inspiration>
                     .disabled(newInspirationTitle.isEmpty)
                 }
                 .padding()
-                
+
                 // List of inspirations
                 List {
-                    ForEach(inspirations, id: \.objectID) { inspiration in
+                    ForEach(viewModel.inspirations, id: \.objectID) { inspiration in
                         VStack(alignment: .leading) {
                             Text(inspiration.title ?? "Untitled")
                                 .font(.headline)
-                            
-                            Text("Created: \(CoreDataManager.getFormattedCreationDate(inspiration as NSManagedObject))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            if let type = CoreDataManager.getInspirationType(inspiration as NSManagedObject) {
-                                HStack {
-                                    Image(systemName: type.iconName)
-                                    Text(type.name)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
+                            if let createdAt = inspiration.createdAt {
+                                Text("Created: \(formatDate(createdAt))")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
                             }
                         }
-                        .padding(.vertical, 4)
                     }
-                    .onDelete(perform: deleteInspirations)
+                    .onDelete { indexSet in
+                        indexSet.map { viewModel.inspirations[$0] }.forEach(viewModel.deleteInspiration)
+                    }
                 }
             }
             .navigationBarTitle("Sparks", displayMode: .inline)
             .navigationBarItems(trailing: EditButton())
         }
     }
-    
-    private func addInspiration() {
-        withAnimation {
-            // Create a new inspiration using the CoreDataManager
-            let newInspiration = CoreDataManager.createInspiration(
-                in: viewContext,
-                title: newInspirationTitle,
-                content: "Test content",
-                type: .text
-            )
-            
-            // Create a sample tag
-            let tag = CoreDataManager.createTag(in: viewContext, name: "Test Tag")
-            
-            // Add the tag to the inspiration (using key-value coding)
-            let inspirationTags = newInspiration.mutableSetValue(forKey: "tag")
-            inspirationTags.add(tag)
-            
-            // Save the context
-            do {
-                try viewContext.save()
-                newInspirationTitle = "" // Clear the text field
-            } catch {
-                let nsError = error as NSError
-                print("Error saving context: \(nsError), \(nsError.userInfo)")
-            }
-        }
-    }
-    
-    private func deleteInspirations(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { inspirations[$0] }.forEach(viewContext.delete)
-            
-            do {
-                try viewContext.save()
-            } catch {
-                let nsError = error as NSError
-                print("Error deleting: \(nsError), \(nsError.userInfo)")
-            }
-        }
+
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter.string(from: date)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
-            .environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
+        let context = PersistenceController.preview.container.viewContext
+        ContentView(context: context)
     }
 }
