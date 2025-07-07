@@ -10,8 +10,17 @@ struct SparksApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView(context: persistenceController.container.viewContext)
-                .environmentObject(appState)
+            TabView {
+                ContentView(context: persistenceController.container.viewContext)
+                    .tabItem {
+                        Label("Home", systemImage: "house")
+                    }
+                InspirationListView(context: persistenceController.container.viewContext)
+                    .tabItem {
+                        Label("Inspiration", systemImage: "lightbulb")
+                    }
+            }
+            .environmentObject(appState)
         }
     }
 }
