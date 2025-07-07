@@ -1,0 +1,43 @@
+// This is a description file for the CoreData model
+// In Xcode, you would create this as a .xcdatamodeld file through the UI
+
+// Entity: Inspiration
+// Description: Stores user's inspirations (notes, images, links, videos)
+// Attributes:
+// - id: UUID (primary key)
+// - title: String
+// - content: String (for text content)
+// - imageData: Binary Data (optional, for image content)
+// - url: String (optional, for link content)
+// - videoData: Binary Data (optional, for video content)
+// - type: Integer 16 (enum: text, image, url, video)
+// - createdAt: Date
+// - updatedAt: Date
+// - isOrganized: Boolean (whether it's been categorized)
+// Relationships:
+// - tags: to-many relationship with Tag entity
+// - taskItems: to-many relationship with TaskItem entity
+
+// Entity: Tag
+// Description: Categorization tags for inspirations
+// Attributes:
+// - id: UUID (primary key)
+// - name: String
+// - color: String (hex color code)
+// - createdAt: Date
+// Relationships:
+// - inspirations: to-many relationship with Inspiration entity
+
+// Entity: TaskItem
+// Description: Tasks derived from inspirations
+// Attributes:
+// - id: UUID (primary key)
+// - title: String
+// - details: String (optional)
+// - status: Integer 16 (enum: pending, inProgress, completed)
+// - dueDate: Date (optional)
+// - reminderDate: Date (optional)
+// - createdAt: Date
+// - updatedAt: Date
+// Relationships:
+// - inspiration: to-one relationship with Inspiration entity (optional)
