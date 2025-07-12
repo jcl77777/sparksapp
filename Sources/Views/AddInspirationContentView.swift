@@ -1,7 +1,7 @@
 import SwiftUI
 import CoreData
 
-struct ContentView: View {
+struct AddInspirationContentView: View {
     @StateObject private var viewModel: InspirationViewModel
     @State private var newInspirationTitle = ""
 
@@ -79,9 +79,9 @@ struct ContentView: View {
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+struct AddInspirationContentView_Previews: PreviewProvider {
     static var previews: some View {
         let context = PersistenceController.preview.container.viewContext
-        ContentView(context: context)
+        AddInspirationContentView(context: context)
     }
-}
+} 

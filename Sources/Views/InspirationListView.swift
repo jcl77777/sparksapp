@@ -39,7 +39,7 @@ struct InspirationListView: View {
                 }
             }
             .sheet(isPresented: $showingAddSheet) {
-                AddInspirationView(viewModel: viewModel)
+                AddInspirationView()
             }
         }
     }
