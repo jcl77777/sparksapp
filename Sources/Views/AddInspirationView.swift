@@ -79,10 +79,22 @@ struct AddInspirationView: View {
             .navigationBarHidden(true)
         }
         .sheet(item: $selectedType) { type in
-            // 這裡會根據選擇的類型顯示對應的輸入表單
-            Text("選擇了：\(type.rawValue)")
-                .font(.title)
-                .padding()
+            switch type {
+            case .note:
+                NoteInspirationView()
+            case .image:
+                Text("圖片功能開發中...")
+                    .font(.title)
+                    .padding()
+            case .url:
+                Text("網址功能開發中...")
+                    .font(.title)
+                    .padding()
+            case .video:
+                Text("影片功能開發中...")
+                    .font(.title)
+                    .padding()
+            }
         }
     }
 }

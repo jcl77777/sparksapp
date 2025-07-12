@@ -8,10 +8,19 @@ struct SparksApp: App {
     // Initialize app state
     @StateObject private var appState = AppState.shared
     
+    // Initialize shared InspirationViewModel
+    @StateObject private var inspirationViewModel: InspirationViewModel
+    
+    init() {
+        let context = PersistenceController.shared.container.viewContext
+        _inspirationViewModel = StateObject(wrappedValue: InspirationViewModel(context: context))
+    }
+    
     var body: some Scene {
         WindowGroup {
             AppContentView()
                 .environmentObject(appState)
+                .environmentObject(inspirationViewModel)
         }
     }
 }
@@ -40,31 +49,37 @@ struct AppContentView: View {
 }
 
 struct MainTabView: View {
-    let persistenceController = PersistenceController.shared
+    @EnvironmentObject var inspirationViewModel: InspirationViewModel
     @StateObject private var appState = AppState.shared
+    @State private var selectedTab = 2 // 預設選中 Add 分頁（索引 2）
     
     var body: some View {
-        TabView {
-            InspirationListView(context: persistenceController.container.viewContext)
+        TabView(selection: $selectedTab) {
+            InspirationListView()
                 .tabItem {
                     Label("Collection", systemImage: "lightbulb")
                 }
+                .tag(0)
             TaskListView()
                 .tabItem {
                     Label("Tasks", systemImage: "checkmark.circle")
                 }
+                .tag(1)
             AddInspirationView()
                 .tabItem {
                     Label("Add", systemImage: "plus.circle")
                 }
+                .tag(2)
             DashboardView()
                 .tabItem {
                     Label("Dashboard", systemImage: "chart.bar")
                 }
+                .tag(3)
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
                 }
+                .tag(4)
         }
         .environmentObject(appState)
     }
