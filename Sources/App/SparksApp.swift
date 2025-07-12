@@ -50,11 +50,10 @@ struct AppContentView: View {
 
 struct MainTabView: View {
     @EnvironmentObject var inspirationViewModel: InspirationViewModel
-    @StateObject private var appState = AppState.shared
-    @State private var selectedTab = 2 // 預設選中 Add 分頁（索引 2）
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $appState.selectedTab) {
             InspirationListView()
                 .tabItem {
                     Label("Collection", systemImage: "lightbulb")
@@ -81,6 +80,5 @@ struct MainTabView: View {
                 }
                 .tag(4)
         }
-        .environmentObject(appState)
     }
 }

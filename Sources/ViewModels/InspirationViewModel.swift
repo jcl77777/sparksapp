@@ -40,20 +40,18 @@ class InspirationViewModel: ObservableObject {
     }
     
     // MARK: - Create
-    func addInspiration(title: String, content: String = "", type: Int16 = 0, tagNames: [String] = []) {
+    func addInspiration(title: String, content: String = "", type: Int16 = 0, tagNames: [String] = []) -> Inspiration {
         let newInspiration = Inspiration(context: context)
         newInspiration.title = title
         newInspiration.content = content
         newInspiration.type = type
         newInspiration.createdAt = Date()
-        
-        // 加入標籤
         for tagName in tagNames {
             addTagToInspiration(inspiration: newInspiration, tagName: tagName)
         }
-        
         saveContext()
         fetchInspirations()
+        return newInspiration
     }
     
     func addURLInspiration(title: String, content: String = "", url: String) {

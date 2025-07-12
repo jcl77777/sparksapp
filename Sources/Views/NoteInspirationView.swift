@@ -4,40 +4,35 @@ import CoreData
 struct NoteInspirationView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewModel: InspirationViewModel
+    @EnvironmentObject var appState: AppState
+    let onComplete: (Int) -> Void
     
     @State private var title: String = ""
     @State private var content: String = ""
     @State private var selectedTags: Set<String> = []
     @State private var showingSuccessView = false
     @State private var savedInspiration: Inspiration?
+    @State private var showAddTaskSheet = false
     
     var body: some View {
         NavigationView {
             if showingSuccessView {
-                // 儲存成功後的選擇介面
                 VStack(spacing: 30) {
-                    // 成功圖示
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 80))
                         .foregroundColor(.green)
-                    
-                    // 成功訊息
                     VStack(spacing: 8) {
                         Text("儲存成功！")
                             .font(.title)
                             .fontWeight(.bold)
-                        
                         Text("筆記已成功儲存到收藏")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                     }
-                    
-                    // 選擇按鈕
                     VStack(spacing: 16) {
                         Button(action: {
-                            // 跳轉到任務頁面
-                            presentationMode.wrappedValue.dismiss()
-                            // 這裡可以加入跳轉到任務頁面的邏輯
+                            appState.addTaskDefaultTitle = savedInspiration?.title ?? ""
+                            onComplete(1) // 跳到 Tasks 分頁
                         }) {
                             HStack {
                                 Image(systemName: "plus.circle")
@@ -49,10 +44,8 @@ struct NoteInspirationView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }
-                        
                         Button(action: {
-                            // 回到 Collection 頁面
-                            presentationMode.wrappedValue.dismiss()
+                            onComplete(0) // 跳到 Collection 分頁
                         }) {
                             HStack {
                                 Image(systemName: "checkmark")
@@ -68,14 +61,15 @@ struct NoteInspirationView: View {
                     .padding(.horizontal, 40)
                 }
                 .navigationBarHidden(true)
+                .sheet(isPresented: $showAddTaskSheet) {
+                    AddTaskView(inspiration: savedInspiration)
+                }
             } else {
-                // 原有的輸入表單
                 Form {
                     Section(header: Text("標題")) {
                         TextField("輸入標題", text: $title)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
-                    
                     Section(header: Text("內容")) {
                         TextEditor(text: $content)
                             .frame(minHeight: 120)
@@ -84,7 +78,6 @@ struct NoteInspirationView: View {
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
                     }
-                    
                     Section(header: Text("標籤（可選）")) {
                         Text("標籤功能開發中...")
                             .foregroundColor(.secondary)
@@ -107,9 +100,8 @@ struct NoteInspirationView: View {
     
     private func saveNote() {
         // 呼叫 ViewModel 儲存筆記，不包含標籤
-        viewModel.addInspiration(title: title, content: content, tagNames: [])
-        
-        // 顯示成功介面
+        let newInspiration = viewModel.addInspiration(title: title, content: content, type: 0, tagNames: [])
+        savedInspiration = newInspiration
         withAnimation(.easeInOut(duration: 0.3)) {
             showingSuccessView = true
         }
