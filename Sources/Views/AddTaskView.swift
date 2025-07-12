@@ -3,6 +3,7 @@ import CoreData
 
 struct AddTaskView: View {
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var viewModel: InspirationViewModel
     @State private var title: String
     @State private var details: String
     @State private var isSaved = false
@@ -35,6 +36,23 @@ struct AddTaskView: View {
                                 .stroke(Color(.systemGray4), lineWidth: 1)
                         )
                 }
+                
+                // 顯示關聯的靈感資訊
+                if let inspiration = inspiration {
+                    Section(header: Text("關聯靈感")) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(inspiration.title ?? "Untitled")
+                                .font(.headline)
+                            if let content = inspiration.content, !content.isEmpty {
+                                Text(content)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(2)
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
             }
             .navigationTitle("新增任務")
             .navigationBarItems(
@@ -55,8 +73,7 @@ struct AddTaskView: View {
     }
     
     private func saveTask() {
-        // 這裡可以串接 CoreData 儲存 TaskItem
-        // 目前僅顯示儲存成功
+        viewModel.addTask(title: title, details: details.isEmpty ? nil : details, inspiration: inspiration)
         isSaved = true
     }
 }

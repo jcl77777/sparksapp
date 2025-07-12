@@ -20,9 +20,9 @@ struct InspirationListView: View {
         // 根據分類篩選
         switch selectedCategory {
         case .organized:
-            inspirations = inspirations.filter { $0.isOrganized }
+            inspirations = inspirations.filter { viewModel.isOrganized($0) }
         case .unorganized:
-            inspirations = inspirations.filter { !$0.isOrganized }
+            inspirations = inspirations.filter { !viewModel.isOrganized($0) }
         case .all:
             break
         }
@@ -117,9 +117,9 @@ struct InspirationListView: View {
         
         switch selectedCategory {
         case .organized:
-            return "還沒有已整理的靈感\n點擊「+」開始新增"
+            return "還沒有已整理的靈感\n為靈感建立任務即可整理"
         case .unorganized:
-            return "所有靈感都已整理完成！"
+            return "所有靈感都已整理完成！\n（都有關聯的任務）"
         case .all:
             return "還沒有任何靈感\n點擊「+」開始新增"
         }
@@ -184,11 +184,17 @@ struct InspirationCardView: View {
                 
                 Spacer()
                 
-                // 整理狀態指示器
-                if inspiration.isOrganized {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.caption)
+                // 整理狀態指示器（基於任務關聯）
+                if viewModel.isOrganized(inspiration) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.caption)
+                        Text("\(viewModel.getTaskCount(for: inspiration))")
+                            .font(.caption2)
+                            .foregroundColor(.green)
+                            .fontWeight(.medium)
+                    }
                 }
             }
             

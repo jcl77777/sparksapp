@@ -87,6 +87,22 @@ class InspirationViewModel: ObservableObject {
         fetchInspirations()
     }
     
+    // MARK: - Organization Management
+    func isOrganized(_ inspiration: Inspiration) -> Bool {
+        guard let taskItems = inspiration.taskitem as? Set<TaskItem> else { return false }
+        return !taskItems.isEmpty
+    }
+    
+    func getTaskCount(for inspiration: Inspiration) -> Int {
+        guard let taskItems = inspiration.taskitem as? Set<TaskItem> else { return 0 }
+        return taskItems.count
+    }
+    
+    func getTasks(for inspiration: Inspiration) -> [TaskItem] {
+        guard let taskItems = inspiration.taskitem as? Set<TaskItem> else { return [] }
+        return Array(taskItems).sorted { $0.createdAt ?? Date() > $1.createdAt ?? Date() }
+    }
+    
     // MARK: - Delete
     func deleteInspiration(_ inspiration: Inspiration) {
         context.delete(inspiration)
@@ -130,6 +146,30 @@ class InspirationViewModel: ObservableObject {
     func getTagNames(for inspiration: Inspiration) -> [String] {
         guard let tags = inspiration.tag as? Set<Tag> else { return [] }
         return tags.compactMap { $0.name }.sorted()
+    }
+    
+    // MARK: - Task Management
+    func addTask(title: String, details: String? = nil, inspiration: Inspiration? = nil) {
+        let newTask = TaskItem(context: context)
+        newTask.id = UUID()
+        newTask.title = title
+        newTask.details = details
+        newTask.createdAt = Date()
+        newTask.updatedAt = Date()
+        
+        // 建立與靈感的關聯
+        if let inspiration = inspiration {
+            newTask.inspiration = inspiration
+        }
+        
+        saveContext()
+        fetchInspirations()
+    }
+    
+    func deleteTask(_ task: TaskItem) {
+        context.delete(task)
+        saveContext()
+        fetchInspirations()
     }
     
     // MARK: - Save
