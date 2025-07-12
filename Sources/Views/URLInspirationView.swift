@@ -23,11 +23,10 @@ struct URLInspirationView: View {
                     
                     VStack(spacing: 8) {
                         Text("儲存成功！")
-                            .font(.title)
-                            .fontWeight(.bold)
+                            .font(.custom("HelveticaNeue-Light", size: 28))
                         
                         Text("網址已成功儲存到收藏")
-                            .font(.subheadline)
+                            .font(.custom("HelveticaNeue-Light", size: 15))
                             .foregroundColor(.secondary)
                     }
                     
@@ -84,14 +83,14 @@ struct URLInspirationView: View {
                                 ProgressView()
                                     .scaleEffect(0.8)
                                 Text("正在抓取網站資訊...")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                             }
                         }
                         
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
-                                .font(.caption)
+                                .font(.custom("HelveticaNeue-Light", size: 12))
                                 .foregroundColor(.red)
                         }
                     }
@@ -105,12 +104,12 @@ struct URLInspirationView: View {
                                         Image(systemName: "link")
                                             .foregroundColor(.blue)
                                         Text(websiteTitle)
-                                            .font(.headline)
+                                            .font(.custom("HelveticaNeue-Light", size: 17))
                                             .lineLimit(2)
                                     }
                                     
                                     Text(urlString)
-                                        .font(.caption)
+                                        .font(.custom("HelveticaNeue-Light", size: 12))
                                         .foregroundColor(.secondary)
                                         .lineLimit(1)
                                 }

@@ -18,15 +18,14 @@ struct AddInspirationContentView: View {
                         .imageScale(.large)
                         .foregroundColor(.accentColor)
                     Text("Welcome to Sparks")
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.custom("HelveticaNeue-Light", size: 28))
                 }
                 .padding(.top)
 
                 // Test form to add a simple inspiration
                 VStack(alignment: .leading) {
                     Text("Test CoreData Setup")
-                        .font(.headline)
+                        .font(.custom("HelveticaNeue-Light", size: 17))
                         .padding(.top)
 
                     TextField("Enter inspiration title", text: $newInspirationTitle)
@@ -53,10 +52,10 @@ struct AddInspirationContentView: View {
                     ForEach(viewModel.inspirations, id: \.objectID) { inspiration in
                         VStack(alignment: .leading) {
                             Text(inspiration.title ?? "Untitled")
-                                .font(.headline)
+                                .font(.custom("HelveticaNeue-Light", size: 17))
                             if let createdAt = inspiration.createdAt {
                                 Text("Created: \(formatDate(createdAt))")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                             }
                         }

@@ -23,10 +23,9 @@ struct NoteInspirationView: View {
                         .foregroundColor(.green)
                     VStack(spacing: 8) {
                         Text("儲存成功！")
-                            .font(.title)
-                            .fontWeight(.bold)
+                            .font(.custom("HelveticaNeue-Light", size: 28))
                         Text("筆記已成功儲存到收藏")
-                            .font(.subheadline)
+                            .font(.custom("HelveticaNeue-Light", size: 15))
                             .foregroundColor(.secondary)
                     }
                     VStack(spacing: 16) {

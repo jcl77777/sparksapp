@@ -4,7 +4,7 @@ struct DashboardView: View {
     var body: some View {
         NavigationView {
             Text("Dashboard (儀表板)")
-                .font(.title)
+                .font(.custom("HelveticaNeue-Light", size: 28))
                 .foregroundColor(.secondary)
                 .navigationTitle("Dashboard")
         }

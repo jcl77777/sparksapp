@@ -44,10 +44,10 @@ struct AddTaskView: View {
                     Section(header: Text("關聯靈感")) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(inspiration.title ?? "Untitled")
-                                .font(.headline)
+                                .font(.custom("HelveticaNeue-Light", size: 17))
                             if let content = inspiration.content, !content.isEmpty {
                                 Text(content)
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                                     .lineLimit(2)
                             }

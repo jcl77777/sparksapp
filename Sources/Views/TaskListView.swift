@@ -69,7 +69,7 @@ struct TaskListView: View {
                             .font(.system(size: 60))
                             .foregroundColor(.gray)
                         Text(emptyStateMessage)
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }
@@ -144,19 +144,19 @@ struct TaskCardView: View {
                     // 狀態圖示
                     Image(systemName: statusIcon)
                         .foregroundColor(statusColor)
-                        .font(.title2)
+                        .font(.system(size: 22))
                     
                     VStack(alignment: .leading, spacing: 4) {
                         // 標題
                         Text(task.title ?? "Untitled")
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.primary)
                             .lineLimit(1)
                         
                         // 建立時間
                         if let createdAt = task.createdAt {
                             Text(taskViewModel.getFormattedDate(createdAt))
-                                .font(.caption)
+                                .font(.custom("HelveticaNeue-Light", size: 12))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -169,7 +169,7 @@ struct TaskCardView: View {
                             .fill(statusColor)
                             .frame(width: 8, height: 8)
                         Text(taskViewModel.getTaskStatus(task).name)
-                            .font(.caption2)
+                            .font(.custom("HelveticaNeue-Light", size: 10))
                             .foregroundColor(statusColor)
                     }
                 }
@@ -177,7 +177,7 @@ struct TaskCardView: View {
                 // 描述
                 if let details = task.details, !details.isEmpty {
                     Text(details)
-                        .font(.caption)
+                        .font(.custom("HelveticaNeue-Light", size: 12))
                         .foregroundColor(.secondary)
                         .lineLimit(2)
                 }
@@ -189,12 +189,12 @@ struct TaskCardView: View {
                             // 類型icon
                             Image(systemName: typeIcon(for: inspiration.type))
                                 .foregroundColor(typeColor(for: inspiration.type))
-                                .font(.caption)
+                                .font(.system(size: 12))
                             Text(typeName(for: inspiration.type))
-                                .font(.caption2)
+                                .font(.custom("HelveticaNeue-Light", size: 10))
                                 .foregroundColor(.secondary)
                             Text(inspiration.title ?? "Untitled")
-                                .font(.caption)
+                                .font(.custom("HelveticaNeue-Light", size: 12))
                                 .foregroundColor(.orange)
                                 .lineLimit(1)
                         }
@@ -204,7 +204,7 @@ struct TaskCardView: View {
                             HStack {
                                 ForEach(tagNames, id: \.self) { tagName in
                                     Text(tagName)
-                                        .font(.caption2)
+                                        .font(.custom("HelveticaNeue-Light", size: 10))
                                         .padding(.horizontal, 6)
                                         .padding(.vertical, 2)
                                         .background(Color.blue.opacity(0.2))
@@ -289,28 +289,27 @@ struct TaskDetailView: View {
                     // 標題
                     VStack(alignment: .leading, spacing: 8) {
                         Text("標題")
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
                         Text(task.title ?? "Untitled")
-                            .font(.title2)
-                            .fontWeight(.bold)
+                            .font(.custom("HelveticaNeue-Light", size: 22))
                     }
                     
                     // 描述
                     if let details = task.details, !details.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("描述")
-                                .font(.headline)
+                                .font(.custom("HelveticaNeue-Light", size: 17))
                                 .foregroundColor(.secondary)
                             Text(details)
-                                .font(.body)
+                                .font(.custom("HelveticaNeue-Light", size: 16))
                         }
                     }
                     
                     // 狀態
                     VStack(alignment: .leading, spacing: 8) {
                         Text("狀態")
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
                         HStack {
                             Image(systemName: statusIcon)
@@ -323,16 +322,15 @@ struct TaskDetailView: View {
                     // 關聯靈感
                     if let inspiration = task.inspiration {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("關聯靈感")
-                                .font(.headline)
-                                .foregroundColor(.secondary)
+                                                    Text("關聯靈感")
+                            .font(.custom("HelveticaNeue-Light", size: 17))
+                            .foregroundColor(.secondary)
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(inspiration.title ?? "Untitled")
-                                    .font(.subheadline)
-                                    .fontWeight(.medium)
+                                    .font(.custom("HelveticaNeue-Light", size: 15))
                                 if let content = inspiration.content, !content.isEmpty {
                                     Text(content)
-                                        .font(.caption)
+                                        .font(.custom("HelveticaNeue-Light", size: 12))
                                         .foregroundColor(.secondary)
                                         .lineLimit(3)
                                 }
@@ -346,16 +344,16 @@ struct TaskDetailView: View {
                     // 時間資訊
                     VStack(alignment: .leading, spacing: 8) {
                         Text("時間資訊")
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
                         VStack(alignment: .leading, spacing: 4) {
                             if let createdAt = task.createdAt {
                                 Text("建立時間：\(taskViewModel.getFormattedDate(createdAt))")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                             }
                             if let updatedAt = task.updatedAt {
                                 Text("更新時間：\(taskViewModel.getFormattedDate(updatedAt))")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                             }
                         }
                     }

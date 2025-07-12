@@ -35,10 +35,9 @@ struct AddInspirationView: View {
             VStack(spacing: 30) {
                 VStack(spacing: 8) {
                     Text("新增靈感")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
+                        .font(.custom("HelveticaNeue-Light", size: 34))
                     Text("選擇靈感類型")
-                        .font(.subheadline)
+                        .font(.custom("HelveticaNeue-Light", size: 15))
                         .foregroundColor(.secondary)
                 }
                 .padding(.top, 40)
@@ -56,7 +55,7 @@ struct AddInspirationView: View {
                                     .font(.system(size: 40))
                                     .foregroundColor(type.color)
                                 Text(type.rawValue)
-                                    .font(.headline)
+                                    .font(.custom("HelveticaNeue-Light", size: 17))
                                     .foregroundColor(.primary)
                             }
                             .frame(maxWidth: .infinity)
@@ -90,13 +89,13 @@ struct AddInspirationView: View {
                 EmptyView() // 不會用到
             case .image:
                 Text("圖片功能開發中...")
-                    .font(.title)
+                    .font(.custom("HelveticaNeue-Light", size: 28))
                     .padding()
             case .url:
                 URLInspirationView()
             case .video:
                 Text("影片功能開發中...")
-                    .font(.title)
+                    .font(.custom("HelveticaNeue-Light", size: 28))
                     .padding()
             }
         }

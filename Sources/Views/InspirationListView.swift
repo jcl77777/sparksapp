@@ -67,7 +67,7 @@ struct InspirationListView: View {
                             .font(.system(size: 60))
                             .foregroundColor(.gray)
                         Text(emptyStateMessage)
-                            .font(.headline)
+                            .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
                             .multilineTextAlignment(.center)
                     }
@@ -165,19 +165,19 @@ struct InspirationCardView: View {
                 // 類型圖示
                 Image(systemName: typeIcon)
                     .foregroundColor(typeColor)
-                    .font(.title2)
+                    .font(.system(size: 22))
                 
                 VStack(alignment: .leading, spacing: 4) {
                     // 標題
                     Text(inspiration.title ?? "Untitled")
-                        .font(.headline)
+                        .font(.custom("HelveticaNeue-Light", size: 17))
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     
                     // 建立時間
                     if let createdAt = inspiration.createdAt {
                         Text(formatDate(createdAt))
-                            .font(.caption)
+                            .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -189,11 +189,10 @@ struct InspirationCardView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                            .font(.caption)
+                            .font(.system(size: 12))
                         Text("\(viewModel.getTaskCount(for: inspiration))")
-                            .font(.caption2)
+                            .font(.custom("HelveticaNeue-Light", size: 10))
                             .foregroundColor(.green)
-                            .fontWeight(.medium)
                     }
                 }
             }
@@ -204,9 +203,9 @@ struct InspirationCardView: View {
                     HStack {
                         Image(systemName: "link")
                             .foregroundColor(.blue)
-                            .font(.caption)
+                            .font(.system(size: 12))
                         Text(url)
-                            .font(.caption)
+                            .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.blue)
                             .lineLimit(1)
                     }
@@ -216,7 +215,7 @@ struct InspirationCardView: View {
             // 內容預覽
             if let content = inspiration.content, !content.isEmpty {
                 Text(content)
-                    .font(.caption)
+                    .font(.custom("HelveticaNeue-Light", size: 12))
                     .foregroundColor(.secondary)
                     .lineLimit(2)
             }
@@ -227,7 +226,7 @@ struct InspirationCardView: View {
                 HStack {
                     ForEach(tagNames, id: \.self) { tagName in
                         Text(tagName)
-                            .font(.caption2)
+                            .font(.custom("HelveticaNeue-Light", size: 10))
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.blue.opacity(0.2))
@@ -242,18 +241,18 @@ struct InspirationCardView: View {
             if !tasks.isEmpty {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("任務")
-                        .font(.caption)
+                        .font(.custom("HelveticaNeue-Light", size: 12))
                         .foregroundColor(.secondary)
                     ForEach(tasks, id: \.objectID) { task in
                         HStack(spacing: 6) {
                             Image(systemName: taskStatusIcon(task.status))
                                 .foregroundColor(taskStatusColor(task.status))
-                                .font(.caption2)
+                                .font(.system(size: 10))
                             Text(task.title ?? "未命名任務")
-                                .font(.caption2)
+                                .font(.custom("HelveticaNeue-Light", size: 10))
                                 .foregroundColor(.primary)
                             Text(taskStatusName(task.status))
-                                .font(.caption2)
+                                .font(.custom("HelveticaNeue-Light", size: 10))
                                 .foregroundColor(taskStatusColor(task.status))
                         }
                     }

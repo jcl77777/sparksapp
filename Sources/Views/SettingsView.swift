@@ -4,7 +4,7 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Text("Settings (設定)")
-                .font(.title)
+                .font(.custom("HelveticaNeue-Light", size: 28))
                 .foregroundColor(.secondary)
                 .navigationTitle("Settings")
         }

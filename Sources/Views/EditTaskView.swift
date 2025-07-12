@@ -60,12 +60,12 @@ struct EditTaskView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: typeIcon(for: inspiration.type))
                                     .foregroundColor(typeColor(for: inspiration.type))
-                                    .font(.caption)
+                                    .font(.system(size: 12))
                                 Text(typeName(for: inspiration.type))
-                                    .font(.caption2)
+                                    .font(.custom("HelveticaNeue-Light", size: 10))
                                     .foregroundColor(.secondary)
                                 Text(inspiration.title ?? "Untitled")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.orange)
                                     .lineLimit(1)
                             }
@@ -75,7 +75,7 @@ struct EditTaskView: View {
                                 HStack {
                                     ForEach(tagNames, id: \.self) { tagName in
                                         Text(tagName)
-                                            .font(.caption2)
+                                            .font(.custom("HelveticaNeue-Light", size: 10))
                                             .padding(.horizontal, 6)
                                             .padding(.vertical, 2)
                                             .background(Color.blue.opacity(0.2))
@@ -87,7 +87,7 @@ struct EditTaskView: View {
                         }
                     } else {
                         Text("尚未選擇關聯靈感")
-                            .font(.caption)
+                            .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.secondary)
                     }
                     Button("選擇靈感") {

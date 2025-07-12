@@ -52,13 +52,13 @@ struct EditInspirationView: View {
                                 ProgressView()
                                     .scaleEffect(0.8)
                                 Text("正在抓取網站資訊...")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                             }
                         }
                         if let urlErrorMessage = urlErrorMessage {
                             Text(urlErrorMessage)
-                                .font(.caption)
+                                .font(.custom("HelveticaNeue-Light", size: 12))
                                 .foregroundColor(.red)
                         }
                     }
@@ -70,11 +70,11 @@ struct EditInspirationView: View {
                                         Image(systemName: "link")
                                             .foregroundColor(.blue)
                                         Text(websiteTitle)
-                                            .font(.headline)
+                                            .font(.custom("HelveticaNeue-Light", size: 17))
                                             .lineLimit(2)
                                     }
                                     Text(url)
-                                        .font(.caption)
+                                        .font(.custom("HelveticaNeue-Light", size: 12))
                                         .foregroundColor(.secondary)
                                         .lineLimit(1)
                                 }
@@ -100,7 +100,7 @@ struct EditInspirationView: View {
                     let tasks = viewModel.getTasks(for: inspiration)
                     if tasks.isEmpty {
                         Text("尚未有關聯任務")
-                            .font(.caption)
+                            .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.secondary)
                     } else {
                         ForEach(tasks, id: \.objectID) { task in
@@ -108,9 +108,9 @@ struct EditInspirationView: View {
                                 Image(systemName: taskStatusIcon(task.status))
                                     .foregroundColor(taskStatusColor(task.status))
                                 Text(task.title ?? "未命名任務")
-                                    .font(.caption)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
                                 Text(taskStatusName(task.status))
-                                    .font(.caption2)
+                                    .font(.custom("HelveticaNeue-Light", size: 10))
                                     .foregroundColor(taskStatusColor(task.status))
                             }
                         }
@@ -234,7 +234,7 @@ struct LinkTaskPickerView: View {
                 if availableTasks.isEmpty {
                     Text("目前沒有可連結的任務")
                         .foregroundColor(.secondary)
-                        .font(.caption)
+                        .font(.custom("HelveticaNeue-Light", size: 12))
                 } else {
                     ForEach(availableTasks, id: \.objectID) { task in
                         Button(action: {
