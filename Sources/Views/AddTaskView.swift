@@ -3,16 +3,18 @@ import CoreData
 
 struct AddTaskView: View {
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var viewModel: InspirationViewModel
+    @EnvironmentObject var taskViewModel: TaskViewModel
     @State private var title: String
     @State private var details: String
     @State private var isSaved = false
     
     // 可選：帶入靈感 id 以建立關聯
     let inspiration: Inspiration?
+    var onSave: (() -> Void)? = nil
     
-    init(inspiration: Inspiration?, defaultTitle: String = "") {
+    init(inspiration: Inspiration?, defaultTitle: String = "", onSave: (() -> Void)? = nil) {
         self.inspiration = inspiration
+        self.onSave = onSave
         if !defaultTitle.isEmpty {
             _title = State(initialValue: defaultTitle)
         } else {
@@ -73,13 +75,18 @@ struct AddTaskView: View {
     }
     
     private func saveTask() {
-        viewModel.addTask(title: title, details: details.isEmpty ? nil : details, inspiration: inspiration)
+        taskViewModel.addTask(title: title, details: details.isEmpty ? nil : details, inspiration: inspiration)
         isSaved = true
+        onSave?()
+        // 立即 dismiss，避免用戶感覺不到刷新
+        presentationMode.wrappedValue.dismiss()
     }
 }
 
 struct AddTaskView_Previews: PreviewProvider {
     static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
         AddTaskView(inspiration: nil)
+            .environmentObject(TaskViewModel(context: context))
     }
 } 

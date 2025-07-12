@@ -8,12 +8,14 @@ struct SparksApp: App {
     // Initialize app state
     @StateObject private var appState = AppState.shared
     
-    // Initialize shared InspirationViewModel
+    // Initialize shared ViewModels
     @StateObject private var inspirationViewModel: InspirationViewModel
+    @StateObject private var taskViewModel: TaskViewModel
     
     init() {
         let context = PersistenceController.shared.container.viewContext
         _inspirationViewModel = StateObject(wrappedValue: InspirationViewModel(context: context))
+        _taskViewModel = StateObject(wrappedValue: TaskViewModel(context: context))
     }
     
     var body: some Scene {
@@ -21,6 +23,7 @@ struct SparksApp: App {
             AppContentView()
                 .environmentObject(appState)
                 .environmentObject(inspirationViewModel)
+                .environmentObject(taskViewModel)
         }
     }
 }

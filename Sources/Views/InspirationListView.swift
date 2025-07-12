@@ -236,6 +236,29 @@ struct InspirationCardView: View {
                     }
                 }
             }
+            
+            // 顯示所有關聯任務
+            let tasks = viewModel.getTasks(for: inspiration)
+            if !tasks.isEmpty {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("任務")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    ForEach(tasks, id: \.objectID) { task in
+                        HStack(spacing: 6) {
+                            Image(systemName: taskStatusIcon(task.status))
+                                .foregroundColor(taskStatusColor(task.status))
+                                .font(.caption2)
+                            Text(task.title ?? "未命名任務")
+                                .font(.caption2)
+                                .foregroundColor(.primary)
+                            Text(taskStatusName(task.status))
+                                .font(.caption2)
+                                .foregroundColor(taskStatusColor(task.status))
+                        }
+                    }
+                }
+            }
         }
         .padding(.vertical, 4)
     }
@@ -265,6 +288,31 @@ struct InspirationCardView: View {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
+    }
+    
+    private func taskStatusIcon(_ status: Int16) -> String {
+        switch status {
+        case 0: return "circle"
+        case 1: return "clock"
+        case 2: return "checkmark.circle.fill"
+        default: return "circle"
+        }
+    }
+    private func taskStatusColor(_ status: Int16) -> Color {
+        switch status {
+        case 0: return .gray
+        case 1: return .blue
+        case 2: return .green
+        default: return .gray
+        }
+    }
+    private func taskStatusName(_ status: Int16) -> String {
+        switch status {
+        case 0: return "待處理"
+        case 1: return "進行中"
+        case 2: return "已完成"
+        default: return "未知"
+        }
     }
 }
 

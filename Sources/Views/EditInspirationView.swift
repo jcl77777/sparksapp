@@ -4,6 +4,7 @@ import CoreData
 struct EditInspirationView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewModel: InspirationViewModel
+    @EnvironmentObject var taskViewModel: TaskViewModel
     
     let inspiration: Inspiration
     
@@ -13,6 +14,8 @@ struct EditInspirationView: View {
     @State private var websiteTitle: String
     @State private var isURLLoading = false
     @State private var urlErrorMessage: String?
+    @State private var showAddTaskSheet = false
+    @State private var showLinkTaskSheet = false
     
     init(inspiration: Inspiration) {
         self.inspiration = inspiration
@@ -92,10 +95,35 @@ struct EditInspirationView: View {
                         )
                 }
                 
-                Section(header: Text("標籤（可選）")) {
-                    Text("標籤功能開發中...")
-                        .foregroundColor(.secondary)
-                        .italic()
+                // 新增：顯示所有關聯任務，並可新增/連結
+                Section(header: Text("關聯任務")) {
+                    let tasks = viewModel.getTasks(for: inspiration)
+                    if tasks.isEmpty {
+                        Text("尚未有關聯任務")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else {
+                        ForEach(tasks, id: \.objectID) { task in
+                            HStack(spacing: 8) {
+                                Image(systemName: taskStatusIcon(task.status))
+                                    .foregroundColor(taskStatusColor(task.status))
+                                Text(task.title ?? "未命名任務")
+                                    .font(.caption)
+                                Text(taskStatusName(task.status))
+                                    .font(.caption2)
+                                    .foregroundColor(taskStatusColor(task.status))
+                            }
+                        }
+                    }
+                    HStack {
+                        Button(action: { showAddTaskSheet = true }) {
+                            Label("新增任務", systemImage: "plus.circle")
+                        }
+                        Spacer()
+                        Button(action: { showLinkTaskSheet = true }) {
+                            Label("連結現有任務", systemImage: "link")
+                        }
+                    }
                 }
             }
             .navigationTitle("編輯靈感")
@@ -108,6 +136,16 @@ struct EditInspirationView: View {
                 }
                 .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
             )
+            .sheet(isPresented: $showAddTaskSheet) {
+                AddTaskView(inspiration: inspiration, onSave: {
+                    taskViewModel.fetchTasks()
+                })
+                .environmentObject(taskViewModel)
+            }
+            .sheet(isPresented: $showLinkTaskSheet) {
+                LinkTaskPickerView(inspiration: inspiration)
+                    .environmentObject(taskViewModel)
+            }
         }
     }
     
@@ -155,6 +193,69 @@ struct EditInspirationView: View {
         inspiration.updatedAt = Date()
         viewModel.saveContext()
         presentationMode.wrappedValue.dismiss()
+    }
+    
+    private func taskStatusIcon(_ status: Int16) -> String {
+        switch status {
+        case 0: return "circle"
+        case 1: return "clock"
+        case 2: return "checkmark.circle.fill"
+        default: return "circle"
+        }
+    }
+    private func taskStatusColor(_ status: Int16) -> Color {
+        switch status {
+        case 0: return .gray
+        case 1: return .blue
+        case 2: return .green
+        default: return .gray
+        }
+    }
+    private func taskStatusName(_ status: Int16) -> String {
+        switch status {
+        case 0: return "待處理"
+        case 1: return "進行中"
+        case 2: return "已完成"
+        default: return "未知"
+        }
+    }
+}
+
+// 連結現有任務 Picker
+struct LinkTaskPickerView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var taskViewModel: TaskViewModel
+    let inspiration: Inspiration
+    
+    var body: some View {
+        NavigationView {
+            let availableTasks = taskViewModel.tasks.filter { $0.inspiration == nil }
+            List {
+                if availableTasks.isEmpty {
+                    Text("目前沒有可連結的任務")
+                        .foregroundColor(.secondary)
+                        .font(.caption)
+                } else {
+                    ForEach(availableTasks, id: \.objectID) { task in
+                        Button(action: {
+                            task.inspiration = inspiration
+                            taskViewModel.saveContext()
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            HStack {
+                                Image(systemName: "circle")
+                                    .foregroundColor(.gray)
+                                Text(task.title ?? "未命名任務")
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("連結任務")
+            .navigationBarItems(leading: Button("取消") {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
     }
 }
 

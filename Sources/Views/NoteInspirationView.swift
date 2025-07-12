@@ -31,8 +31,9 @@ struct NoteInspirationView: View {
                     }
                     VStack(spacing: 16) {
                         Button(action: {
-                            appState.addTaskDefaultTitle = savedInspiration?.title ?? ""
-                            onComplete(1) // 跳到 Tasks 分頁
+                            showAddTaskSheet = true
+                            // 不再只設 appState.addTaskDefaultTitle
+                            // 直接觸發 sheet，AddTaskView 會自動帶入 savedInspiration
                         }) {
                             HStack {
                                 Image(systemName: "plus.circle")
