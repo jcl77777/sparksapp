@@ -14,9 +14,42 @@ struct InspirationListView: View {
                         selectedInspiration = inspiration
                     }) {
                         VStack(alignment: .leading, spacing: 4) {
+                            // 標題
                             Text(inspiration.title ?? "Untitled")
                                 .font(.headline)
                                 .foregroundColor(.primary)
+                            
+                            // 根據類型顯示不同內容
+                            if inspiration.type == 2 { // 網址類型
+                                // 顯示網址
+                                if let url = inspiration.url, !url.isEmpty {
+                                    HStack {
+                                        Image(systemName: "link")
+                                            .foregroundColor(.blue)
+                                            .font(.caption)
+                                        Text(url)
+                                            .font(.caption)
+                                            .foregroundColor(.blue)
+                                            .lineLimit(1)
+                                    }
+                                }
+                                
+                                // 顯示描述內容
+                                if let content = inspiration.content, !content.isEmpty {
+                                    Text(content)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                }
+                            } else {
+                                // 其他類型顯示內容
+                                if let content = inspiration.content, !content.isEmpty {
+                                    Text(content)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .lineLimit(2)
+                                }
+                            }
                             
                             // 顯示標籤
                             let tagNames = viewModel.getTagNames(for: inspiration)
@@ -34,6 +67,7 @@ struct InspirationListView: View {
                                 }
                             }
                             
+                            // 建立時間
                             if let createdAt = inspiration.createdAt {
                                 Text("Created: \(formatDate(createdAt))")
                                     .font(.caption)

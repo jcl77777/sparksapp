@@ -56,6 +56,18 @@ class InspirationViewModel: ObservableObject {
         fetchInspirations()
     }
     
+    func addURLInspiration(title: String, content: String = "", url: String) {
+        let newInspiration = Inspiration(context: context)
+        newInspiration.title = title
+        newInspiration.content = content
+        newInspiration.url = url
+        newInspiration.type = 2 // 網址類型
+        newInspiration.createdAt = Date()
+        
+        saveContext()
+        fetchInspirations()
+    }
+    
     // MARK: - Update
     func updateInspiration(_ inspiration: Inspiration, title: String, content: String, type: Int16, tagNames: [String]) {
         inspiration.title = title

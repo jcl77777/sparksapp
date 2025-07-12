@@ -87,9 +87,7 @@ struct AddInspirationView: View {
                     .font(.title)
                     .padding()
             case .url:
-                Text("網址功能開發中...")
-                    .font(.title)
-                    .padding()
+                URLInspirationView()
             case .video:
                 Text("影片功能開發中...")
                     .font(.title)
