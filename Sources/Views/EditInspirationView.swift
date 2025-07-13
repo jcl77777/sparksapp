@@ -14,8 +14,8 @@ struct EditInspirationView: View {
     @State private var websiteTitle: String
     @State private var isURLLoading = false
     @State private var urlErrorMessage: String?
-    @State private var showAddTaskSheet = false
-    @State private var showLinkTaskSheet = false
+    @State private var showTaskSheet = false
+    @State private var selectedTags: Set<String> = []
     
     init(inspiration: Inspiration) {
         self.inspiration = inspiration
@@ -23,6 +23,9 @@ struct EditInspirationView: View {
         _content = State(initialValue: inspiration.content ?? "")
         _url = State(initialValue: inspiration.url ?? "")
         _websiteTitle = State(initialValue: inspiration.title ?? "")
+        // 預設選取該靈感原有標籤
+        let tagNames = (inspiration.tag as? Set<Tag>)?.compactMap { $0.name } ?? []
+        _selectedTags = State(initialValue: Set(tagNames))
     }
     
     var body: some View {
@@ -96,6 +99,24 @@ struct EditInspirationView: View {
                 }
                 
                 // 新增：顯示所有關聯任務，並可新增/連結
+                Section(header: Text("標籤（可選）")) {
+                    if viewModel.availableTags.isEmpty {
+                        Text("無可用標籤，請至設定頁新增")
+                            .foregroundColor(.secondary)
+                            .italic()
+                    } else {
+                        ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                            MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
+                                let name = tag.name ?? ""
+                                if selectedTags.contains(name) {
+                                    selectedTags.remove(name)
+                                } else {
+                                    selectedTags.insert(name)
+                                }
+                            }
+                        }
+                    }
+                }
                 Section(header: Text("關聯任務")) {
                     let tasks = viewModel.getTasks(for: inspiration)
                     if tasks.isEmpty {
@@ -115,14 +136,8 @@ struct EditInspirationView: View {
                             }
                         }
                     }
-                    HStack {
-                        Button(action: { showAddTaskSheet = true }) {
-                            Label("新增任務", systemImage: "plus.circle")
-                        }
-                        Spacer()
-                        Button(action: { showLinkTaskSheet = true }) {
-                            Label("連結現有任務", systemImage: "link")
-                        }
+                    Button(action: { showTaskSheet = true }) {
+                        Label("新增任務", systemImage: "plus.circle")
                     }
                 }
             }
@@ -136,15 +151,12 @@ struct EditInspirationView: View {
                 }
                 .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
             )
-            .sheet(isPresented: $showAddTaskSheet) {
-                AddTaskView(inspiration: inspiration, onSave: {
-                    taskViewModel.fetchTasks()
+            .sheet(isPresented: $showTaskSheet, onDismiss: {
+                viewModel.fetchInspirations()
+            }) {
+                InspirationTaskSheetView(inspiration: inspiration, viewModel: viewModel, taskViewModel: taskViewModel, onComplete: {
+                    showTaskSheet = false
                 })
-                .environmentObject(taskViewModel)
-            }
-            .sheet(isPresented: $showLinkTaskSheet) {
-                LinkTaskPickerView(inspiration: inspiration)
-                    .environmentObject(taskViewModel)
             }
         }
     }
@@ -191,7 +203,8 @@ struct EditInspirationView: View {
         }
         inspiration.content = content
         inspiration.updatedAt = Date()
-        viewModel.saveContext()
+        // 更新標籤
+        viewModel.updateInspiration(inspiration, title: inspiration.title ?? "", content: content, type: inspiration.type, tagNames: Array(selectedTags))
         presentationMode.wrappedValue.dismiss()
     }
     

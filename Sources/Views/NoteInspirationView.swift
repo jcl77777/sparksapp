@@ -79,9 +79,23 @@ struct NoteInspirationView: View {
                             )
                     }
                     Section(header: Text("標籤（可選）")) {
-                        Text("標籤功能開發中...")
-                            .foregroundColor(.secondary)
-                            .italic()
+                        if viewModel.availableTags.isEmpty {
+                            Text("無可用標籤，請至設定頁新增")
+                                .foregroundColor(.secondary)
+                                .italic()
+                        } else {
+                            // 多選現有標籤
+                            ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
+                                    let name = tag.name ?? ""
+                                    if selectedTags.contains(name) {
+                                        selectedTags.remove(name)
+                                    } else {
+                                        selectedTags.insert(name)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 .navigationTitle("新增筆記")
@@ -99,8 +113,8 @@ struct NoteInspirationView: View {
     }
     
     private func saveNote() {
-        // 呼叫 ViewModel 儲存筆記，不包含標籤
-        let newInspiration = viewModel.addInspiration(title: title, content: content, type: 0, tagNames: [])
+        // 呼叫 ViewModel 儲存筆記，包含所選標籤
+        let newInspiration = viewModel.addInspiration(title: title, content: content, type: 0, tagNames: Array(selectedTags))
         savedInspiration = newInspiration
         withAnimation(.easeInOut(duration: 0.3)) {
             showingSuccessView = true

@@ -281,6 +281,7 @@ struct TaskDetailView: View {
     let taskViewModel: TaskViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
+    @State private var currentTask: TaskItem?
     
     var body: some View {
         NavigationView {
@@ -291,12 +292,12 @@ struct TaskDetailView: View {
                         Text("標題")
                             .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
-                        Text(task.title ?? "Untitled")
+                        Text(currentTask?.title ?? task.title ?? "Untitled")
                             .font(.custom("HelveticaNeue-Light", size: 22))
                     }
                     
                     // 描述
-                    if let details = task.details, !details.isEmpty {
+                    if let details = currentTask?.details ?? task.details, !details.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("描述")
                                 .font(.custom("HelveticaNeue-Light", size: 17))
@@ -314,17 +315,17 @@ struct TaskDetailView: View {
                         HStack {
                             Image(systemName: statusIcon)
                                 .foregroundColor(statusColor)
-                            Text(taskViewModel.getTaskStatus(task).name)
+                            Text(taskViewModel.getTaskStatus(currentTask ?? task).name)
                                 .foregroundColor(statusColor)
                         }
                     }
                     
                     // 關聯靈感
-                    if let inspiration = task.inspiration {
+                    if let inspiration = (currentTask ?? task).inspiration {
                         VStack(alignment: .leading, spacing: 8) {
-                                                    Text("關聯靈感")
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.secondary)
+                            Text("關聯靈感")
+                                .font(.custom("HelveticaNeue-Light", size: 17))
+                                .foregroundColor(.secondary)
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(inspiration.title ?? "Untitled")
                                     .font(.custom("HelveticaNeue-Light", size: 15))
@@ -347,11 +348,11 @@ struct TaskDetailView: View {
                             .font(.custom("HelveticaNeue-Light", size: 17))
                             .foregroundColor(.secondary)
                         VStack(alignment: .leading, spacing: 4) {
-                            if let createdAt = task.createdAt {
+                            if let createdAt = (currentTask ?? task).createdAt {
                                 Text("建立時間：\(taskViewModel.getFormattedDate(createdAt))")
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                             }
-                            if let updatedAt = task.updatedAt {
+                            if let updatedAt = (currentTask ?? task).updatedAt {
                                 Text("更新時間：\(taskViewModel.getFormattedDate(updatedAt))")
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                             }
@@ -370,7 +371,13 @@ struct TaskDetailView: View {
                 }
             )
             .sheet(isPresented: $showingEditSheet) {
-                EditTaskView(task: task, taskViewModel: taskViewModel)
+                EditTaskView(task: currentTask ?? task, taskViewModel: taskViewModel)
+            }
+            .onAppear {
+                // 進入詳情頁時自動根據 objectID 重新 fetch 最新 TaskItem
+                if let updated = taskViewModel.tasks.first(where: { $0.objectID == task.objectID }) {
+                    currentTask = updated
+                }
             }
         }
     }

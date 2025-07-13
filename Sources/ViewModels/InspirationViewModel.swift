@@ -33,6 +33,20 @@ class InspirationViewModel: ObservableObject {
         request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         do {
             availableTags = try context.fetch(request)
+            // 若標籤池為空，自動建立預設標籤
+            if availableTags.isEmpty {
+                let defaultTags = ["個人", "工作", "重要", "生活", "其他"]
+                for tagName in defaultTags {
+                    let tag = Tag(context: context)
+                    tag.id = UUID()
+                    tag.name = tagName
+                    tag.color = "blue"
+                    tag.createdAt = Date()
+                }
+                try context.save()
+                // 重新 fetch
+                availableTags = try context.fetch(request)
+            }
         } catch {
             print("Error fetching tags: \(error)")
             availableTags = []
@@ -42,10 +56,12 @@ class InspirationViewModel: ObservableObject {
     // MARK: - Create
     func addInspiration(title: String, content: String = "", type: Int16 = 0, tagNames: [String] = []) -> Inspiration {
         let newInspiration = Inspiration(context: context)
+        newInspiration.id = UUID()
         newInspiration.title = title
         newInspiration.content = content
         newInspiration.type = type
         newInspiration.createdAt = Date()
+        newInspiration.updatedAt = Date()
         for tagName in tagNames {
             addTagToInspiration(inspiration: newInspiration, tagName: tagName)
         }
@@ -56,11 +72,13 @@ class InspirationViewModel: ObservableObject {
     
     func addURLInspiration(title: String, content: String = "", url: String) {
         let newInspiration = Inspiration(context: context)
+        newInspiration.id = UUID()
         newInspiration.title = title
         newInspiration.content = content
         newInspiration.url = url
         newInspiration.type = 2 // 網址類型
         newInspiration.createdAt = Date()
+        newInspiration.updatedAt = Date()
         
         saveContext()
         fetchInspirations()
@@ -105,6 +123,12 @@ class InspirationViewModel: ObservableObject {
     
     // MARK: - Delete
     func deleteInspiration(_ inspiration: Inspiration) {
+        // 先解除所有關聯任務的靈感連結
+        if let taskItems = inspiration.taskitem as? Set<TaskItem> {
+            for task in taskItems {
+                task.inspiration = nil
+            }
+        }
         context.delete(inspiration)
         saveContext()
         fetchInspirations()
@@ -136,6 +160,7 @@ class InspirationViewModel: ObservableObject {
         
         // 建立新標籤
         let newTag = Tag(context: context)
+        newTag.id = UUID()
         newTag.name = name
         newTag.color = "blue" // 預設顏色
         newTag.createdAt = Date()
