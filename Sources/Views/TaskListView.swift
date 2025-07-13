@@ -281,100 +281,188 @@ struct TaskDetailView: View {
     let taskViewModel: TaskViewModel
     @Environment(\.presentationMode) var presentationMode
     @State private var showingEditSheet = false
+    @State private var showingAlert = false
+    @State private var alertType: AlertType = .delete
     @State private var currentTask: TaskItem?
+    
+    enum AlertType {
+        case delete
+        case complete
+    }
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    // 標題
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("標題")
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.secondary)
-                        Text(currentTask?.title ?? task.title ?? "Untitled")
-                            .font(.custom("HelveticaNeue-Light", size: 22))
-                    }
-                    
-                    // 描述
-                    if let details = currentTask?.details ?? task.details, !details.isEmpty {
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // 標題
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("描述")
+                            Text("標題")
                                 .font(.custom("HelveticaNeue-Light", size: 17))
                                 .foregroundColor(.secondary)
-                            Text(details)
-                                .font(.custom("HelveticaNeue-Light", size: 16))
+                            Text(currentTask?.title ?? task.title ?? "Untitled")
+                                .font(.custom("HelveticaNeue-Light", size: 22))
                         }
-                    }
-                    
-                    // 狀態
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("狀態")
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.secondary)
-                        HStack {
-                            Image(systemName: statusIcon)
-                                .foregroundColor(statusColor)
-                            Text(taskViewModel.getTaskStatus(currentTask ?? task).name)
-                                .foregroundColor(statusColor)
+                        
+                        // 描述
+                        if let details = currentTask?.details ?? task.details, !details.isEmpty {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("描述")
+                                    .font(.custom("HelveticaNeue-Light", size: 17))
+                                    .foregroundColor(.secondary)
+                                Text(details)
+                                    .font(.custom("HelveticaNeue-Light", size: 16))
+                            }
                         }
-                    }
-                    
-                    // 關聯靈感
-                    if let inspiration = (currentTask ?? task).inspiration {
+                        
+                        // 狀態
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("關聯靈感")
+                            Text("狀態")
+                                .font(.custom("HelveticaNeue-Light", size: 17))
+                                .foregroundColor(.secondary)
+                            HStack {
+                                Image(systemName: statusIcon)
+                                    .foregroundColor(statusColor)
+                                Text(taskViewModel.getTaskStatus(currentTask ?? task).name)
+                                    .foregroundColor(statusColor)
+                            }
+                        }
+                        
+                        // 關聯靈感
+                        if let inspiration = currentTask?.inspiration ?? task.inspiration {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("關聯靈感")
+                                    .font(.custom("HelveticaNeue-Light", size: 17))
+                                    .foregroundColor(.secondary)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: typeIcon(for: inspiration.type))
+                                            .foregroundColor(typeColor(for: inspiration.type))
+                                        Text(typeName(for: inspiration.type))
+                                            .font(.custom("HelveticaNeue-Light", size: 12))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Text(inspiration.title ?? "Untitled")
+                                        .font(.custom("HelveticaNeue-Light", size: 16))
+                                    if let content = inspiration.content, !content.isEmpty {
+                                        Text(content)
+                                            .font(.custom("HelveticaNeue-Light", size: 12))
+                                            .foregroundColor(.secondary)
+                                            .lineLimit(3)
+                                    }
+                                }
+                                .padding()
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            }
+                        }
+                        
+                        // 時間資訊
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("時間資訊")
                                 .font(.custom("HelveticaNeue-Light", size: 17))
                                 .foregroundColor(.secondary)
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(inspiration.title ?? "Untitled")
-                                    .font(.custom("HelveticaNeue-Light", size: 15))
-                                if let content = inspiration.content, !content.isEmpty {
-                                    Text(content)
+                                if let createdAt = (currentTask ?? task).createdAt {
+                                    Text("建立時間：\(taskViewModel.getFormattedDate(createdAt))")
                                         .font(.custom("HelveticaNeue-Light", size: 12))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(3)
+                                }
+                                if let updatedAt = (currentTask ?? task).updatedAt {
+                                    Text("更新時間：\(taskViewModel.getFormattedDate(updatedAt))")
+                                        .font(.custom("HelveticaNeue-Light", size: 12))
                                 }
                             }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(8)
                         }
                     }
-                    
-                    // 時間資訊
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("時間資訊")
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.secondary)
-                        VStack(alignment: .leading, spacing: 4) {
-                            if let createdAt = (currentTask ?? task).createdAt {
-                                Text("建立時間：\(taskViewModel.getFormattedDate(createdAt))")
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
+                    .padding()
+                    .padding(.bottom, 100) // 預留底部icon列空間
+                }
+                // 操作icon列永遠置底
+                HStack(spacing: 40) {
+                    // 完成
+                    if taskViewModel.getTaskStatus(currentTask ?? task) != .completed {
+                        Button(action: {
+                            alertType = .complete
+                            showingAlert = true
+                        }) {
+                            VStack(spacing: 6) {
+                                Image(systemName: "checkmark")
+                                    .font(.system(size: 28, weight: .regular))
+                                Text("完成")
+                                    .font(.system(size: 15))
                             }
-                            if let updatedAt = (currentTask ?? task).updatedAt {
-                                Text("更新時間：\(taskViewModel.getFormattedDate(updatedAt))")
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                            }
+                            .foregroundColor(.primary)
+                            .frame(minWidth: 60)
                         }
+                    }
+                    // 編輯
+                    Button(action: {
+                        showingEditSheet = true
+                    }) {
+                        VStack(spacing: 6) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 28, weight: .regular))
+                            Text("編輯")
+                                .font(.system(size: 15))
+                        }
+                        .foregroundColor(.primary)
+                        .frame(minWidth: 60)
+                    }
+                    // 刪除
+                    Button(action: {
+                        alertType = .delete
+                        showingAlert = true
+                    }) {
+                        VStack(spacing: 6) {
+                            Image(systemName: "trash")
+                                .font(.system(size: 28, weight: .regular))
+                            Text("刪除")
+                                .font(.system(size: 15))
+                        }
+                        .foregroundColor(.primary)
+                        .frame(minWidth: 60)
                     }
                 }
-                .padding()
+                .padding(.vertical, 18)
+                .frame(maxWidth: .infinity)
+                .background(Color(.systemBackground).ignoresSafeArea())
             }
             .navigationTitle("任務詳情")
             .navigationBarItems(
                 leading: Button("關閉") {
                     presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button("編輯") {
-                    showingEditSheet = true
                 }
             )
             .sheet(isPresented: $showingEditSheet) {
                 EditTaskView(task: currentTask ?? task, taskViewModel: taskViewModel)
             }
+            .alert(isPresented: $showingAlert) {
+                switch alertType {
+                case .delete:
+                    return Alert(
+                        title: Text("確認刪除"),
+                        message: Text("確定要刪除這個任務嗎？此操作無法復原。"),
+                        primaryButton: .destructive(Text("刪除")) {
+                            taskViewModel.deleteTask(task)
+                            presentationMode.wrappedValue.dismiss()
+                        },
+                        secondaryButton: .cancel(Text("取消"))
+                    )
+                case .complete:
+                    return Alert(
+                        title: Text("標記完成"),
+                        message: Text("確定要將此任務標記為已完成嗎？"),
+                        primaryButton: .default(Text("完成")) {
+                            taskViewModel.updateTaskStatus(currentTask ?? task, status: .completed)
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        },
+                        secondaryButton: .cancel(Text("取消"))
+                    )
+                }
+            }
             .onAppear {
-                // 進入詳情頁時自動根據 objectID 重新 fetch 最新 TaskItem
                 if let updated = taskViewModel.tasks.first(where: { $0.objectID == task.objectID }) {
                     currentTask = updated
                 }
@@ -401,6 +489,34 @@ struct TaskDetailView: View {
             return .blue
         case .completed:
             return .green
+        }
+    }
+    
+    private func typeIcon(for type: Int16) -> String {
+        switch type {
+        case 0: return "doc.text"
+        case 1: return "photo"
+        case 2: return "link"
+        case 3: return "video"
+        default: return "lightbulb"
+        }
+    }
+    private func typeColor(for type: Int16) -> Color {
+        switch type {
+        case 0: return .blue
+        case 1: return .green
+        case 2: return .orange
+        case 3: return .purple
+        default: return .gray
+        }
+    }
+    private func typeName(for type: Int16) -> String {
+        switch type {
+        case 0: return "筆記"
+        case 1: return "圖片"
+        case 2: return "連結"
+        case 3: return "影片"
+        default: return "靈感"
         }
     }
 }

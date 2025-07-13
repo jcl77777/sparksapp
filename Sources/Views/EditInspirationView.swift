@@ -23,7 +23,6 @@ struct EditInspirationView: View {
         _content = State(initialValue: inspiration.content ?? "")
         _url = State(initialValue: inspiration.url ?? "")
         _websiteTitle = State(initialValue: inspiration.title ?? "")
-        // 預設選取該靈感原有標籤
         let tagNames = (inspiration.tag as? Set<Tag>)?.compactMap { $0.name } ?? []
         _selectedTags = State(initialValue: Set(tagNames))
     }
@@ -270,8 +269,6 @@ struct EditInspirationView: View {
         }
     }
 }
-
-
 
 struct EditInspirationView_Previews: PreviewProvider {
     static var previews: some View {
