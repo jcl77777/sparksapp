@@ -14,6 +14,9 @@ class DashboardViewModel: ObservableObject {
     @Published var organizedInspirations: Int = 0
     @Published var unorganizedInspirations: Int = 0
     @Published var weeklyInspirationData: [Date: Int] = [:]
+    @Published var consecutiveDays: Int = 0
+    @Published var currentStreak: Int = 0
+    @Published var longestStreak: Int = 0
     
     private let context: NSManagedObjectContext
     private var cancellables = Set<AnyCancellable>()
@@ -29,6 +32,7 @@ class DashboardViewModel: ObservableObject {
         calculateTaskStats()
         calculateOrganizationStats()
         calculateWeeklyTrend()
+        calculateStreakStats()
     }
     
     private func calculateTodayStats() {
@@ -157,6 +161,82 @@ class DashboardViewModel: ObservableObject {
         }
         
         weeklyInspirationData = weeklyData
+    }
+    
+    private func calculateStreakStats() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        
+        // 獲取所有有活動的日期（有靈感或任務的日期）
+        var activityDates: Set<Date> = []
+        
+        // 從靈感中獲取活動日期
+        let inspirationRequest: NSFetchRequest<Inspiration> = Inspiration.fetchRequest()
+        
+        do {
+            let inspirations = try context.fetch(inspirationRequest)
+            for inspiration in inspirations {
+                if let createdAt = inspiration.createdAt {
+                    let activityDate = calendar.startOfDay(for: createdAt)
+                    activityDates.insert(activityDate)
+                }
+            }
+        } catch {
+            print("Error fetching inspiration dates: \(error)")
+        }
+        
+        // 從任務中獲取活動日期
+        let taskRequest: NSFetchRequest<TaskItem> = TaskItem.fetchRequest()
+        
+        do {
+            let tasks = try context.fetch(taskRequest)
+            for task in tasks {
+                if let createdAt = task.createdAt {
+                    let activityDate = calendar.startOfDay(for: createdAt)
+                    activityDates.insert(activityDate)
+                }
+            }
+        } catch {
+            print("Error fetching task dates: \(error)")
+        }
+        
+        // 計算當前連續天數
+        var currentStreak = 0
+        var checkDate = today
+        
+        while activityDates.contains(checkDate) {
+            currentStreak += 1
+            checkDate = calendar.date(byAdding: .day, value: -1, to: checkDate) ?? checkDate
+        }
+        
+        self.currentStreak = currentStreak
+        
+        // 計算最長連續天數
+        let sortedDates = activityDates.sorted()
+        var longestStreak = 0
+        var tempStreak = 0
+        var previousDate: Date?
+        
+        for date in sortedDates {
+            if let previous = previousDate {
+                let daysBetween = calendar.dateComponents([.day], from: previous, to: date).day ?? 0
+                if daysBetween == 1 {
+                    tempStreak += 1
+                } else {
+                    longestStreak = max(longestStreak, tempStreak)
+                    tempStreak = 1
+                }
+            } else {
+                tempStreak = 1
+            }
+            previousDate = date
+        }
+        
+        longestStreak = max(longestStreak, tempStreak)
+        self.longestStreak = longestStreak
+        
+        // 總活動天數
+        self.consecutiveDays = activityDates.count
     }
     
     func refresh() {

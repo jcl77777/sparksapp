@@ -163,7 +163,7 @@ struct TaskCardView: View {
                     
                     Spacer()
                     
-                    // 狀態指示器
+                    // 狀態指示器和提醒圖示
                     HStack(spacing: 4) {
                         Circle()
                             .fill(statusColor)
@@ -171,6 +171,13 @@ struct TaskCardView: View {
                         Text(taskViewModel.getTaskStatus(task).name)
                             .font(.custom("HelveticaNeue-Light", size: 10))
                             .foregroundColor(statusColor)
+                        
+                        // 提醒圖示
+                        if task.reminderDate != nil {
+                            Image(systemName: "bell")
+                                .font(.system(size: 10))
+                                .foregroundColor(.orange)
+                        }
                     }
                 }
                 
@@ -354,6 +361,21 @@ struct TaskDetailView: View {
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
+                            }
+                        }
+                        
+                        // 提醒資訊
+                        if let reminderDate = (currentTask ?? task).reminderDate {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("提醒設定")
+                                    .font(.custom("HelveticaNeue-Light", size: 17))
+                                    .foregroundColor(.secondary)
+                                HStack {
+                                    Image(systemName: "bell")
+                                        .foregroundColor(.orange)
+                                    Text("提醒時間：\(taskViewModel.getFormattedDate(reminderDate))")
+                                        .font(.custom("HelveticaNeue-Light", size: 12))
+                                }
                             }
                         }
                         

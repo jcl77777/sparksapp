@@ -3,6 +3,7 @@ import CoreData
 
 struct InspirationListView: View {
     @EnvironmentObject var viewModel: InspirationViewModel
+    @EnvironmentObject var appState: AppState
     @State private var showingAddSheet = false
     @State private var selectedInspiration: Inspiration?
     @State private var selectedCategory: OrganizationCategory = .all
@@ -155,6 +156,12 @@ struct InspirationListView: View {
             }
             .sheet(item: $selectedInspiration) { inspiration in
                 EditInspirationView(inspiration: inspiration)
+            }
+            .onAppear {
+                if appState.shouldShowUnorganizedOnAppear {
+                    selectedCategory = .unorganized
+                    appState.shouldShowUnorganizedOnAppear = false
+                }
             }
         }
     }

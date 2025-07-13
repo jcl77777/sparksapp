@@ -61,6 +61,13 @@ class TaskViewModel: ObservableObject {
         fetchTasks()
     }
     
+    func updateTaskReminder(_ task: TaskItem, reminderDate: Date?) {
+        task.reminderDate = reminderDate
+        task.updatedAt = Date()
+        saveContext()
+        fetchTasks()
+    }
+    
     // MARK: - Delete
     func deleteTask(_ task: TaskItem) {
         context.delete(task)

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var viewModel: InspirationViewModel
+    @EnvironmentObject var notificationManager: NotificationManager
     @State private var showTagManager: Bool = false
     @State private var showAbout: Bool = false
     @State private var showNotification: Bool = false
@@ -14,6 +15,7 @@ struct SettingsView: View {
                 }
                 .sheet(isPresented: $showNotification) {
                     NotificationSettingsView()
+                        .environmentObject(notificationManager)
                 }
                 Button(action: { showTagManager = true }) {
                     Label("標籤管理", systemImage: "tag")
@@ -137,15 +139,76 @@ struct TagManagerView: View {
     }
 }
 
-// 通知設定頁面（佔位）
+// 通知設定頁面
 struct NotificationSettingsView: View {
+    @EnvironmentObject var notificationManager: NotificationManager
+    @Environment(\.presentationMode) var presentationMode
+    @AppStorage("unorganizedReminderSetting") private var unorganizedReminderSettingData: Data = Data()
+    @State private var setting: UnorganizedReminderSetting = UnorganizedReminderSetting()
+    
     var body: some View {
         NavigationView {
-            Text("通知設定功能開發中...")
-                .font(.custom("HelveticaNeue-Light", size: 20))
-                .foregroundColor(.secondary)
-                .navigationTitle("通知設定")
+            Form {
+                Section(header: Text("未整理靈感提醒")) {
+                    Toggle("未整理提醒", isOn: $setting.enabled)
+                        .onChange(of: setting.enabled) { _ in
+                            saveAndSchedule()
+                        }
+                    if setting.enabled {
+                        Picker("提醒頻率", selection: $setting.frequency) {
+                            ForEach(ReminderFrequency.allCases) { freq in
+                                Text(freq.displayName).tag(freq)
+                            }
+                        }
+                        .onChange(of: setting.frequency) { _ in
+                            saveAndSchedule()
+                        }
+                        if setting.frequency == .weekly {
+                            Picker("提醒星期", selection: Binding(get: { setting.weekday ?? 2 }, set: { setting.weekday = $0; saveAndSchedule() })) {
+                                ForEach(1...7, id: \ .self) { i in
+                                    Text(weekdayName(i)).tag(i)
+                                }
+                            }
+                        }
+                        if setting.frequency == .monthly {
+                            Picker("提醒日", selection: Binding(get: { setting.day ?? 1 }, set: { setting.day = $0; saveAndSchedule() })) {
+                                ForEach(1...31, id: \ .self) { d in
+                                    Text("每月\(d)日").tag(d)
+                                }
+                            }
+                        }
+                        DatePicker("提醒時間", selection: $setting.time, displayedComponents: .hourAndMinute)
+                            .onChange(of: setting.time) { _ in
+                                saveAndSchedule()
+                            }
+                        Text("提醒您整理未分類的靈感，保持創意流暢")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            .navigationTitle("通知設定")
+            .navigationBarItems(leading: Button("關閉") {
+                presentationMode.wrappedValue.dismiss()
+            })
+            .onAppear {
+                if let loaded = try? JSONDecoder().decode(UnorganizedReminderSetting.self, from: unorganizedReminderSettingData), unorganizedReminderSettingData.count > 0 {
+                    setting = loaded
+                }
+            }
         }
+    }
+    
+    private func saveAndSchedule() {
+        if let data = try? JSONEncoder().encode(setting) {
+            unorganizedReminderSettingData = data
+        }
+        notificationManager.scheduleUnorganizedReminder(setting: setting)
+    }
+    
+    private func weekdayName(_ i: Int) -> String {
+        let names = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"]
+        return names[(i-1)%7]
     }
 }
 

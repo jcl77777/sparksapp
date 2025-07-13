@@ -20,6 +20,9 @@ struct DashboardView: View {
                     // 靈感整理狀態區塊
                     OrganizationStatsSection()
                     
+                    // 連續紀錄顯示區塊
+                    StreakSection()
+                    
                     // 週趨勢圖表區塊
                     WeeklyTrendSection()
                 }
@@ -210,6 +213,197 @@ struct OrganizationStatsSection: View {
         .background(Color(.systemBackground))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+    }
+}
+
+// 連續紀錄顯示區塊
+struct StreakSection: View {
+    @EnvironmentObject var dashboardViewModel: DashboardViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "flame")
+                    .foregroundColor(.orange)
+                    .font(.title2)
+                Text("連續紀錄")
+                    .font(.custom("HelveticaNeue-Light", size: 20))
+                    .fontWeight(.medium)
+                Spacer()
+            }
+            
+
+            
+            HStack(spacing: 16) {
+                StreakCard(
+                    title: "當前連續",
+                    value: "\(dashboardViewModel.currentStreak)",
+                    subtitle: "天",
+                    icon: "flame.fill",
+                    color: .orange,
+                    badge: getCurrentStreakBadge()
+                )
+                
+                StreakCard(
+                    title: "最長連續",
+                    value: "\(dashboardViewModel.longestStreak)",
+                    subtitle: "天",
+                    icon: "trophy.fill",
+                    color: .yellow,
+                    badge: getLongestStreakBadge()
+                )
+            }
+            
+            // 成就徽章顯示
+            if !getAchievementBadges().isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("成就徽章")
+                        .font(.custom("HelveticaNeue-Light", size: 16))
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 12) {
+                        ForEach(getAchievementBadges(), id: \.title) { badge in
+                            BadgeView(badge: badge)
+                        }
+                    }
+                }
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+    }
+    
+    private func getCurrentStreakBadge() -> String? {
+        let streak = dashboardViewModel.currentStreak
+        if streak >= 7 { return "🔥" }
+        if streak >= 3 { return "⚡" }
+        return nil
+    }
+    
+    private func getLongestStreakBadge() -> String? {
+        let streak = dashboardViewModel.longestStreak
+        if streak >= 30 { return "🏆" }
+        if streak >= 14 { return "🥇" }
+        if streak >= 7 { return "🥈" }
+        return nil
+    }
+    
+    private func getAchievementBadges() -> [AchievementBadge] {
+        var badges: [AchievementBadge] = []
+        
+        // 基於連續天數的成就
+        let currentStreak = dashboardViewModel.currentStreak
+        let longestStreak = dashboardViewModel.longestStreak
+        let totalDays = dashboardViewModel.consecutiveDays
+        
+        if currentStreak >= 7 {
+            badges.append(AchievementBadge(title: "一週堅持", icon: "7.circle.fill", color: .blue, unlocked: true))
+        }
+        if currentStreak >= 14 {
+            badges.append(AchievementBadge(title: "兩週堅持", icon: "14.circle.fill", color: .green, unlocked: true))
+        }
+        if currentStreak >= 30 {
+            badges.append(AchievementBadge(title: "月堅持", icon: "30.circle.fill", color: .purple, unlocked: true))
+        }
+        
+        if longestStreak >= 7 {
+            badges.append(AchievementBadge(title: "最長7天", icon: "trophy", color: .orange, unlocked: true))
+        }
+        if longestStreak >= 14 {
+            badges.append(AchievementBadge(title: "最長14天", icon: "trophy.fill", color: .yellow, unlocked: true))
+        }
+        if longestStreak >= 30 {
+            badges.append(AchievementBadge(title: "最長30天", icon: "crown.fill", color: .purple, unlocked: true))
+        }
+        
+        // 基於總活動天數的成就
+        if totalDays >= 10 {
+            badges.append(AchievementBadge(title: "活躍用戶", icon: "star.fill", color: .blue, unlocked: true))
+        }
+        if totalDays >= 30 {
+            badges.append(AchievementBadge(title: "資深用戶", icon: "star.circle.fill", color: .green, unlocked: true))
+        }
+        if totalDays >= 100 {
+            badges.append(AchievementBadge(title: "大師級", icon: "crown", color: .purple, unlocked: true))
+        }
+        
+        return badges
+    }
+}
+
+// 連續天數卡片元件
+struct StreakCard: View {
+    let title: String
+    let value: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+    let badge: String?
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.title2)
+                
+                if let badge = badge {
+                    Text(badge)
+                        .font(.title3)
+                }
+            }
+            
+            Text(value)
+                .font(.custom("HelveticaNeue-Light", size: 28))
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            
+            Text(subtitle)
+                .font(.custom("HelveticaNeue-Light", size: 12))
+                .foregroundColor(.secondary)
+            
+            Text(title)
+                .font(.custom("HelveticaNeue-Light", size: 12))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(color.opacity(0.1))
+        .cornerRadius(8)
+    }
+}
+
+// 成就徽章資料結構
+struct AchievementBadge {
+    let title: String
+    let icon: String
+    let color: Color
+    let unlocked: Bool
+}
+
+// 成就徽章元件
+struct BadgeView: View {
+    let badge: AchievementBadge
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: badge.icon)
+                .foregroundColor(badge.unlocked ? badge.color : .gray)
+                .font(.title2)
+            
+            Text(badge.title)
+                .font(.custom("HelveticaNeue-Light", size: 10))
+                .foregroundColor(badge.unlocked ? .primary : .secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+        }
+        .frame(width: 60, height: 60)
+        .background(badge.unlocked ? badge.color.opacity(0.1) : Color.gray.opacity(0.1))
+        .cornerRadius(8)
     }
 }
 
