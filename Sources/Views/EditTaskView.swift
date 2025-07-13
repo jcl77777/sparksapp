@@ -230,4 +230,4 @@ struct EditTaskView_Previews: PreviewProvider {
             .environmentObject(taskViewModel)
             .environmentObject(inspirationViewModel)
     }
-} 
+}

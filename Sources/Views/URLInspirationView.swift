@@ -8,6 +8,7 @@ struct URLInspirationView: View {
     @State private var urlString: String = ""
     @State private var websiteTitle: String = ""
     @State private var description: String = ""
+    @State private var selectedTags: Set<String> = []
     @State private var isLoading = false
     @State private var showingSuccessView = false
     @State private var errorMessage: String?
@@ -128,6 +129,30 @@ struct URLInspirationView: View {
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
                     }
+                    
+                    Section(header: Text("標籤（可選）")) {
+                        if viewModel.availableTags.isEmpty {
+                            Text("還沒有標籤，請先在設定中新增標籤")
+                                .font(.custom("HelveticaNeue-Light", size: 14))
+                                .foregroundColor(.secondary)
+                        } else {
+                            ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                MultipleSelectionRow(
+                                    title: tag.name ?? "",
+                                    isSelected: selectedTags.contains(tag.name ?? ""),
+                                    action: {
+                                        if let tagName = tag.name {
+                                            if selectedTags.contains(tagName) {
+                                                selectedTags.remove(tagName)
+                                            } else {
+                                                selectedTags.insert(tagName)
+                                            }
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
                 .navigationTitle("新增網址")
                 .navigationBarItems(
@@ -184,8 +209,25 @@ struct URLInspirationView: View {
     }
     
     private func saveURL() {
-        // 使用 ViewModel 儲存網址靈感
-        viewModel.addURLInspiration(title: websiteTitle, content: description, url: urlString)
+        // 建立新的網址靈感
+        let inspiration = Inspiration(context: viewModel.context)
+        inspiration.id = UUID()
+        inspiration.title = websiteTitle.isEmpty ? "（未命名）" : websiteTitle
+        inspiration.content = description.isEmpty ? nil : description
+        inspiration.url = urlString
+        inspiration.type = 2 // 網址類型
+        inspiration.createdAt = Date()
+        inspiration.updatedAt = Date()
+        
+        // 設定標籤
+        for tagName in selectedTags {
+            if let tag = viewModel.availableTags.first(where: { $0.name == tagName }) {
+                inspiration.addToTag(tag)
+            }
+        }
+        
+        // 使用 ViewModel 儲存
+        viewModel.saveContext()
         
         // 顯示成功介面
         withAnimation(.easeInOut(duration: 0.3)) {

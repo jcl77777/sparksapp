@@ -250,12 +250,11 @@ struct VideoInspirationView: View {
     }
     
     private func saveVideoInspiration() {
-        print("儲存前 title: \(videoTitle ?? "nil") url: \(videoURL ?? "nil")")
         let inspiration = Inspiration(context: viewModel.context)
         inspiration.id = UUID()
-        inspiration.title = (videoTitle?.isEmpty == false ? videoTitle : "（未命名）") ?? "（未命名）"
+        inspiration.title = videoTitle.isEmpty ? "（未命名）" : videoTitle
         inspiration.content = description.isEmpty ? nil : description
-        inspiration.url = (videoURL?.isEmpty == false ? videoURL : "") ?? ""
+        inspiration.url = videoURL.isEmpty ? "" : videoURL
         inspiration.type = 3 // 影片類型
         inspiration.createdAt = Date()
         inspiration.updatedAt = Date()
