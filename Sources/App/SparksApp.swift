@@ -11,11 +11,13 @@ struct SparksApp: App {
     // Initialize shared ViewModels
     @StateObject private var inspirationViewModel: InspirationViewModel
     @StateObject private var taskViewModel: TaskViewModel
+    @StateObject private var dashboardViewModel: DashboardViewModel
     
     init() {
         let context = PersistenceController.shared.container.viewContext
         _inspirationViewModel = StateObject(wrappedValue: InspirationViewModel(context: context))
         _taskViewModel = StateObject(wrappedValue: TaskViewModel(context: context))
+        _dashboardViewModel = StateObject(wrappedValue: DashboardViewModel(context: context))
     }
     
     var body: some Scene {
@@ -24,6 +26,7 @@ struct SparksApp: App {
                 .environmentObject(appState)
                 .environmentObject(inspirationViewModel)
                 .environmentObject(taskViewModel)
+                .environmentObject(dashboardViewModel)
         }
     }
 }
@@ -53,6 +56,8 @@ struct AppContentView: View {
 
 struct MainTabView: View {
     @EnvironmentObject var inspirationViewModel: InspirationViewModel
+    @EnvironmentObject var taskViewModel: TaskViewModel
+    @EnvironmentObject var dashboardViewModel: DashboardViewModel
     @EnvironmentObject var appState: AppState
     
     var body: some View {
@@ -76,6 +81,7 @@ struct MainTabView: View {
                 }
                 .tag(2)
             DashboardView()
+                .environmentObject(dashboardViewModel)
                 .tabItem {
                     Image(systemName: "chart.bar")
                     Text("Dashboard")
