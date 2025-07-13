@@ -9,21 +9,16 @@ struct PersistenceController {
     
     // Initialize with optional in-memory configuration for testing/previews
     init(inMemory: Bool = false) {
-        // 明確指定載入 .momd 的方式
-        guard let modelURL = Bundle.main.url(forResource: "sparksModel", withExtension: "momd"),
-              let model = NSManagedObjectModel(contentsOf: modelURL) else {
-            fatalError("❌ Could not load Core Data model from momd")
-        }
+        container = NSPersistentContainer(name: "sparksModel")
         
-        container = NSPersistentContainer(name: "sparksModel", managedObjectModel: model)
-
         if inMemory {
             container.persistentStoreDescriptions.first?.url = URL(fileURLWithPath: "/dev/null")
         }
 
         container.loadPersistentStores { description, error in
             if let error = error {
-                fatalError("❌ Error loading Core Data store: \(error.localizedDescription)")
+                print("❌ Error loading Core Data store: \(error.localizedDescription)")
+                // 不要 fatalError，讓 app 繼續運行
             }
         }
 
@@ -42,7 +37,7 @@ struct PersistenceController {
             try viewContext.save()
         } catch {
             let nsError = error as NSError
-            fatalError("❌ Unresolved error \(nsError), \(nsError.userInfo)")
+            print("❌ Unresolved error \(nsError), \(nsError.userInfo)")
         }
         
         return controller

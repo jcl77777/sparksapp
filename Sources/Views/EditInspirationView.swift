@@ -99,7 +99,7 @@ struct EditInspirationView: View {
                     }
                 }
                 
-                if !websiteTitle.isEmpty {
+                if (inspiration.type == 2 || inspiration.type == 3), !websiteTitle.isEmpty {
                     Section(header: Text("預覽")) {
                         VStack(alignment: .leading, spacing: 12) {
                             VStack(alignment: .leading, spacing: 8) {

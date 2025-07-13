@@ -7,11 +7,26 @@ struct InspirationListView: View {
     @State private var selectedInspiration: Inspiration?
     @State private var selectedCategory: OrganizationCategory = .all
     @State private var searchText = ""
+    @State private var viewMode: ViewMode = .list
     
     enum OrganizationCategory: String, CaseIterable {
         case all = "全部"
         case organized = "已整理"
         case unorganized = "未整理"
+    }
+    
+    enum ViewMode: String, CaseIterable {
+        case list = "列表"
+        case gallery = "畫廊"
+        
+        var icon: String {
+            switch self {
+            case .list:
+                return "list.bullet"
+            case .gallery:
+                return "square.grid.2x2"
+            }
+        }
     }
     
     var filteredInspirations: [Inspiration] {
@@ -74,20 +89,42 @@ struct InspirationListView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(Color(.systemGroupedBackground))
                 } else {
-                    List {
-                        ForEach(filteredInspirations, id: \.objectID) { inspiration in
-                            Button(action: {
-                                selectedInspiration = inspiration
-                            }) {
-                                InspirationCardView(inspiration: inspiration, viewModel: viewModel)
+                    if viewMode == .list {
+                        // List 檢視模式
+                        List {
+                            ForEach(filteredInspirations, id: \.objectID) { inspiration in
+                                Button(action: {
+                                    selectedInspiration = inspiration
+                                }) {
+                                    InspirationCardView(inspiration: inspiration, viewModel: viewModel)
+                                }
+                                .buttonStyle(PlainButtonStyle())
                             }
-                            .buttonStyle(PlainButtonStyle())
+                            .onDelete { indexSet in
+                                indexSet.map { filteredInspirations[$0] }.forEach(viewModel.deleteInspiration)
+                            }
                         }
-                        .onDelete { indexSet in
-                            indexSet.map { filteredInspirations[$0] }.forEach(viewModel.deleteInspiration)
+                        .listStyle(PlainListStyle())
+                    } else {
+                        // Gallery 檢視模式
+                        ScrollView {
+                            LazyVGrid(columns: [
+                                GridItem(.flexible(), spacing: 12),
+                                GridItem(.flexible(), spacing: 12)
+                            ], spacing: 12) {
+                                ForEach(filteredInspirations, id: \.objectID) { inspiration in
+                                    Button(action: {
+                                        selectedInspiration = inspiration
+                                    }) {
+                                        InspirationGalleryCardView(inspiration: inspiration, viewModel: viewModel)
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                }
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                         }
                     }
-                    .listStyle(PlainListStyle())
                 }
             }
             .navigationTitle("Collection")
@@ -96,8 +133,20 @@ struct InspirationListView: View {
                     EditButton()
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingAddSheet = true }) {
-                        Image(systemName: "plus")
+                    HStack(spacing: 16) {
+                        // 檢視模式切換按鈕
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                viewMode = viewMode == .list ? .gallery : .list
+                            }
+                        }) {
+                            Image(systemName: viewMode == .list ? "square.grid.2x2" : "list.bullet")
+                                .foregroundColor(.blue)
+                        }
+                        
+                        Button(action: { showingAddSheet = true }) {
+                            Image(systemName: "plus")
+                        }
                     }
                 }
             }
@@ -323,6 +372,133 @@ struct InspirationCardView: View {
         case 2: return "已完成"
         default: return "未知"
         }
+    }
+}
+
+// Gallery 檢視模式的卡片元件
+struct InspirationGalleryCardView: View {
+    let inspiration: Inspiration
+    let viewModel: InspirationViewModel
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // 主要內容區域
+            VStack(alignment: .leading, spacing: 6) {
+                // 類型圖示和標題
+                HStack {
+                    Image(systemName: typeIcon)
+                        .foregroundColor(typeColor)
+                        .font(.system(size: 16))
+                    
+                    Spacer()
+                    
+                    // 整理狀態指示器
+                    if viewModel.isOrganized(inspiration) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                            .font(.system(size: 12))
+                    }
+                }
+                
+                // 標題
+                Text(inspiration.title ?? "Untitled")
+                    .font(.custom("HelveticaNeue-Light", size: 14))
+                    .foregroundColor(.primary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                
+                // 建立時間
+                if let createdAt = inspiration.createdAt {
+                    Text(formatDate(createdAt))
+                        .font(.custom("HelveticaNeue-Light", size: 10))
+                        .foregroundColor(.secondary)
+                }
+            }
+            
+            // 圖片預覽（如果有）
+            if inspiration.type == 1, let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(height: 80)
+                    .clipped()
+                    .cornerRadius(6)
+            }
+            
+            // 內容預覽
+            if let content = inspiration.content, !content.isEmpty {
+                Text(content)
+                    .font(.custom("HelveticaNeue-Light", size: 10))
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+            }
+            
+            // 標籤
+            let tagNames = viewModel.getTagNames(for: inspiration)
+            if !tagNames.isEmpty {
+                HStack {
+                    ForEach(Array(tagNames.prefix(2)), id: \.self) { tagName in
+                        Text(tagName)
+                            .font(.custom("HelveticaNeue-Light", size: 8))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 1)
+                            .background(Color.blue.opacity(0.2))
+                            .foregroundColor(.blue)
+                            .cornerRadius(4)
+                    }
+                    
+                    if tagNames.count > 2 {
+                        Text("+\(tagNames.count - 2)")
+                            .font(.custom("HelveticaNeue-Light", size: 8))
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+            
+            // 任務數量
+            let taskCount = viewModel.getTaskCount(for: inspiration)
+            if taskCount > 0 {
+                HStack(spacing: 2) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.system(size: 8))
+                    Text("\(taskCount)")
+                        .font(.custom("HelveticaNeue-Light", size: 8))
+                        .foregroundColor(.green)
+                }
+            }
+        }
+        .padding(8)
+        .background(Color(.systemBackground))
+        .cornerRadius(8)
+        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+    }
+    
+    private var typeIcon: String {
+        switch inspiration.type {
+        case 0: return "doc.text"
+        case 1: return "photo"
+        case 2: return "link"
+        case 3: return "video"
+        default: return "lightbulb"
+        }
+    }
+    
+    private var typeColor: Color {
+        switch inspiration.type {
+        case 0: return .blue
+        case 1: return .green
+        case 2: return .orange
+        case 3: return .purple
+        default: return .gray
+        }
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
     }
 }
 

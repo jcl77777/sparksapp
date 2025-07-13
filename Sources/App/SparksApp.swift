@@ -59,27 +59,32 @@ struct MainTabView: View {
         TabView(selection: $appState.selectedTab) {
             InspirationListView()
                 .tabItem {
-                    Label("Collection", systemImage: "lightbulb")
+                    Image(systemName: "lightbulb")
+                    Text("Collection")
                 }
                 .tag(0)
             TaskListView()
                 .tabItem {
-                    Label("Tasks", systemImage: "checkmark.circle")
+                    Image(systemName: "checkmark.circle")
+                    Text("Tasks")
                 }
                 .tag(1)
             AddInspirationView()
                 .tabItem {
-                    Label("Add", systemImage: "plus.circle")
+                    Image(systemName: "plus.circle")
+                    Text("Add")
                 }
                 .tag(2)
             DashboardView()
                 .tabItem {
-                    Label("Dashboard", systemImage: "chart.bar")
+                    Image(systemName: "chart.bar")
+                    Text("Dashboard")
                 }
                 .tag(3)
             SettingsView()
                 .tabItem {
-                    Label("Settings", systemImage: "gear")
+                    Image(systemName: "gear")
+                    Text("Settings")
                 }
                 .tag(4)
         }
