@@ -234,43 +234,7 @@ struct EditInspirationView: View {
     }
 }
 
-// 連結現有任務 Picker
-struct LinkTaskPickerView: View {
-    @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var taskViewModel: TaskViewModel
-    let inspiration: Inspiration
-    
-    var body: some View {
-        NavigationView {
-            let availableTasks = taskViewModel.tasks.filter { $0.inspiration == nil }
-            List {
-                if availableTasks.isEmpty {
-                    Text("目前沒有可連結的任務")
-                        .foregroundColor(.secondary)
-                        .font(.custom("HelveticaNeue-Light", size: 12))
-                } else {
-                    ForEach(availableTasks, id: \.objectID) { task in
-                        Button(action: {
-                            task.inspiration = inspiration
-                            taskViewModel.saveContext()
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            HStack {
-                                Image(systemName: "circle")
-                                    .foregroundColor(.gray)
-                                Text(task.title ?? "未命名任務")
-                            }
-                        }
-                    }
-                }
-            }
-            .navigationTitle("連結任務")
-            .navigationBarItems(leading: Button("取消") {
-                presentationMode.wrappedValue.dismiss()
-            })
-        }
-    }
-}
+
 
 struct EditInspirationView_Previews: PreviewProvider {
     static var previews: some View {

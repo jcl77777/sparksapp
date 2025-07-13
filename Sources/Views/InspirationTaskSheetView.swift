@@ -85,24 +85,7 @@ struct InspirationTaskSheetView: View {
         }
     }
 
-    // 輔助元件：多選列
-    struct MultipleSelectionRow: View {
-        var title: String
-        var isSelected: Bool
-        var action: () -> Void
-        var body: some View {
-            Button(action: action) {
-                HStack {
-                    Text(title)
-                    Spacer()
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .foregroundColor(.blue)
-                    }
-                }
-            }
-        }
-    }
+
 
     // 狀態輔助
     private func taskStatusIcon(_ status: Int16) -> String {
