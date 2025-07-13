@@ -88,9 +88,10 @@ struct AddInspirationView: View {
             case .note:
                 EmptyView() // 不會用到
             case .image:
-                Text("圖片功能開發中...")
-                    .font(.custom("HelveticaNeue-Light", size: 28))
-                    .padding()
+                ImageInspirationView(onComplete: { tabIndex in
+                    selectedType = nil
+                    appState.selectedTab = tabIndex
+                })
             case .url:
                 URLInspirationView()
             case .video:

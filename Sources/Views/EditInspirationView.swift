@@ -36,6 +36,26 @@ struct EditInspirationView: View {
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 
+                if inspiration.type == 1 {
+                    // 圖片類型
+                    Section(header: Text("圖片")) {
+                        if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxHeight: 200)
+                                .cornerRadius(12)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(Color(.systemGray4), lineWidth: 1)
+                                )
+                        } else {
+                            Text("圖片載入失敗")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                
                 if inspiration.type == 2 {
                     // 網址類型
                     Section(header: Text("網址")) {
@@ -199,6 +219,7 @@ struct EditInspirationView: View {
             inspiration.title = websiteTitle.isEmpty ? title : websiteTitle
             inspiration.url = url
         } else {
+            // 其他類型（包括圖片）
             inspiration.title = title
         }
         inspiration.content = content

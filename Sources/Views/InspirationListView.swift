@@ -198,7 +198,16 @@ struct InspirationCardView: View {
             }
             
             // 根據類型顯示不同內容
-            if inspiration.type == 2 { // 網址類型
+            if inspiration.type == 1 { // 圖片類型
+                if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 120)
+                        .clipped()
+                        .cornerRadius(8)
+                }
+            } else if inspiration.type == 2 { // 網址類型
                 if let url = inspiration.url, !url.isEmpty {
                     HStack {
                         Image(systemName: "link")
