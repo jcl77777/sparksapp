@@ -173,6 +173,27 @@ class InspirationViewModel: ObservableObject {
         return tags.compactMap { $0.name }.sorted()
     }
     
+    // MARK: - Tag CRUD for SettingsView
+    func addTag(name: String) {
+        let tag = Tag(context: context)
+        tag.id = UUID()
+        tag.name = name
+        tag.color = "blue"
+        tag.createdAt = Date()
+        saveContext()
+        fetchTags()
+    }
+    func updateTag(tag: Tag, newName: String) {
+        tag.name = newName
+        saveContext()
+        fetchTags()
+    }
+    func deleteTag(tag: Tag) {
+        context.delete(tag)
+        saveContext()
+        fetchTags()
+    }
+    
     // MARK: - Task Management
     func addTask(title: String, details: String? = nil, inspiration: Inspiration? = nil) {
         let newTask = TaskItem(context: context)
