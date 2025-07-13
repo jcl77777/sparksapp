@@ -219,6 +219,18 @@ struct InspirationCardView: View {
                             .lineLimit(1)
                     }
                 }
+            } else if inspiration.type == 3 { // 影片類型
+                if let url = inspiration.url, !url.isEmpty {
+                    HStack {
+                        Image(systemName: "video")
+                            .foregroundColor(.purple)
+                            .font(.system(size: 12))
+                        Text(url)
+                            .font(.custom("HelveticaNeue-Light", size: 12))
+                            .foregroundColor(.purple)
+                            .lineLimit(1)
+                    }
+                }
             }
             
             // 內容預覽
@@ -245,26 +257,16 @@ struct InspirationCardView: View {
                 }
             }
             
-            // 顯示所有關聯任務
-            let tasks = viewModel.getTasks(for: inspiration)
-            if !tasks.isEmpty {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("任務")
-                        .font(.custom("HelveticaNeue-Light", size: 12))
-                        .foregroundColor(.secondary)
-                    ForEach(tasks, id: \.objectID) { task in
-                        HStack(spacing: 6) {
-                            Image(systemName: taskStatusIcon(task.status))
-                                .foregroundColor(taskStatusColor(task.status))
-                                .font(.system(size: 10))
-                            Text(task.title ?? "未命名任務")
-                                .font(.custom("HelveticaNeue-Light", size: 10))
-                                .foregroundColor(.primary)
-                            Text(taskStatusName(task.status))
-                                .font(.custom("HelveticaNeue-Light", size: 10))
-                                .foregroundColor(taskStatusColor(task.status))
-                        }
-                    }
+            // 顯示任務數量（簡化顯示）
+            let taskCount = viewModel.getTaskCount(for: inspiration)
+            if taskCount > 0 {
+                HStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.green)
+                        .font(.system(size: 10))
+                    Text("\(taskCount) 個任務")
+                        .font(.custom("HelveticaNeue-Light", size: 10))
+                        .foregroundColor(.green)
                 }
             }
         }

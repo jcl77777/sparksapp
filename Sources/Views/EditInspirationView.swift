@@ -85,26 +85,39 @@ struct EditInspirationView: View {
                                 .foregroundColor(.red)
                         }
                     }
-                    if !websiteTitle.isEmpty {
-                        Section(header: Text("預覽")) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack {
-                                        Image(systemName: "link")
-                                            .foregroundColor(.blue)
-                                        Text(websiteTitle)
-                                            .font(.custom("HelveticaNeue-Light", size: 17))
-                                            .lineLimit(2)
-                                    }
-                                    Text(url)
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
+                } else if inspiration.type == 3 {
+                    // 影片類型
+                    Section(header: Text("影片連結")) {
+                        HStack {
+                            Image(systemName: "video")
+                                .foregroundColor(.purple)
+                            Text(inspiration.url ?? "")
+                                .font(.custom("HelveticaNeue-Light", size: 12))
+                                .foregroundColor(.secondary)
+                        }
+                        .padding(.vertical, 4)
+                    }
+                }
+                
+                if !websiteTitle.isEmpty {
+                    Section(header: Text("預覽")) {
+                        VStack(alignment: .leading, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "link")
+                                        .foregroundColor(.blue)
+                                    Text(websiteTitle)
+                                        .font(.custom("HelveticaNeue-Light", size: 17))
+                                        .lineLimit(2)
                                 }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
+                                Text(url)
+                                    .font(.custom("HelveticaNeue-Light", size: 12))
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(1)
                             }
+                            .padding()
+                            .background(Color(.systemGray6))
+                            .cornerRadius(12)
                         }
                     }
                 }
@@ -218,6 +231,9 @@ struct EditInspirationView: View {
             // 網址類型，更新網址與標題
             inspiration.title = websiteTitle.isEmpty ? title : websiteTitle
             inspiration.url = url
+        } else if inspiration.type == 3 {
+            // 影片類型，只更新標題（連結不變）
+            inspiration.title = title
         } else {
             // 其他類型（包括圖片）
             inspiration.title = title

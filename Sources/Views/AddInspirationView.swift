@@ -95,9 +95,10 @@ struct AddInspirationView: View {
             case .url:
                 URLInspirationView()
             case .video:
-                Text("影片功能開發中...")
-                    .font(.custom("HelveticaNeue-Light", size: 28))
-                    .padding()
+                VideoInspirationView(onComplete: { tabIndex in
+                    selectedType = nil
+                    appState.selectedTab = tabIndex
+                })
             }
         }
     }
