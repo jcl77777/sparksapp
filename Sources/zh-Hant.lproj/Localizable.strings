@@ -1,0 +1,32 @@
+/* 繁體中文在地化 */
+"settings_notification" = "通知設定";
+"settings_tag_manager" = "標籤管理";
+"settings_about" = "關於頁面";
+"settings_title" = "設定";
+
+"tag_manager_section_title" = "標籤管理";
+"tag_manager_new_tag_placeholder" = "新增標籤名稱";
+"tag_manager_no_tag" = "目前沒有標籤";
+"tag_manager_edit_section" = "編輯標籤";
+"tag_manager_edit_placeholder" = "標籤名稱";
+"tag_manager_delete_confirm_title" = "確定要刪除這個標籤嗎？";
+
+"common_close" = "關閉";
+"common_cancel" = "取消";
+"common_save" = "儲存";
+"common_delete" = "刪除";
+
+"notification_unorganized_section_title" = "未整理靈感提醒";
+"notification_unorganized_toggle" = "未整理提醒";
+"notification_unorganized_frequency" = "提醒頻率";
+"notification_unorganized_weekday" = "提醒星期";
+"notification_unorganized_day" = "提醒日";
+"notification_unorganized_day_format" = "每月%d日";
+"notification_unorganized_time" = "提醒時間";
+"notification_unorganized_hint" = "提醒您整理未分類的靈感，保持創意流暢";
+"notification_settings_title" = "通知設定";
+
+"about_title" = "關於";
+"about_version_and_desc" = "版本 1.0.0\n\n記下讓你心動的瞬間，等你準備好出發。\n\n© 2025 NanNova Labs";
+"about_feedback" = "意見回饋";
+"about_feedback_subject" = "Sparks App 意見回饋"; 

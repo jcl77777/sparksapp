@@ -206,7 +206,7 @@ struct TaskCardView: View {
                                 .lineLimit(1)
                         }
                         // 標籤 badge
-                        let tagNames = (inspiration.tag as? Set<Tag>)?.compactMap { $0.name }.sorted() ?? []
+                        let tagNames = (inspiration.tags as? Set<Tag>)?.compactMap { $0.name }.sorted() ?? []
                         if !tagNames.isEmpty {
                             HStack {
                                 ForEach(tagNames, id: \.self) { tagName in

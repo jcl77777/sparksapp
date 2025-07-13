@@ -139,7 +139,7 @@ struct MainTabView: View {
                 isOrganized: inspirationViewModel.isOrganized
             )
         }
-        .onChange(of: scenePhase) { newPhase in
+        .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 notificationManager.updateUnorganizedReminderIfNeeded(
                     inspirations: inspirationViewModel.inspirations,

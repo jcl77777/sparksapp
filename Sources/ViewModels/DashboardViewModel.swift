@@ -118,7 +118,7 @@ class DashboardViewModel: ObservableObject {
     private func calculateOrganizationStats() {
         // 已整理靈感（有關聯任務的）
         let organizedRequest: NSFetchRequest<Inspiration> = Inspiration.fetchRequest()
-        organizedRequest.predicate = NSPredicate(format: "taskitem.@count > 0")
+        organizedRequest.predicate = NSPredicate(format: "taskItems.@count > 0")
         do {
             organizedInspirations = try context.count(for: organizedRequest)
         } catch {
@@ -128,7 +128,7 @@ class DashboardViewModel: ObservableObject {
         
         // 未整理靈感（沒有關聯任務的）
         let unorganizedRequest: NSFetchRequest<Inspiration> = Inspiration.fetchRequest()
-        unorganizedRequest.predicate = NSPredicate(format: "taskitem.@count == 0")
+        unorganizedRequest.predicate = NSPredicate(format: "taskItems.@count == 0")
         do {
             unorganizedInspirations = try context.count(for: unorganizedRequest)
         } catch {

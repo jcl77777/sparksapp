@@ -92,8 +92,10 @@ class InspirationViewModel: ObservableObject {
         inspiration.updatedAt = Date()
         
         // 清除現有標籤
-        if let existingTags = inspiration.tag as? NSSet {
-            inspiration.removeFromTag(existingTags)
+        if let existingTags = inspiration.tags as? Set<Tag> {
+            for tag in existingTags {
+                inspiration.removeFromTags(tag)
+            }
         }
         
         // 加入新標籤
@@ -107,24 +109,24 @@ class InspirationViewModel: ObservableObject {
     
     // MARK: - Organization Management
     func isOrganized(_ inspiration: Inspiration) -> Bool {
-        guard let taskItems = inspiration.taskitem as? Set<TaskItem> else { return false }
+        guard let taskItems = inspiration.taskItems as? Set<TaskItem> else { return false }
         return !taskItems.isEmpty
     }
     
     func getTaskCount(for inspiration: Inspiration) -> Int {
-        guard let taskItems = inspiration.taskitem as? Set<TaskItem> else { return 0 }
+        guard let taskItems = inspiration.taskItems as? Set<TaskItem> else { return 0 }
         return taskItems.count
     }
     
     func getTasks(for inspiration: Inspiration) -> [TaskItem] {
-        guard let taskItems = inspiration.taskitem as? Set<TaskItem> else { return [] }
+        guard let taskItems = inspiration.taskItems as? Set<TaskItem> else { return [] }
         return Array(taskItems).sorted { $0.createdAt ?? Date() > $1.createdAt ?? Date() }
     }
     
     // MARK: - Delete
     func deleteInspiration(_ inspiration: Inspiration) {
         // 先解除所有關聯任務的靈感連結
-        if let taskItems = inspiration.taskitem as? Set<TaskItem> {
+        if let taskItems = inspiration.taskItems as? Set<TaskItem> {
             for task in taskItems {
                 task.inspiration = nil
             }
@@ -140,7 +142,7 @@ class InspirationViewModel: ObservableObject {
         let tag = findOrCreateTag(name: tagName)
         
         // 建立關係
-        let inspirationTags = inspiration.mutableSetValue(forKey: "tag")
+        let inspirationTags = inspiration.mutableSetValue(forKey: "tags")
         inspirationTags.add(tag)
     }
     
@@ -169,7 +171,7 @@ class InspirationViewModel: ObservableObject {
     }
     
     func getTagNames(for inspiration: Inspiration) -> [String] {
-        guard let tags = inspiration.tag as? Set<Tag> else { return [] }
+        guard let tags = inspiration.tags as? Set<Tag> else { return [] }
         return tags.compactMap { $0.name }.sorted()
     }
     

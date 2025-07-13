@@ -75,7 +75,7 @@ struct VideoInspirationView: View {
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
-                                .onChange(of: videoURL) { newValue in
+                                .onChange(of: videoURL) { _, newValue in
                                     // 當URL變化時，自動抓取影片資訊
                                     if !newValue.isEmpty && isValidVideoURL(newValue) {
                                         fetchVideoInfo()
@@ -211,41 +211,40 @@ struct VideoInspirationView: View {
     }
     
     private func fetchVideoInfo() {
-        guard let fetchURL = URL(string: videoURL) else {
-            errorMessage = "無效的影片連結格式"
-            return
-        }
-        
-        // 避免重複抓取
-        if isLoading {
-            return
-        }
-        
-        isLoading = true
-        errorMessage = nil
-        
-        // 這裡可以實作影片資訊抓取邏輯
-        // 目前先模擬抓取過程
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isLoading = false
-            
-            // 模擬從不同平台抓取影片資訊
-            if videoURL.contains("youtube.com") || videoURL.contains("youtu.be") {
-                videoTitle = "YouTube 影片"
-                videoThumbnail = ""
-            } else if videoURL.contains("vimeo.com") {
-                videoTitle = "Vimeo 影片"
-                videoThumbnail = ""
-            } else if videoURL.contains("twitch.tv") {
-                videoTitle = "Twitch 影片"
-                videoThumbnail = ""
-            } else if videoURL.contains("dailymotion.com") {
-                videoTitle = "Dailymotion 影片"
-                videoThumbnail = ""
-            } else {
-                videoTitle = "影片連結"
-                videoThumbnail = ""
+        if URL(string: videoURL) != nil {
+            // 避免重複抓取
+            if isLoading {
+                return
             }
+            
+            isLoading = true
+            errorMessage = nil
+            
+            // 這裡可以實作影片資訊抓取邏輯
+            // 目前先模擬抓取過程
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                isLoading = false
+                
+                // 模擬從不同平台抓取影片資訊
+                if videoURL.contains("youtube.com") || videoURL.contains("youtu.be") {
+                    videoTitle = "YouTube 影片"
+                    videoThumbnail = ""
+                } else if videoURL.contains("vimeo.com") {
+                    videoTitle = "Vimeo 影片"
+                    videoThumbnail = ""
+                } else if videoURL.contains("twitch.tv") {
+                    videoTitle = "Twitch 影片"
+                    videoThumbnail = ""
+                } else if videoURL.contains("dailymotion.com") {
+                    videoTitle = "Dailymotion 影片"
+                    videoThumbnail = ""
+                } else {
+                    videoTitle = "影片連結"
+                    videoThumbnail = ""
+                }
+            }
+        } else {
+            errorMessage = "無效的影片連結格式"
         }
     }
     
@@ -262,7 +261,7 @@ struct VideoInspirationView: View {
         // 設定標籤
         for tagName in selectedTags {
             if let tag = viewModel.availableTags.first(where: { $0.name == tagName }) {
-                inspiration.addToTag(tag)
+                inspiration.addToTags(tag)
             }
         }
         

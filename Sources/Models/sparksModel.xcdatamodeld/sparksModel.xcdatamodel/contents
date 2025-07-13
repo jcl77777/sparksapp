@@ -11,15 +11,15 @@
         <attribute name="updatedAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="url" optional="YES" attributeType="String"/>
         <attribute name="videoData" optional="YES" attributeType="Binary"/>
-        <relationship name="tag" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="inspiration" inverseEntity="Tag"/>
-        <relationship name="taskitem" toMany="YES" deletionRule="Nullify" destinationEntity="TaskItem" inverseName="inspiration" inverseEntity="TaskItem"/>
+        <relationship name="tags" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="inspirations" inverseEntity="Tag"/>
+        <relationship name="taskItems" toMany="YES" deletionRule="Nullify" destinationEntity="TaskItem" inverseName="inspiration" inverseEntity="TaskItem"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES" codeGenerationType="class">
         <attribute name="color" attributeType="String"/>
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" attributeType="String"/>
-        <relationship name="inspiration" toMany="YES" deletionRule="Nullify" destinationEntity="Inspiration" inverseName="tag" inverseEntity="Inspiration"/>
+        <relationship name="inspirations" toMany="YES" deletionRule="Nullify" destinationEntity="Inspiration" inverseName="tags" inverseEntity="Inspiration"/>
     </entity>
     <entity name="TaskItem" representedClassName="TaskItem" syncable="YES" codeGenerationType="class">
         <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
@@ -30,6 +30,6 @@
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" attributeType="String"/>
         <attribute name="updatedAt" attributeType="Date" usesScalarValueType="NO"/>
-        <relationship name="inspiration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Inspiration" inverseName="taskitem" inverseEntity="TaskItem"/>
+        <relationship name="inspiration" optional="YES" maxCount="1" toMany="NO" deletionRule="Nullify" destinationEntity="Inspiration" inverseName="taskItems" inverseEntity="Inspiration"/>
     </entity>
 </model>

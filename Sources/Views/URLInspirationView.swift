@@ -222,7 +222,7 @@ struct URLInspirationView: View {
         // 設定標籤
         for tagName in selectedTags {
             if let tag = viewModel.availableTags.first(where: { $0.name == tagName }) {
-                inspiration.addToTag(tag)
+                inspiration.addToTags(tag)
             }
         }
         

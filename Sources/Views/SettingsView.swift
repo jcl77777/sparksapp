@@ -11,27 +11,27 @@ struct SettingsView: View {
         NavigationView {
             List {
                 Button(action: { showNotification = true }) {
-                    Label("通知設定", systemImage: "bell")
+                    Label(NSLocalizedString("settings_notification", comment: "通知設定"), systemImage: "bell")
                 }
                 .sheet(isPresented: $showNotification) {
                     NotificationSettingsView()
                         .environmentObject(notificationManager)
                 }
                 Button(action: { showTagManager = true }) {
-                    Label("標籤管理", systemImage: "tag")
+                    Label(NSLocalizedString("settings_tag_manager", comment: "標籤管理"), systemImage: "tag")
                 }
                 .sheet(isPresented: $showTagManager) {
                     TagManagerView()
                         .environmentObject(viewModel)
                 }
                 Button(action: { showAbout = true }) {
-                    Label("關於頁面", systemImage: "info.circle")
+                    Label(NSLocalizedString("settings_about", comment: "關於頁面"), systemImage: "info.circle")
                 }
                 .sheet(isPresented: $showAbout) {
                     AboutView()
                 }
             }
-            .navigationTitle("Settings")
+            .navigationTitle(NSLocalizedString("settings_title", comment: "設定"))
         }
     }
 }
@@ -51,9 +51,9 @@ struct TagManagerView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("標籤管理")) {
+                Section(header: Text(NSLocalizedString("tag_manager_section_title", comment: "標籤管理"))) {
                     HStack {
-                        TextField("新增標籤名稱", text: $newTagName)
+                        TextField(NSLocalizedString("tag_manager_new_tag_placeholder", comment: "新增標籤名稱"), text: $newTagName)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .focused($isTextFieldFocused)
                         Button(action: addTag) {
@@ -63,7 +63,7 @@ struct TagManagerView: View {
                         .disabled(newTagName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
                     if viewModel.availableTags.isEmpty {
-                        Text("目前沒有標籤")
+                        Text(NSLocalizedString("tag_manager_no_tag", comment: "目前沒有標籤"))
                             .foregroundColor(.secondary)
                     } else {
                         ForEach(viewModel.availableTags, id: \.objectID) { tag in
@@ -91,8 +91,8 @@ struct TagManagerView: View {
                     }
                 }
             }
-            .navigationTitle("標籤管理")
-            .navigationBarItems(leading: Button("關閉") {
+            .navigationTitle(NSLocalizedString("tag_manager_section_title", comment: "標籤管理"))
+            .navigationBarItems(leading: Button(NSLocalizedString("common_close", comment: "關閉")) {
                 presentationMode.wrappedValue.dismiss()
             })
             .onAppear {
@@ -103,14 +103,14 @@ struct TagManagerView: View {
             .sheet(isPresented: $showEditSheet) {
                 NavigationView {
                     Form {
-                        Section(header: Text("編輯標籤")) {
-                            TextField("標籤名稱", text: $editingTagName)
+                        Section(header: Text(NSLocalizedString("tag_manager_edit_section", comment: "編輯標籤"))) {
+                            TextField(NSLocalizedString("tag_manager_edit_placeholder", comment: "標籤名稱"), text: $editingTagName)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
                     }
-                    .navigationBarItems(leading: Button("取消") {
+                    .navigationBarItems(leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {
                         showEditSheet = false
-                    }, trailing: Button("儲存") {
+                    }, trailing: Button(NSLocalizedString("common_save", comment: "儲存")) {
                         if let tag = editingTag {
                             updateTag(tag: tag, newName: editingTagName)
                         }
@@ -119,7 +119,7 @@ struct TagManagerView: View {
                 }
             }
             .alert(isPresented: $showDeleteAlert) {
-                Alert(title: Text("確定要刪除這個標籤嗎？"), message: Text(tagToDelete?.name ?? ""), primaryButton: .destructive(Text("刪除")) {
+                Alert(title: Text(NSLocalizedString("tag_manager_delete_confirm_title", comment: "確定要刪除這個標籤嗎？")), message: Text(tagToDelete?.name ?? ""), primaryButton: .destructive(Text(NSLocalizedString("common_delete", comment: "刪除"))) {
                     if let tag = tagToDelete {
                         deleteTag(tag: tag)
                     }
@@ -149,46 +149,40 @@ struct NotificationSettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("未整理靈感提醒")) {
-                    Toggle("未整理提醒", isOn: $setting.enabled)
-                        .onChange(of: setting.enabled) { _ in
-                            saveAndSchedule()
-                        }
+                Section(header: Text(NSLocalizedString("notification_unorganized_section_title", comment: "未整理靈感提醒"))) {
+                    Toggle(NSLocalizedString("notification_unorganized_toggle", comment: "未整理提醒"), isOn: $setting.enabled)
+                        .onChange(of: setting.enabled) { _, _ in saveAndSchedule() }
                     if setting.enabled {
-                        Picker("提醒頻率", selection: $setting.frequency) {
+                        Picker(NSLocalizedString("notification_unorganized_frequency", comment: "提醒頻率"), selection: $setting.frequency) {
                             ForEach(ReminderFrequency.allCases) { freq in
                                 Text(freq.displayName).tag(freq)
                             }
                         }
-                        .onChange(of: setting.frequency) { _ in
-                            saveAndSchedule()
-                        }
+                        .onChange(of: setting.frequency) { _, _ in saveAndSchedule() }
                         if setting.frequency == .weekly {
-                            Picker("提醒星期", selection: Binding(get: { setting.weekday ?? 2 }, set: { setting.weekday = $0; saveAndSchedule() })) {
+                            Picker(NSLocalizedString("notification_unorganized_weekday", comment: "提醒星期"), selection: Binding(get: { setting.weekday ?? 2 }, set: { setting.weekday = $0; saveAndSchedule() })) {
                                 ForEach(1...7, id: \ .self) { i in
                                     Text(weekdayName(i)).tag(i)
                                 }
                             }
                         }
                         if setting.frequency == .monthly {
-                            Picker("提醒日", selection: Binding(get: { setting.day ?? 1 }, set: { setting.day = $0; saveAndSchedule() })) {
+                            Picker(NSLocalizedString("notification_unorganized_day", comment: "提醒日"), selection: Binding(get: { setting.day ?? 1 }, set: { setting.day = $0; saveAndSchedule() })) {
                                 ForEach(1...31, id: \ .self) { d in
-                                    Text("每月\(d)日").tag(d)
+                                    Text(String(format: NSLocalizedString("notification_unorganized_day_format", comment: "每月%d日"), d)).tag(d)
                                 }
                             }
                         }
-                        DatePicker("提醒時間", selection: $setting.time, displayedComponents: .hourAndMinute)
-                            .onChange(of: setting.time) { _ in
-                                saveAndSchedule()
-                            }
-                        Text("提醒您整理未分類的靈感，保持創意流暢")
+                        DatePicker(NSLocalizedString("notification_unorganized_time", comment: "提醒時間"), selection: $setting.time, displayedComponents: .hourAndMinute)
+                            .onChange(of: setting.time) { _, _ in saveAndSchedule() }
+                        Text(NSLocalizedString("notification_unorganized_hint", comment: "提醒您整理未分類的靈感，保持創意流暢"))
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
             }
-            .navigationTitle("通知設定")
-            .navigationBarItems(leading: Button("關閉") {
+            .navigationTitle(NSLocalizedString("notification_settings_title", comment: "通知設定"))
+            .navigationBarItems(leading: Button(NSLocalizedString("common_close", comment: "關閉")) {
                 presentationMode.wrappedValue.dismiss()
             })
             .onAppear {
@@ -222,12 +216,12 @@ struct AboutView: View {
                     .foregroundColor(.accentColor)
                 Text("Sparks")
                     .font(.custom("HelveticaNeue-Light", size: 28))
-                Text("版本 1.0.0\n\n記下讓你心動的瞬間，等你準備好出發。\n\n© 2025 NanNova Labs")
+                Text(NSLocalizedString("about_version_and_desc", comment: "版本 1.0.0\n\n記下讓你心動的瞬間，等你準備好出發。\n\n© 2025 NanNova Labs"))
                     .font(.custom("HelveticaNeue-Light", size: 16))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
                 Button(action: {
-                    let subject = "Sparks App 意見回饋"
+                    let subject = NSLocalizedString("about_feedback_subject", comment: "Sparks App 意見回饋")
                     let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
                     if let url = URL(string: "mailto:feedback@nannova.com?subject=\(encodedSubject)") {
                         UIApplication.shared.open(url)
@@ -235,7 +229,7 @@ struct AboutView: View {
                 }) {
                     HStack {
                         Image(systemName: "envelope")
-                        Text("意見回饋")
+                        Text(NSLocalizedString("about_feedback", comment: "意見回饋"))
                     }
                     .font(.custom("HelveticaNeue-Light", size: 18))
                     .padding(.horizontal, 24)
@@ -246,7 +240,7 @@ struct AboutView: View {
                 }
             }
             .padding()
-            .navigationTitle("關於")
+            .navigationTitle(NSLocalizedString("about_title", comment: "關於"))
         }
     }
 }

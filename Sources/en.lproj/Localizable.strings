@@ -1,0 +1,34 @@
+/* English localization */
+"test_hello" = "Hello";
+"test_welcome" = "Welcome to Sparks!";
+"settings_notification" = "Notification";
+"settings_tag_manager" = "Tag Management";
+"settings_about" = "About";
+"settings_title" = "Settings";
+
+"tag_manager_section_title" = "Tag Manager";
+"tag_manager_new_tag_placeholder" = "New tag name";
+"tag_manager_no_tag" = "No tags yet";
+"tag_manager_edit_section" = "Edit Tag";
+"tag_manager_edit_placeholder" = "Tag name";
+"tag_manager_delete_confirm_title" = "Are you sure you want to delete this tag?";
+
+"common_close" = "Close";
+"common_cancel" = "Cancel";
+"common_save" = "Save";
+"common_delete" = "Delete";
+
+"notification_unorganized_section_title" = "Unorganized Inspiration Reminder";
+"notification_unorganized_toggle" = "Unorganized Reminder";
+"notification_unorganized_frequency" = "Frequency";
+"notification_unorganized_weekday" = "Weekday";
+"notification_unorganized_day" = "Day";
+"notification_unorganized_day_format" = "Day %d of the month";
+"notification_unorganized_time" = "Time";
+"notification_unorganized_hint" = "Remind you to organize unclassified inspirations and keep your creativity flowing.";
+"notification_settings_title" = "Notification";
+
+"about_title" = "About";
+"about_version_and_desc" = "Version 1.0.0\n\nCapture your sparks of inspiration and get ready to act.\n\n© 2025 NanNova Labs";
+"about_feedback" = "Feedback";
+"about_feedback_subject" = "Sparks App Feedback"; 

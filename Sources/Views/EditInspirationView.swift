@@ -23,7 +23,7 @@ struct EditInspirationView: View {
         _content = State(initialValue: inspiration.content ?? "")
         _url = State(initialValue: inspiration.url ?? "")
         _websiteTitle = State(initialValue: inspiration.title ?? "")
-        let tagNames = (inspiration.tag as? Set<Tag>)?.compactMap { $0.name } ?? []
+        let tagNames = (inspiration.tags as? Set<Tag>)?.compactMap { $0.name } ?? []
         _selectedTags = State(initialValue: Set(tagNames))
     }
     
