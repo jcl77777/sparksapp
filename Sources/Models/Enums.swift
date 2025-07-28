@@ -45,11 +45,11 @@ enum TaskStatus: Int16, CaseIterable, Identifiable {
     var name: String {
         switch self {
         case .pending:
-            return "Pending"
+            return NSLocalizedString("taskstatus_todo", comment: "待處理")
         case .inProgress:
-            return "In Progress"
+            return NSLocalizedString("taskstatus_doing", comment: "進行中")
         case .completed:
-            return "Completed"
+            return NSLocalizedString("taskstatus_done", comment: "已完成")
         }
     }
     

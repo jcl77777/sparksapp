@@ -28,7 +28,7 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            .navigationTitle("Dashboard")
+            .navigationTitle(NSLocalizedString("dashboard_title", comment: "儀表板"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
@@ -63,7 +63,7 @@ struct TodayStatsSection: View {
                 Image(systemName: "calendar")
                     .foregroundColor(.blue)
                     .font(.title2)
-                Text("今日統計")
+                Text(NSLocalizedString("dashboard_today_stats", comment: "今日統計"))
                     .font(.custom("HelveticaNeue-Light", size: 20))
                     .fontWeight(.medium)
                 Spacer()
@@ -71,14 +71,14 @@ struct TodayStatsSection: View {
             
             HStack(spacing: 16) {
                 StatCard(
-                    title: "新增靈感",
+                    title: NSLocalizedString("dashboard_new_inspirations", comment: "新增靈感"),
                     value: "\(dashboardViewModel.todayInspirations)",
                     icon: "lightbulb",
                     color: .orange
                 )
                 
                 StatCard(
-                    title: "新增任務",
+                    title: NSLocalizedString("dashboard_new_tasks", comment: "新增任務"),
                     value: "\(dashboardViewModel.todayTasks)",
                     icon: "checkmark.circle",
                     color: .green
@@ -102,7 +102,7 @@ struct OverviewStatsSection: View {
                 Image(systemName: "chart.bar")
                     .foregroundColor(.purple)
                     .font(.title2)
-                Text("總覽統計")
+                Text(NSLocalizedString("dashboard_overview_stats", comment: "總覽統計"))
                     .font(.custom("HelveticaNeue-Light", size: 20))
                     .fontWeight(.medium)
                 Spacer()
@@ -110,14 +110,14 @@ struct OverviewStatsSection: View {
             
             HStack(spacing: 16) {
                 StatCard(
-                    title: "總靈感數",
+                    title: NSLocalizedString("dashboard_total_inspirations", comment: "總靈感數"),
                     value: "\(dashboardViewModel.totalInspirations)",
                     icon: "lightbulb.fill",
                     color: .blue
                 )
                 
                 StatCard(
-                    title: "總任務數",
+                    title: NSLocalizedString("dashboard_total_tasks", comment: "總任務數"),
                     value: "\(dashboardViewModel.totalTasks)",
                     icon: "checkmark.circle.fill",
                     color: .green
@@ -141,7 +141,7 @@ struct TaskStatsSection: View {
                 Image(systemName: "list.clipboard")
                     .foregroundColor(.green)
                     .font(.title2)
-                Text("任務狀態")
+                Text(NSLocalizedString("dashboard_task_status", comment: "任務狀態"))
                     .font(.custom("HelveticaNeue-Light", size: 20))
                     .fontWeight(.medium)
                 Spacer()
@@ -149,21 +149,21 @@ struct TaskStatsSection: View {
             
             VStack(spacing: 12) {
                 TaskStatusRow(
-                    title: "待處理",
+                    title: NSLocalizedString("taskstatus_todo", comment: "待處理"),
                     count: dashboardViewModel.pendingTasks,
                     icon: "circle",
                     color: .gray
                 )
                 
                 TaskStatusRow(
-                    title: "進行中",
+                    title: NSLocalizedString("taskstatus_doing", comment: "進行中"),
                     count: dashboardViewModel.inProgressTasks,
                     icon: "clock",
                     color: .blue
                 )
                 
                 TaskStatusRow(
-                    title: "已完成",
+                    title: NSLocalizedString("taskstatus_done", comment: "已完成"),
                     count: dashboardViewModel.completedTasks,
                     icon: "checkmark.circle.fill",
                     color: .green
@@ -187,7 +187,7 @@ struct OrganizationStatsSection: View {
                 Image(systemName: "folder")
                     .foregroundColor(.orange)
                     .font(.title2)
-                Text("靈感整理狀態")
+                Text(NSLocalizedString("dashboard_organization_status", comment: "靈感整理狀態"))
                     .font(.custom("HelveticaNeue-Light", size: 20))
                     .fontWeight(.medium)
                 Spacer()
@@ -195,14 +195,14 @@ struct OrganizationStatsSection: View {
             
             HStack(spacing: 16) {
                 StatCard(
-                    title: "已整理",
+                    title: NSLocalizedString("dashboard_organized", comment: "已整理"),
                     value: "\(dashboardViewModel.organizedInspirations)",
                     icon: "checkmark.circle.fill",
                     color: .green
                 )
                 
                 StatCard(
-                    title: "未整理",
+                    title: NSLocalizedString("dashboard_unorganized", comment: "未整理"),
                     value: "\(dashboardViewModel.unorganizedInspirations)",
                     icon: "exclamationmark.circle",
                     color: .orange
@@ -226,28 +226,26 @@ struct StreakSection: View {
                 Image(systemName: "flame")
                     .foregroundColor(.orange)
                     .font(.title2)
-                Text("連續紀錄")
+                Text(NSLocalizedString("dashboard_streak", comment: "連續紀錄"))
                     .font(.custom("HelveticaNeue-Light", size: 20))
                     .fontWeight(.medium)
                 Spacer()
             }
             
-
-            
             HStack(spacing: 16) {
                 StreakCard(
-                    title: "當前連續",
+                    title: NSLocalizedString("dashboard_current_streak", comment: "當前連續"),
                     value: "\(dashboardViewModel.currentStreak)",
-                    subtitle: "天",
+                    subtitle: NSLocalizedString("dashboard_days", comment: "天"),
                     icon: "flame.fill",
                     color: .orange,
                     badge: getCurrentStreakBadge()
                 )
                 
                 StreakCard(
-                    title: "最長連續",
+                    title: NSLocalizedString("dashboard_longest_streak", comment: "最長連續"),
                     value: "\(dashboardViewModel.longestStreak)",
-                    subtitle: "天",
+                    subtitle: NSLocalizedString("dashboard_days", comment: "天"),
                     icon: "trophy.fill",
                     color: .yellow,
                     badge: getLongestStreakBadge()
@@ -257,7 +255,7 @@ struct StreakSection: View {
             // 成就徽章顯示
             if !getAchievementBadges().isEmpty {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("成就徽章")
+                    Text(NSLocalizedString("dashboard_achievement_badges", comment: "成就徽章"))
                         .font(.custom("HelveticaNeue-Light", size: 16))
                         .fontWeight(.medium)
                         .foregroundColor(.secondary)
@@ -300,34 +298,34 @@ struct StreakSection: View {
         let totalDays = dashboardViewModel.consecutiveDays
         
         if currentStreak >= 7 {
-            badges.append(AchievementBadge(title: "一週堅持", icon: "7.circle.fill", color: .blue, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_7day", comment: "一週堅持"), icon: "7.circle.fill", color: .blue, unlocked: true))
         }
         if currentStreak >= 14 {
-            badges.append(AchievementBadge(title: "兩週堅持", icon: "14.circle.fill", color: .green, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_14day", comment: "兩週堅持"), icon: "14.circle.fill", color: .green, unlocked: true))
         }
         if currentStreak >= 30 {
-            badges.append(AchievementBadge(title: "月堅持", icon: "30.circle.fill", color: .purple, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_30day", comment: "月堅持"), icon: "30.circle.fill", color: .purple, unlocked: true))
         }
         
         if longestStreak >= 7 {
-            badges.append(AchievementBadge(title: "最長7天", icon: "trophy", color: .orange, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_longest7", comment: "最長7天"), icon: "trophy", color: .orange, unlocked: true))
         }
         if longestStreak >= 14 {
-            badges.append(AchievementBadge(title: "最長14天", icon: "trophy.fill", color: .yellow, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_longest14", comment: "最長14天"), icon: "trophy.fill", color: .yellow, unlocked: true))
         }
         if longestStreak >= 30 {
-            badges.append(AchievementBadge(title: "最長30天", icon: "crown.fill", color: .purple, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_longest30", comment: "最長30天"), icon: "crown.fill", color: .purple, unlocked: true))
         }
         
         // 基於總活動天數的成就
         if totalDays >= 10 {
-            badges.append(AchievementBadge(title: "活躍用戶", icon: "star.fill", color: .blue, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_active", comment: "活躍用戶"), icon: "star.fill", color: .blue, unlocked: true))
         }
         if totalDays >= 30 {
-            badges.append(AchievementBadge(title: "資深用戶", icon: "star.circle.fill", color: .green, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_veteran", comment: "資深用戶"), icon: "star.circle.fill", color: .green, unlocked: true))
         }
         if totalDays >= 100 {
-            badges.append(AchievementBadge(title: "大師級", icon: "crown", color: .purple, unlocked: true))
+            badges.append(AchievementBadge(title: NSLocalizedString("dashboard_badge_master", comment: "大師級"), icon: "crown", color: .purple, unlocked: true))
         }
         
         return badges
@@ -417,7 +415,7 @@ struct WeeklyTrendSection: View {
                 Image(systemName: "chart.line.uptrend.xyaxis")
                     .foregroundColor(.purple)
                     .font(.title2)
-                Text("週趨勢")
+                Text(NSLocalizedString("dashboard_weekly_trend", comment: "週趨勢"))
                     .font(.custom("HelveticaNeue-Light", size: 20))
                     .fontWeight(.medium)
                 Spacer()
@@ -522,7 +520,7 @@ struct WeeklyChartView: View {
             .frame(height: 100)
             
             // 圖表說明
-            Text("過去7天新增靈感數量")
+            Text(NSLocalizedString("dashboard_weekly_inspiration_count", comment: "過去7天新增靈感數量"))
                 .font(.custom("HelveticaNeue-Light", size: 12))
                 .foregroundColor(.secondary)
         }

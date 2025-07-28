@@ -17,10 +17,10 @@ struct InspirationTaskSheetView: View {
         NavigationView {
             Form {
                 // 已連結任務
-                Section(header: Text("已連結任務")) {
+                Section(header: Text(NSLocalizedString("inspirationtask_linked_tasks", comment: "已連結任務"))) {
                     let linkedTasks = viewModel.getTasks(for: inspiration)
                     if linkedTasks.isEmpty {
-                        Text("尚未有關聯任務")
+                        Text(NSLocalizedString("inspirationtask_no_related_task", comment: "尚未有關聯任務"))
                             .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.secondary)
                     } else {
@@ -28,7 +28,7 @@ struct InspirationTaskSheetView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: taskStatusIcon(task.status))
                                     .foregroundColor(taskStatusColor(task.status))
-                                Text(task.title ?? "未命名任務")
+                                Text(task.title ?? NSLocalizedString("inspirationtask_unnamed_task", comment: "未命名任務"))
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                                 Text(taskStatusName(task.status))
                                     .font(.custom("HelveticaNeue-Light", size: 10))
@@ -38,8 +38,8 @@ struct InspirationTaskSheetView: View {
                     }
                 }
                 // 新增任務
-                Section(header: Text("新增任務")) {
-                    TextField("任務標題", text: $newTaskTitle)
+                Section(header: Text(NSLocalizedString("inspirationtask_add_task_section", comment: "新增任務"))) {
+                    TextField(NSLocalizedString("inspirationtask_task_title_placeholder", comment: "任務標題"), text: $newTaskTitle)
                     TextEditor(text: $newTaskDetails)
                         .frame(minHeight: 60)
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color(.systemGray4), lineWidth: 1))
@@ -47,9 +47,9 @@ struct InspirationTaskSheetView: View {
                 // 可連結既有任務
                 let availableTasks = taskViewModel.tasks.filter { $0.inspiration == nil }
                 if !availableTasks.isEmpty {
-                    Section(header: Text("可連結既有任務（可多選）")) {
+                    Section(header: Text(NSLocalizedString("inspirationtask_link_existing_section", comment: "可連結既有任務（可多選）"))) {
                         ForEach(availableTasks, id: \.objectID) { task in
-                            MultipleSelectionRow(title: task.title ?? "未命名任務", isSelected: selectedTaskIDs.contains(task.objectID)) {
+                            MultipleSelectionRow(title: task.title ?? NSLocalizedString("inspirationtask_unnamed_task", comment: "未命名任務"), isSelected: selectedTaskIDs.contains(task.objectID)) {
                                 if selectedTaskIDs.contains(task.objectID) {
                                     selectedTaskIDs.remove(task.objectID)
                                 } else {
@@ -60,8 +60,8 @@ struct InspirationTaskSheetView: View {
                     }
                 }
             }
-            .navigationTitle("新增/連結任務")
-            .navigationBarItems(leading: Button("取消") { onComplete() }, trailing: Button("新增") {
+            .navigationTitle(NSLocalizedString("inspirationtask_add_or_link_title", comment: "新增/連結任務"))
+            .navigationBarItems(leading: Button(NSLocalizedString("inspirationtask_cancel", comment: "取消")) { onComplete() }, trailing: Button(NSLocalizedString("inspirationtask_add", comment: "新增")) {
                 // 新增新任務
                 if !newTaskTitle.trimmingCharacters(in: .whitespaces).isEmpty {
                     viewModel.addTask(title: newTaskTitle, details: newTaskDetails.isEmpty ? nil : newTaskDetails, inspiration: inspiration)
@@ -106,10 +106,10 @@ struct InspirationTaskSheetView: View {
     }
     private func taskStatusName(_ status: Int16) -> String {
         switch status {
-        case 0: return "待處理"
-        case 1: return "進行中"
-        case 2: return "已完成"
-        default: return "未知"
+        case 0: return NSLocalizedString("taskstatus_todo", comment: "待處理")
+        case 1: return NSLocalizedString("taskstatus_doing", comment: "進行中")
+        case 2: return NSLocalizedString("taskstatus_done", comment: "已完成")
+        default: return NSLocalizedString("taskstatus_unknown", comment: "未知")
         }
     }
 } 

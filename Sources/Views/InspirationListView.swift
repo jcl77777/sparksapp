@@ -11,14 +11,25 @@ struct InspirationListView: View {
     @State private var viewMode: ViewMode = .list
     
     enum OrganizationCategory: String, CaseIterable {
-        case all = "全部"
-        case organized = "已整理"
-        case unorganized = "未整理"
+        case all
+        case organized
+        case unorganized
+        
+        var localized: String {
+            switch self {
+            case .all:
+                return NSLocalizedString("inspiration_status_all", comment: "全部")
+            case .organized:
+                return NSLocalizedString("inspiration_status_organized", comment: "已整理")
+            case .unorganized:
+                return NSLocalizedString("inspiration_status_unorganized", comment: "未整理")
+            }
+        }
     }
     
     enum ViewMode: String, CaseIterable {
-        case list = "列表"
-        case gallery = "畫廊"
+        case list
+        case gallery
         
         var icon: String {
             switch self {
@@ -26,6 +37,15 @@ struct InspirationListView: View {
                 return "list.bullet"
             case .gallery:
                 return "square.grid.2x2"
+            }
+        }
+        
+        var localized: String {
+            switch self {
+            case .list:
+                return NSLocalizedString("inspiration_viewmode_list", comment: "列表")
+            case .gallery:
+                return NSLocalizedString("inspiration_viewmode_gallery", comment: "畫廊")
             }
         }
     }
@@ -62,14 +82,14 @@ struct InspirationListView: View {
         NavigationView {
             VStack(spacing: 0) {
                 // 搜尋欄位
-                SearchBar(text: $searchText)
+                SearchBar(text: $searchText, placeholder: NSLocalizedString("inspiration_search_placeholder", comment: "搜尋靈感"))
                     .padding(.horizontal)
                     .padding(.top, 8)
                 
                 // 分類切換
-                Picker("分類", selection: $selectedCategory) {
+                Picker(NSLocalizedString("inspiration_category", comment: "分類"), selection: $selectedCategory) {
                     ForEach(OrganizationCategory.allCases, id: \.self) { category in
-                        Text(category.rawValue).tag(category)
+                        Text(category.localized).tag(category)
                     }
                 }
                 .pickerStyle(SegmentedPickerStyle())
@@ -128,7 +148,7 @@ struct InspirationListView: View {
                     }
                 }
             }
-            .navigationTitle("Collection")
+            .navigationTitle(NSLocalizedString("inspiration_collection", comment: "收藏"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     EditButton()
@@ -168,16 +188,16 @@ struct InspirationListView: View {
     
     private var emptyStateMessage: String {
         if !searchText.isEmpty {
-            return "沒有找到符合「\(searchText)」的靈感"
+            return String(format: NSLocalizedString("inspiration_empty_search", comment: "沒有找到符合"), searchText)
         }
         
         switch selectedCategory {
         case .organized:
-            return "還沒有已整理的靈感\n為靈感建立任務即可整理"
+            return NSLocalizedString("inspiration_empty_organized", comment: "還沒有已整理的靈感\n為靈感建立任務即可整理")
         case .unorganized:
-            return "所有靈感都已整理完成！\n（都有關聯的任務）"
+            return NSLocalizedString("inspiration_empty_unorganized", comment: "所有靈感都已整理完成！\n（都有關聯的任務）")
         case .all:
-            return "還沒有任何靈感\n點擊「+」開始新增"
+            return NSLocalizedString("inspiration_empty_all", comment: "還沒有任何靈感\n點擊「+」開始新增")
         }
     }
 }
@@ -185,13 +205,14 @@ struct InspirationListView: View {
 // 搜尋欄位元件
 struct SearchBar: View {
     @Binding var text: String
+    var placeholder: String = ""
     
     var body: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
             
-            TextField("搜尋靈感...", text: $text)
+            TextField(placeholder, text: $text)
                 .textFieldStyle(PlainTextFieldStyle())
             
             if !text.isEmpty {

@@ -16,28 +16,25 @@ struct URLInspirationView: View {
     var body: some View {
         NavigationView {
             if showingSuccessView {
-                // 儲存成功後的選擇介面
+                // 儲存成功後的選項介面
                 VStack(spacing: 30) {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 80))
                         .foregroundColor(.green)
-                    
                     VStack(spacing: 8) {
-                        Text("儲存成功！")
+                        Text(NSLocalizedString("url_success", comment: "儲存成功！"))
                             .font(.custom("HelveticaNeue-Light", size: 28))
-                        
-                        Text("網址已成功儲存到收藏")
+                        Text(NSLocalizedString("url_saved", comment: "網址已成功儲存到收藏"))
                             .font(.custom("HelveticaNeue-Light", size: 15))
                             .foregroundColor(.secondary)
                     }
-                    
                     VStack(spacing: 16) {
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
                         }) {
                             HStack {
                                 Image(systemName: "plus.circle")
-                                Text("新增任務")
+                                Text(NSLocalizedString("url_add_task", comment: "新增任務"))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -45,13 +42,12 @@ struct URLInspirationView: View {
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }
-                        
                         Button(action: {
                             presentationMode.wrappedValue.dismiss()
                         }) {
                             HStack {
                                 Image(systemName: "checkmark")
-                                Text("完成")
+                                Text(NSLocalizedString("url_done", comment: "完成"))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -65,41 +61,36 @@ struct URLInspirationView: View {
                 .navigationBarHidden(true)
             } else {
                 Form {
-                    Section(header: Text("網址")) {
+                    Section(header: Text(NSLocalizedString("url_title", comment: "網址"))) {
                         HStack {
-                            TextField("輸入網址", text: $urlString)
+                            TextField(NSLocalizedString("url_placeholder", comment: "輸入網址"), text: $urlString)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
-                            
                             Button(action: fetchWebsiteInfo) {
                                 Image(systemName: "arrow.down.circle")
                                     .foregroundColor(.blue)
                             }
                             .disabled(urlString.isEmpty || isLoading)
                         }
-                        
                         if isLoading {
                             HStack {
                                 ProgressView()
                                     .scaleEffect(0.8)
-                                Text("正在抓取網站資訊...")
+                                Text(NSLocalizedString("url_loading", comment: "正在抓取網站資訊..."))
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                             }
                         }
-                        
                         if let errorMessage = errorMessage {
                             Text(errorMessage)
                                 .font(.custom("HelveticaNeue-Light", size: 12))
                                 .foregroundColor(.red)
                         }
                     }
-                    
                     if !websiteTitle.isEmpty {
-                        Section(header: Text("預覽")) {
+                        Section(header: Text(NSLocalizedString("url_preview", comment: "預覽"))) {
                             VStack(alignment: .leading, spacing: 12) {
-                                // 預覽卡片
                                 VStack(alignment: .leading, spacing: 8) {
                                     HStack {
                                         Image(systemName: "link")
@@ -108,7 +99,6 @@ struct URLInspirationView: View {
                                             .font(.custom("HelveticaNeue-Light", size: 17))
                                             .lineLimit(2)
                                     }
-                                    
                                     Text(urlString)
                                         .font(.custom("HelveticaNeue-Light", size: 12))
                                         .foregroundColor(.secondary)
@@ -120,8 +110,7 @@ struct URLInspirationView: View {
                             }
                         }
                     }
-                    
-                    Section(header: Text("描述（可選）")) {
+                    Section(header: Text(NSLocalizedString("url_description_optional", comment: "描述（可選）"))) {
                         TextEditor(text: $description)
                             .frame(minHeight: 80)
                             .overlay(
@@ -129,10 +118,9 @@ struct URLInspirationView: View {
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
                     }
-                    
-                    Section(header: Text("標籤（可選）")) {
+                    Section(header: Text(NSLocalizedString("url_tags_optional", comment: "標籤（可選）"))) {
                         if viewModel.availableTags.isEmpty {
-                            Text("還沒有標籤，請先在設定中新增標籤")
+                            Text(NSLocalizedString("url_no_tags", comment: "還沒有標籤，請先在設定中新增標籤"))
                                 .font(.custom("HelveticaNeue-Light", size: 14))
                                 .foregroundColor(.secondary)
                         } else {
@@ -154,12 +142,12 @@ struct URLInspirationView: View {
                         }
                     }
                 }
-                .navigationTitle("新增網址")
+                .navigationTitle(NSLocalizedString("add_url_title", comment: "新增網址"))
                 .navigationBarItems(
-                    leading: Button("取消") {
+                    leading: Button(NSLocalizedString("url_cancel", comment: "取消")) {
                         presentationMode.wrappedValue.dismiss()
                     },
-                    trailing: Button("儲存") {
+                    trailing: Button(NSLocalizedString("url_save", comment: "儲存")) {
                         saveURL()
                     }
                     .disabled(urlString.isEmpty || websiteTitle.isEmpty)

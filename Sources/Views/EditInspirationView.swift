@@ -30,14 +30,14 @@ struct EditInspirationView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("標題")) {
-                    TextField("輸入標題", text: $title)
+                Section(header: Text(NSLocalizedString("editspark_title_section", comment: "標題"))) {
+                    TextField(NSLocalizedString("editspark_title_placeholder", comment: "輸入標題"), text: $title)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 
                 if inspiration.type == 1 {
                     // 圖片類型
-                    Section(header: Text("圖片")) {
+                    Section(header: Text(NSLocalizedString("editspark_image_section", comment: "圖片"))) {
                         if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
                             Image(uiImage: uiImage)
                                 .resizable()
@@ -49,7 +49,7 @@ struct EditInspirationView: View {
                                         .stroke(Color(.systemGray4), lineWidth: 1)
                                 )
                         } else {
-                            Text("圖片載入失敗")
+                            Text(NSLocalizedString("editspark_image_load_failed", comment: "圖片載入失敗"))
                                 .foregroundColor(.secondary)
                         }
                     }
@@ -57,9 +57,9 @@ struct EditInspirationView: View {
                 
                 if inspiration.type == 2 {
                     // 網址類型
-                    Section(header: Text("網址")) {
+                    Section(header: Text(NSLocalizedString("editspark_url_section", comment: "網址"))) {
                         HStack {
-                            TextField("輸入網址", text: $url)
+                            TextField(NSLocalizedString("editspark_url_placeholder", comment: "輸入網址"), text: $url)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
@@ -73,7 +73,7 @@ struct EditInspirationView: View {
                             HStack {
                                 ProgressView()
                                     .scaleEffect(0.8)
-                                Text("正在抓取網站資訊...")
+                                Text(NSLocalizedString("editspark_url_loading", comment: "正在抓取網站資訊..."))
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                             }
@@ -86,7 +86,7 @@ struct EditInspirationView: View {
                     }
                 } else if inspiration.type == 3 {
                     // 影片類型
-                    Section(header: Text("影片連結")) {
+                    Section(header: Text(NSLocalizedString("editspark_video_section", comment: "影片連結"))) {
                         HStack {
                             Image(systemName: "video")
                                 .foregroundColor(.purple)
@@ -99,7 +99,7 @@ struct EditInspirationView: View {
                 }
                 
                 if (inspiration.type == 2 || inspiration.type == 3), !websiteTitle.isEmpty {
-                    Section(header: Text("預覽")) {
+                    Section(header: Text(NSLocalizedString("editspark_preview_section", comment: "預覽"))) {
                         VStack(alignment: .leading, spacing: 12) {
                             VStack(alignment: .leading, spacing: 8) {
                                 HStack {
@@ -121,7 +121,7 @@ struct EditInspirationView: View {
                     }
                 }
                 
-                Section(header: Text("內容")) {
+                Section(header: Text(NSLocalizedString("editspark_content_section", comment: "內容"))) {
                     TextEditor(text: $content)
                         .frame(minHeight: 120)
                         .overlay(
@@ -131,9 +131,9 @@ struct EditInspirationView: View {
                 }
                 
                 // 新增：顯示所有關聯任務，並可新增/連結
-                Section(header: Text("標籤（可選）")) {
+                Section(header: Text(NSLocalizedString("editspark_tags_section", comment: "標籤（可選）"))) {
                     if viewModel.availableTags.isEmpty {
-                        Text("無可用標籤，請至設定頁新增")
+                        Text(NSLocalizedString("editspark_no_tags", comment: "無可用標籤，請至設定頁新增"))
                             .foregroundColor(.secondary)
                             .italic()
                     } else {
@@ -149,10 +149,10 @@ struct EditInspirationView: View {
                         }
                     }
                 }
-                Section(header: Text("關聯任務")) {
+                Section(header: Text(NSLocalizedString("editspark_related_tasks_section", comment: "關聯任務"))) {
                     let tasks = viewModel.getTasks(for: inspiration)
                     if tasks.isEmpty {
-                        Text("尚未有關聯任務")
+                        Text(NSLocalizedString("editspark_no_related_task", comment: "尚未有關聯任務"))
                             .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.secondary)
                     } else {
@@ -160,7 +160,7 @@ struct EditInspirationView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: taskStatusIcon(task.status))
                                     .foregroundColor(taskStatusColor(task.status))
-                                Text(task.title ?? "未命名任務")
+                                Text(task.title ?? NSLocalizedString("editspark_unnamed_task", comment: "未命名任務"))
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                                 Text(taskStatusName(task.status))
                                     .font(.custom("HelveticaNeue-Light", size: 10))
@@ -169,16 +169,16 @@ struct EditInspirationView: View {
                         }
                     }
                     Button(action: { showTaskSheet = true }) {
-                        Label("新增任務", systemImage: "plus.circle")
+                        Label(NSLocalizedString("editspark_add_task", comment: "新增任務"), systemImage: "plus.circle")
                     }
                 }
             }
-            .navigationTitle("編輯靈感")
+            .navigationTitle(NSLocalizedString("editspark_navigation_title", comment: "編輯靈感"))
             .navigationBarItems(
-                leading: Button("取消") {
+                leading: Button(NSLocalizedString("editspark_cancel", comment: "取消")) {
                     presentationMode.wrappedValue.dismiss()
                 },
-                trailing: Button("儲存") {
+                trailing: Button(NSLocalizedString("editspark_save", comment: "儲存")) {
                     saveChanges()
                 }
                 .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
@@ -262,10 +262,14 @@ struct EditInspirationView: View {
     }
     private func taskStatusName(_ status: Int16) -> String {
         switch status {
-        case 0: return "待處理"
-        case 1: return "進行中"
-        case 2: return "已完成"
-        default: return "未知"
+        case 0:
+            return NSLocalizedString("taskstatus_todo", comment: "待處理")
+        case 1:
+            return NSLocalizedString("taskstatus_doing", comment: "進行中")
+        case 2:
+            return NSLocalizedString("taskstatus_done", comment: "已完成")
+        default:
+            return NSLocalizedString("taskstatus_unknown", comment: "未知")
         }
     }
 }

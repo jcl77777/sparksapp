@@ -103,33 +103,33 @@ struct MainTabView: View {
             InspirationListView()
                 .tabItem {
                     Image(systemName: "lightbulb")
-                    Text("Collection")
+                    Text(NSLocalizedString("tab_collection", comment: "收藏"))
                 }
                 .tag(0)
             TaskListView()
                 .tabItem {
                     Image(systemName: "checkmark.circle")
-                    Text("Tasks")
+                    Text(NSLocalizedString("tab_tasks", comment: "任務"))
                 }
                 .tag(1)
             AddInspirationView()
                 .tabItem {
                     Image(systemName: "plus.circle")
-                    Text("Add")
+                    Text(NSLocalizedString("tab_add", comment: "新增"))
                 }
                 .tag(2)
             DashboardView()
                 .environmentObject(dashboardViewModel)
                 .tabItem {
                     Image(systemName: "chart.bar")
-                    Text("Dashboard")
+                    Text(NSLocalizedString("tab_dashboard", comment: "儀表板"))
                 }
                 .tag(3)
             SettingsView()
                 .environmentObject(notificationManager)
                 .tabItem {
                     Image(systemName: "gear")
-                    Text("Settings")
+                    Text(NSLocalizedString("tab_settings", comment: "設定"))
                 }
                 .tag(4)
         }

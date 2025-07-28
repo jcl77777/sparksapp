@@ -75,7 +75,7 @@ struct ImageInspirationView: View {
                 }
             } else {
                 Form {
-                    Section(header: Text("圖片")) {
+                    Section(header: Text(NSLocalizedString("image_title", comment: "圖片"))) {
                         VStack(spacing: 16) {
                             if let selectedImage = selectedImage {
                                 Image(uiImage: selectedImage)
@@ -92,7 +92,7 @@ struct ImageInspirationView: View {
                                     Image(systemName: "photo")
                                         .font(.system(size: 40))
                                         .foregroundColor(.gray)
-                                    Text("尚未選擇圖片")
+                                    Text(NSLocalizedString("image_select", comment: "尚未選擇圖片"))
                                         .font(.custom("HelveticaNeue-Light", size: 16))
                                         .foregroundColor(.secondary)
                                 }
@@ -101,13 +101,12 @@ struct ImageInspirationView: View {
                                 .background(Color(.systemGray6))
                                 .cornerRadius(12)
                             }
-                            
                             Button(action: {
                                 showingImageSourceAlert = true
                             }) {
                                 HStack {
                                     Image(systemName: selectedImage == nil ? "plus.circle" : "arrow.clockwise")
-                                    Text(selectedImage == nil ? "選擇圖片" : "重新選擇")
+                                    Text(selectedImage == nil ? NSLocalizedString("image_select", comment: "選擇圖片") : NSLocalizedString("image_reselect", comment: "重新選擇"))
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -117,13 +116,11 @@ struct ImageInspirationView: View {
                             }
                         }
                     }
-                    
-                    Section(header: Text("標題")) {
-                        TextField("輸入標題", text: $title)
+                    Section(header: Text(NSLocalizedString("image_title", comment: "標題"))) {
+                        TextField(NSLocalizedString("image_title_placeholder", comment: "輸入標題"), text: $title)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
-                    
-                    Section(header: Text("描述（可選）")) {
+                    Section(header: Text(NSLocalizedString("image_desc_optional", comment: "描述（可選）"))) {
                         TextEditor(text: $content)
                             .frame(minHeight: 80)
                             .overlay(
@@ -131,10 +128,9 @@ struct ImageInspirationView: View {
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
                     }
-                    
-                    Section(header: Text("標籤（可選）")) {
+                    Section(header: Text(NSLocalizedString("tag_manager_section_title", comment: "標籤（可選）"))) {
                         if viewModel.availableTags.isEmpty {
-                            Text("無可用標籤，請至設定頁新增")
+                            Text(NSLocalizedString("no_tags_available", comment: "無可用標籤，請至設定頁新增"))
                                 .foregroundColor(.secondary)
                                 .italic()
                         } else {
@@ -151,28 +147,28 @@ struct ImageInspirationView: View {
                         }
                     }
                 }
-                .navigationTitle("新增圖片")
+                .navigationTitle(NSLocalizedString("add_image_title", comment: "新增圖片"))
                 .navigationBarItems(
-                    leading: Button("取消") {
+                    leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {
                         presentationMode.wrappedValue.dismiss()
                     },
-                    trailing: Button("儲存") {
+                    trailing: Button(NSLocalizedString("common_save", comment: "儲存")) {
                         saveImageInspiration()
                     }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || selectedImage == nil)
                 )
-                .alert("選擇圖片來源", isPresented: $showingImageSourceAlert) {
-                    Button("相簿") {
+                .alert(NSLocalizedString("image_source_select", comment: "選擇圖片來源"), isPresented: $showingImageSourceAlert) {
+                    Button(NSLocalizedString("image_source_album", comment: "相簿")) {
                         imageSource = .photoLibrary
                         showingImagePicker = true
                     }
-                    Button("相機") {
+                    Button(NSLocalizedString("image_source_camera", comment: "相機")) {
                         imageSource = .camera
                         showingImagePicker = true
                     }
-                    Button("取消", role: .cancel) { }
+                    Button(NSLocalizedString("common_cancel", comment: "取消"), role: .cancel) { }
                 } message: {
-                    Text("請選擇要從哪裡取得圖片")
+                    Text(NSLocalizedString("image_source_select_message", comment: "請選擇要從哪裡取得圖片"))
                 }
                 .sheet(isPresented: $showingImagePicker) {
                     if imageSource == .photoLibrary {

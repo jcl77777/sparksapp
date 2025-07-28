@@ -3,9 +3,11 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var viewModel: InspirationViewModel
     @EnvironmentObject var notificationManager: NotificationManager
+    @EnvironmentObject var appState: AppState
     @State private var showTagManager: Bool = false
     @State private var showAbout: Bool = false
     @State private var showNotification: Bool = false
+    @State private var showLanguageSettings: Bool = false
 
     var body: some View {
         NavigationView {
@@ -29,6 +31,13 @@ struct SettingsView: View {
                 }
                 .sheet(isPresented: $showAbout) {
                     AboutView()
+                }
+                Button(action: { showLanguageSettings = true }) {
+                    Label(NSLocalizedString("settings_language", comment: "語言"), systemImage: "globe")
+                }
+                .sheet(isPresented: $showLanguageSettings) {
+                    LanguageSettingsView()
+                        .environmentObject(appState)
                 }
             }
             .navigationTitle(NSLocalizedString("settings_title", comment: "設定"))

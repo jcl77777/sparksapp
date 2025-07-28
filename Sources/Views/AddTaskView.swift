@@ -26,11 +26,11 @@ struct AddTaskView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("任務標題")) {
-                    TextField("輸入任務標題", text: $title)
+                Section(header: Text(NSLocalizedString("task_title", comment: "任務標題"))) {
+                    TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
-                Section(header: Text("任務描述（可選）")) {
+                Section(header: Text(NSLocalizedString("task_details_optional", comment: "任務描述（可選）"))) {
                     TextEditor(text: $details)
                         .frame(minHeight: 80)
                         .overlay(
@@ -41,9 +41,9 @@ struct AddTaskView: View {
                 
                 // 顯示關聯的靈感資訊
                 if let inspiration = inspiration {
-                    Section(header: Text("關聯靈感")) {
+                    Section(header: Text(NSLocalizedString("related_inspiration", comment: "關聯靈感"))) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text(inspiration.title ?? "Untitled")
+                            Text(inspiration.title ?? NSLocalizedString("unnamed_task", comment: "未命名任務"))
                                 .font(.custom("HelveticaNeue-Light", size: 17))
                             if let content = inspiration.content, !content.isEmpty {
                                 Text(content)
@@ -56,12 +56,12 @@ struct AddTaskView: View {
                     }
                 }
             }
-            .navigationTitle("新增任務")
+            .navigationTitle(NSLocalizedString("add_task_title", comment: "新增任務"))
             .navigationBarItems(
-                leading: Button("取消") {
+                leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {
                     presentationMode.wrappedValue.dismiss()
                 },
-                trailing: Button("儲存") {
+                trailing: Button(NSLocalizedString("common_save", comment: "儲存")) {
                     saveTask()
                 }
                 .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)

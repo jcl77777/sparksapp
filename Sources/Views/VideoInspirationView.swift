@@ -26,9 +26,9 @@ struct VideoInspirationView: View {
                         .font(.system(size: 80))
                         .foregroundColor(.green)
                     VStack(spacing: 8) {
-                        Text("儲存成功！")
+                        Text(NSLocalizedString("video_success", comment: "儲存成功！"))
                             .font(.custom("HelveticaNeue-Light", size: 28))
-                        Text("影片已成功儲存到收藏")
+                        Text(NSLocalizedString("video_saved", comment: "影片已成功儲存到收藏"))
                             .font(.custom("HelveticaNeue-Light", size: 15))
                             .foregroundColor(.secondary)
                     }
@@ -39,7 +39,7 @@ struct VideoInspirationView: View {
                         }) {
                             HStack {
                                 Image(systemName: "plus.circle")
-                                Text("新增任務")
+                                Text(NSLocalizedString("video_add_task", comment: "新增任務"))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -52,7 +52,7 @@ struct VideoInspirationView: View {
                         }) {
                             HStack {
                                 Image(systemName: "checkmark")
-                                Text("完成")
+                                Text(NSLocalizedString("video_done", comment: "完成"))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -69,9 +69,9 @@ struct VideoInspirationView: View {
                 }
             } else {
                 Form {
-                    Section(header: Text("影片連結")) {
+                    Section(header: Text(NSLocalizedString("video_url_title", comment: "影片連結"))) {
                         HStack {
-                            TextField("輸入影片連結", text: $videoURL)
+                            TextField(NSLocalizedString("video_url_placeholder", comment: "輸入影片連結"), text: $videoURL)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .autocapitalization(.none)
                                 .disableAutocorrection(true)
@@ -94,7 +94,7 @@ struct VideoInspirationView: View {
                             HStack {
                                 ProgressView()
                                     .scaleEffect(0.8)
-                                Text("正在抓取影片資訊...")
+                                Text(NSLocalizedString("video_loading", comment: "正在抓取影片資訊..."))
                                     .font(.custom("HelveticaNeue-Light", size: 12))
                                     .foregroundColor(.secondary)
                             }
@@ -108,7 +108,7 @@ struct VideoInspirationView: View {
                     }
                     
                     if !videoTitle.isEmpty {
-                        Section(header: Text("預覽")) {
+                        Section(header: Text(NSLocalizedString("video_preview", comment: "影片預覽"))) {
                             VStack(alignment: .leading, spacing: 12) {
                                 // 影片預覽卡片
                                 VStack(alignment: .leading, spacing: 8) {
@@ -135,7 +135,7 @@ struct VideoInspirationView: View {
                                                 Image(systemName: "video.fill")
                                                     .font(.system(size: 32))
                                                     .foregroundColor(.purple)
-                                                Text("影片預覽")
+                                                Text(NSLocalizedString("video_preview", comment: "影片預覽"))
                                                     .font(.custom("HelveticaNeue-Light", size: 12))
                                                     .foregroundColor(.secondary)
                                             }
@@ -148,13 +148,13 @@ struct VideoInspirationView: View {
                         }
                     }
                     
-                    Section(header: Text("標題")) {
-                        TextField("輸入標題", text: $videoTitle)
+                    Section(header: Text(NSLocalizedString("video_title", comment: "標題"))) {
+                        TextField(NSLocalizedString("video_title_placeholder", comment: "輸入標題"), text: $videoTitle)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .padding(.vertical, 4)
                     }
                     
-                    Section(header: Text("描述（可選）")) {
+                    Section(header: Text(NSLocalizedString("video_description_optional", comment: "描述（可選）"))) {
                         TextEditor(text: $description)
                             .frame(minHeight: 80)
                             .overlay(
@@ -164,9 +164,9 @@ struct VideoInspirationView: View {
                             .padding(.vertical, 4)
                     }
                     
-                    Section(header: Text("標籤（可選）")) {
+                    Section(header: Text(NSLocalizedString("video_tags_optional", comment: "標籤（可選）"))) {
                         if viewModel.availableTags.isEmpty {
-                            Text("無可用標籤，請至設定頁新增")
+                            Text(NSLocalizedString("video_no_tags", comment: "無可用標籤，請至設定頁新增"))
                                 .foregroundColor(.secondary)
                                 .italic()
                         } else {
@@ -183,12 +183,12 @@ struct VideoInspirationView: View {
                         }
                     }
                 }
-                .navigationTitle("新增影片")
+                .navigationTitle(NSLocalizedString("add_video_title", comment: "新增影片"))
                 .navigationBarItems(
-                    leading: Button("取消") {
+                    leading: Button(NSLocalizedString("video_cancel", comment: "取消")) {
                         presentationMode.wrappedValue.dismiss()
                     },
-                    trailing: Button("儲存") {
+                    trailing: Button(NSLocalizedString("video_save", comment: "儲存")) {
                         saveVideoInspiration()
                     }
                     .disabled(videoTitle.trimmingCharacters(in: .whitespaces).isEmpty || videoURL.isEmpty)

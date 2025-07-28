@@ -6,10 +6,10 @@ struct AddInspirationView: View {
     @State private var selectedType: InspirationType?
     
     enum InspirationType: String, CaseIterable {
-        case note = "筆記"
-        case image = "圖片"
-        case url = "網址"
-        case video = "影片"
+        case note
+        case image
+        case url
+        case video
         
         var icon: String {
             switch self {
@@ -28,15 +28,24 @@ struct AddInspirationView: View {
             case .video: return .purple
             }
         }
+        
+        var localized: String {
+            switch self {
+            case .note: return NSLocalizedString("addinspiration_type_note", comment: "筆記")
+            case .image: return NSLocalizedString("addinspiration_type_image", comment: "圖片")
+            case .url: return NSLocalizedString("addinspiration_type_url", comment: "網址")
+            case .video: return NSLocalizedString("addinspiration_type_video", comment: "影片")
+            }
+        }
     }
     
     var body: some View {
         NavigationView {
             VStack(spacing: 30) {
                 VStack(spacing: 8) {
-                    Text("新增靈感")
+                    Text(NSLocalizedString("addinspiration_title", comment: "新增靈感"))
                         .font(.custom("HelveticaNeue-Light", size: 34))
-                    Text("選擇靈感類型")
+                    Text(NSLocalizedString("addinspiration_select_type", comment: "選擇靈感類型"))
                         .font(.custom("HelveticaNeue-Light", size: 15))
                         .foregroundColor(.secondary)
                 }
@@ -54,7 +63,7 @@ struct AddInspirationView: View {
                                 Image(systemName: type.icon)
                                     .font(.system(size: 40))
                                     .foregroundColor(type.color)
-                                Text(type.rawValue)
+                                Text(type.localized)
                                     .font(.custom("HelveticaNeue-Light", size: 17))
                                     .foregroundColor(.primary)
                             }

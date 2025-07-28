@@ -5,6 +5,7 @@
 "settings_tag_manager" = "Tag Management";
 "settings_about" = "About";
 "settings_title" = "Settings";
+"settings_language" = "Language";
 
 "tag_manager_section_title" = "Tag Manager";
 "tag_manager_new_tag_placeholder" = "New tag name";
@@ -18,17 +19,279 @@
 "common_save" = "Save";
 "common_delete" = "Delete";
 
-"notification_unorganized_section_title" = "Unorganized Inspiration Reminder";
+"notification_unorganized_section_title" = "Unorganized Spark Reminder";
 "notification_unorganized_toggle" = "Unorganized Reminder";
 "notification_unorganized_frequency" = "Frequency";
 "notification_unorganized_weekday" = "Weekday";
 "notification_unorganized_day" = "Day";
 "notification_unorganized_day_format" = "Day %d of the month";
 "notification_unorganized_time" = "Time";
-"notification_unorganized_hint" = "Remind you to organize unclassified inspirations and keep your creativity flowing.";
+"notification_unorganized_hint" = "Remind you to organize unclassified sparks and keep your creativity flowing.";
 "notification_settings_title" = "Notification";
 
 "about_title" = "About";
-"about_version_and_desc" = "Version 1.0.0\n\nCapture your sparks of inspiration and get ready to act.\n\n© 2025 NanNova Labs";
+"about_version_and_desc" = "Version 1.0.0\n\nCapture your sparks and get ready to act.\n\n© 2025 NanNova Labs";
 "about_feedback" = "Feedback";
-"about_feedback_subject" = "Sparks App Feedback"; 
+"about_feedback_subject" = "Sparks App Feedback";
+
+// Tab navigation
+"tab_collection" = "Collection";
+"tab_tasks" = "Tasks";
+"tab_add" = "Add";
+"tab_dashboard" = "Dashboard";
+"tab_settings" = "Settings";
+
+// Task related
+"task_title" = "Task Title";
+"task_title_placeholder" = "Enter task title";
+"task_details_optional" = "Task Details (Optional)";
+"task_details_placeholder" = "Enter task details";
+"related_inspiration" = "Related Spark";
+"add_task_title" = "Add Task";
+"tasks_navigation_title" = "Tasks";
+
+// Edit button
+"common_edit" = "Edit";
+
+// Task status
+"task_status_all" = "All";
+"task_status_pending" = "Pending";
+"task_status_inprogress" = "In Progress";
+"task_status_completed" = "Completed";
+
+// Inspiration status
+"inspiration_status_all" = "All";
+"inspiration_status_organized" = "Organized";
+"inspiration_status_unorganized" = "Unorganized";
+
+// Add inspiration type
+"addinspiration_type_video" = "Video";
+
+// Task status
+"taskstatus_todo" = "Pending";
+"taskstatus_doing" = "In Progress";
+"taskstatus_done" = "Completed";
+"taskstatus_unknown" = "Unknown";
+
+// Task types
+"task_type_note" = "Note";
+"task_type_image" = "Image";
+"task_type_url" = "URL";
+"task_type_video" = "Video";
+"task_type_inspiration" = "Inspiration";
+
+"url_title" = "URL";
+"url_placeholder" = "Enter URL";
+"url_loading" = "Fetching website info...";
+"url_preview" = "Preview";
+"url_success" = "Saved!";
+"url_saved" = "URL has been saved to your collection";
+"url_add_task" = "Add Task";
+"url_done" = "Done";
+"url_description_optional" = "Description (Optional)";
+"url_tags_optional" = "Tags (Optional)";
+"url_no_tags" = "No tags available, please add in Settings";
+"add_url_title" = "Add URL";
+"url_cancel" = "Cancel";
+"url_save" = "Save";
+"url_invalid_format" = "Invalid URL format";
+"url_connect_error" = "Cannot connect to website: %@";
+"url_read_error" = "Cannot read website content";
+
+"image_select" = "Select Image";
+"image_reselect" = "Reselect";
+"image_title" = "Title";
+"image_title_placeholder" = "Enter title";
+"image_desc_optional" = "Description (Optional)";
+"no_tags_available" = "No tags available, please add in Settings";
+"add_image_title" = "Add Image";
+"image_source_select" = "Select Image Source";
+"image_source_album" = "Album";
+"image_source_camera" = "Camera";
+"note_title" = "Title";
+"note_title_placeholder" = "Enter title";
+"note_content" = "Content";
+"add_note_title" = "Add Note";
+"task_status" = "Status";
+"task_search_empty" = "No tasks found for \"%@\"";
+"task_pending_empty" = "No pending tasks\nTap '+' to add";
+"task_inprogress_empty" = "No tasks in progress";
+"task_completed_empty" = "No completed tasks";
+"task_all_empty" = "No tasks yet\nTap '+' to add";
+"task_details" = "Task Details";
+"link_existing_tasks" = "Link Existing Tasks (Multiple)";
+"unnamed_task" = "Untitled Task";
+"add_or_link_task" = "Add/Link Task";
+"video_url_title" = "Video URL";
+"video_url_placeholder" = "Enter video URL";
+"video_loading" = "Fetching video info...";
+"video_preview" = "Video Preview";
+"video_success" = "Saved!";
+"video_saved" = "Video has been saved to your collection";
+"video_add_task" = "Add Task";
+"video_done" = "Done";
+"video_title" = "Title";
+"video_title_placeholder" = "Enter title";
+"video_description_optional" = "Description (Optional)";
+"video_tags_optional" = "Tags (Optional)";
+"video_no_tags" = "No tags available, please add in Settings";
+"add_video_title" = "Add Video";
+"video_cancel" = "Cancel";
+"video_save" = "Save";
+"video_invalid_format" = "Invalid video URL format";
+"common_done" = "Done";
+"no_related_inspiration" = "No related spark selected";
+"select_inspiration" = "Select Spark"; 
+
+"tasklist_status" = "Status";
+"tasklist_search_placeholder" = "Search tasks";
+"tasklist_empty_search" = "No tasks found for \"%@\"";
+"tasklist_empty_pending" = "No pending tasks\nTap '+' to add";
+"tasklist_empty_inprogress" = "No tasks in progress";
+"tasklist_empty_completed" = "No completed tasks";
+"tasklist_empty_all" = "No tasks yet\nTap '+' to add";
+"tasklist_add_task" = "Add Task";
+"tasklist_edit_task" = "Edit Task";
+"tasklist_title" = "Title";
+"tasklist_description" = "Description";
+"tasklist_no_related_inspiration" = "No related spark selected";
+"tasklist_select_inspiration" = "Select Spark";
+"tasklist_reminder" = "Reminder";
+"tasklist_save" = "Save";
+"tasklist_cancel" = "Cancel";
+"tasklist_done" = "Done";
+"tasklist_updated" = "Task updated";
+"tasklist_link_existing_tasks" = "Link Existing Tasks (Multiple)";
+"tasklist_unnamed_task" = "Untitled Task";
+"tasklist_add_or_link_task" = "Add/Link Task";
+"tasklist_delete_confirm" = "Are you sure you want to delete this task?";
+"tasklist_delete" = "Delete";
+"tasklist_edit" = "Edit";
+"tasklist_completed" = "Completed";
+"tasklist_inprogress" = "In Progress";
+"tasklist_pending" = "Pending"; 
+"tasklist_all" = "All"; 
+
+"inspiration_collection" = "Collection";
+"inspiration_category" = "Category";
+"inspiration_category_all" = "All";
+"inspiration_category_organized" = "Organized";
+"inspiration_category_unorganized" = "Unorganized";
+"inspiration_viewmode_list" = "List";
+"inspiration_viewmode_gallery" = "Gallery";
+"inspiration_empty_search" = "No spark found for \"%@\"";
+"inspiration_empty_organized" = "No organized spark yet\nCreate a task to organize";
+"inspiration_empty_unorganized" = "All sparks are organized!\n(All have related tasks)";
+"inspiration_empty_all" = "No spark yet\nTap '+' to add"; 
+
+"dashboard_title" = "Dashboard";
+"dashboard_today_stats" = "Today Stats";
+"dashboard_new_inspirations" = "New Sparks";
+"dashboard_new_tasks" = "New Tasks";
+"dashboard_overview_stats" = "Overview Stats";
+"dashboard_total_inspirations" = "Total Sparks";
+"dashboard_total_tasks" = "Total Tasks";
+"dashboard_task_status" = "Task Status";
+"dashboard_organization_status" = "Organization Status";
+"dashboard_organized" = "Organized";
+"dashboard_unorganized" = "Unorganized";
+"dashboard_streak" = "Streak";
+"dashboard_current_streak" = "Current Streak";
+"dashboard_longest_streak" = "Longest Streak";
+"dashboard_days" = "days";
+"dashboard_achievement_badges" = "Achievement Badges";
+"dashboard_badge_7day" = "7-day Streak";
+"dashboard_badge_14day" = "14-day Streak";
+"dashboard_badge_30day" = "30-day Streak";
+"dashboard_badge_longest7" = "Longest 7 days";
+"dashboard_badge_longest14" = "Longest 14 days";
+"dashboard_badge_longest30" = "Longest 30 days";
+"dashboard_badge_active" = "Active User";
+"dashboard_badge_veteran" = "Veteran User";
+"dashboard_badge_master" = "Master"; 
+
+"addinspiration_title" = "Capture your Spark";
+"addinspiration_select_type" = "What just sparked your interest?";
+"addinspiration_type_note" = "Thought";
+"addinspiration_type_image" = "Moment";
+"addinspiration_type_url" = "Reference";
+"addinspiration_type_video" = "Video"; 
+
+"inspirationtask_linked_tasks" = "Linked Tasks";
+"inspirationtask_no_related_task" = "No related tasks yet";
+"inspirationtask_status_pending" = "Pending";
+"inspirationtask_status_inprogress" = "In Progress";
+"inspirationtask_status_completed" = "Completed";
+"inspirationtask_status_unknown" = "Unknown";
+"inspirationtask_add_task_section" = "Add Task";
+"inspirationtask_task_title_placeholder" = "Task Title";
+"inspirationtask_link_existing_section" = "Link Existing Tasks (Multiple)";
+"inspirationtask_unnamed_task" = "Untitled Task";
+"inspirationtask_add_or_link_title" = "Add/Link Task";
+"inspirationtask_cancel" = "Cancel";
+"inspirationtask_add" = "Add"; 
+
+"noteinspiration_save_success" = "Saved!";
+"noteinspiration_save_success_desc" = "Note has been saved to your collection";
+"noteinspiration_add_task" = "Add Task";
+"noteinspiration_done" = "Done";
+"noteinspiration_title_section" = "Title";
+"noteinspiration_title_placeholder" = "Enter title";
+"noteinspiration_content_section" = "Content";
+"noteinspiration_tags_section" = "Tags (Optional)";
+"noteinspiration_no_tags" = "No tags available, please add in Settings";
+"noteinspiration_add_note_title" = "Add Note";
+"noteinspiration_cancel" = "Cancel";
+"noteinspiration_save" = "Save"; 
+
+"inspiration_search_placeholder" = "Search sparks"; 
+
+"taskdetail_title_page" = "Task Details";
+"taskdetail_title" = "Title";
+"taskdetail_untitled" = "Untitled";
+"taskdetail_description" = "Description";
+"taskdetail_status" = "Status";
+"taskdetail_related_spark" = "Related Spark";
+"taskdetail_reminder" = "Reminder";
+"taskdetail_reminder_time" = "Reminder Time: ";
+"taskdetail_time_info" = "Time Info";
+"taskdetail_created_at" = "Created At: ";
+"taskdetail_updated_at" = "Updated At: ";
+"taskdetail_close" = "Close";
+"taskdetail_confirm_delete" = "Confirm Delete";
+"taskdetail_delete_message" = "Are you sure you want to delete this task? This action cannot be undone.";
+"taskdetail_delete" = "Delete";
+"taskdetail_mark_done" = "Mark as Completed";
+"taskdetail_mark_done_message" = "Are you sure you want to mark this task as completed?";
+"taskdetail_done" = "Done"; 
+"taskdetail_edit" = "Edit";
+
+
+"editspark_navigation_title" = "Edit Spark";
+"editspark_title_section" = "Title";
+"editspark_title_placeholder" = "Enter title";
+"editspark_image_section" = "Image";
+"editspark_image_load_failed" = "Image failed to load";
+"editspark_url_section" = "URL";
+"editspark_url_placeholder" = "Enter URL";
+"editspark_url_loading" = "Fetching website info...";
+"editspark_video_section" = "Video URL";
+"editspark_preview_section" = "Preview";
+"editspark_content_section" = "Content";
+"editspark_tags_section" = "Tags (Optional)";
+"editspark_no_tags" = "No tags available, please add in Settings";
+"editspark_related_tasks_section" = "Related Tasks";
+"editspark_no_related_task" = "No related tasks yet";
+"editspark_unnamed_task" = "Untitled Task";
+"editspark_add_task" = "Add Task";
+"editspark_cancel" = "Cancel";
+"editspark_save" = "Save"; 
+
+// Task edit related
+"tasklist_enable_reminder" = "Enable Reminder";
+"tasklist_related_inspiration" = "Related Inspiration";
+"tasklist_reminder_time" = "Reminder Time";
+"tasklist_reminder_not_set" = "Reminder not set";
+"tasklist_set_time" = "Set Time";
+"tasklist_select_reminder_time" = "Select Reminder Time";
+"tasklist_set_reminder" = "Set Reminder"; 

@@ -31,12 +31,12 @@ struct EditTaskView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("任務標題")) {
-                    TextField("輸入任務標題", text: $title)
+                Section(header: Text(NSLocalizedString("tasklist_title", comment: "標題"))) {
+                    TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
                 
-                Section(header: Text("任務描述（可選）")) {
+                Section(header: Text(NSLocalizedString("tasklist_description", comment: "描述"))) {
                     TextEditor(text: $details)
                         .frame(minHeight: 80)
                         .overlay(
@@ -45,23 +45,19 @@ struct EditTaskView: View {
                         )
                 }
                 
-                Section(header: Text("任務狀態")) {
-                    Picker("狀態", selection: $status) {
+                Section(header: Text(NSLocalizedString("tasklist_status", comment: "狀態"))) {
+                    Picker(NSLocalizedString("tasklist_status", comment: "狀態"), selection: $status) {
                         ForEach(TaskStatus.allCases, id: \.self) { taskStatus in
-                            HStack {
-                                Image(systemName: taskStatus.iconName)
-                                    .foregroundColor(statusColor(for: taskStatus))
-                                Text(taskStatus.name)
-                            }
-                            .tag(taskStatus)
+                            TaskStatusPickerRow(taskStatus: taskStatus, color: statusColor(for: taskStatus), statusName: taskStatusName(taskStatus.rawValue))
+                                .tag(taskStatus)
                         }
                     }
                     .pickerStyle(MenuPickerStyle())
                 }
                 
                 // 任務提醒設定
-                Section(header: Text("任務提醒")) {
-                    Toggle("啟用提醒", isOn: $isReminderEnabled)
+                Section(header: Text(NSLocalizedString("tasklist_reminder", comment: "任務提醒"))) {
+                    Toggle(NSLocalizedString("tasklist_enable_reminder", comment: "啟用提醒"), isOn: $isReminderEnabled)
                         .onChange(of: isReminderEnabled) { _, newValue in
                             if !newValue {
                                 reminderDate = nil
@@ -78,17 +74,17 @@ struct EditTaskView: View {
                                 .foregroundColor(.orange)
                             VStack(alignment: .leading, spacing: 4) {
                                 if let reminderDate = reminderDate {
-                                    Text("提醒時間：\(formatReminderDate(reminderDate))")
+                                    Text(NSLocalizedString("tasklist_reminder_time", comment: "提醒時間") + ": \(formatReminderDate(reminderDate))")
                                         .font(.system(size: 14))
                                         .foregroundColor(.primary)
                                 } else {
-                                    Text("尚未設定提醒時間")
+                                    Text(NSLocalizedString("tasklist_reminder_not_set", comment: "尚未設定提醒時間"))
                                         .font(.system(size: 14))
                                         .foregroundColor(.secondary)
                                 }
                             }
                             Spacer()
-                            Button("設定時間") {
+                            Button(NSLocalizedString("tasklist_set_time", comment: "設定時間")) {
                                 showReminderPicker = true
                             }
                             .font(.system(size: 14))
@@ -99,7 +95,7 @@ struct EditTaskView: View {
                 }
                 
                 // 顯示與選擇關聯靈感
-                Section(header: Text("關聯靈感")) {
+                Section(header: Text(NSLocalizedString("tasklist_related_inspiration", comment: "關聯靈感"))) {
                     if let inspiration = selectedInspiration {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack(spacing: 8) {
@@ -131,27 +127,27 @@ struct EditTaskView: View {
                             }
                         }
                     } else {
-                        Text("尚未選擇關聯靈感")
+                        Text(NSLocalizedString("tasklist_no_related_inspiration", comment: "尚未選擇關聯靈感"))
                             .font(.custom("HelveticaNeue-Light", size: 12))
                             .foregroundColor(.secondary)
                     }
-                    Button("選擇靈感") {
+                    Button(NSLocalizedString("tasklist_select_inspiration", comment: "選擇靈感")) {
                         showInspirationPicker = true
                     }
                 }
             }
-            .navigationTitle("編輯任務")
+            .navigationTitle(NSLocalizedString("tasklist_edit_task", comment: "編輯任務"))
             .navigationBarItems(
-                leading: Button("取消") {
+                leading: Button(NSLocalizedString("tasklist_cancel", comment: "取消")) {
                     presentationMode.wrappedValue.dismiss()
                 },
-                trailing: Button("儲存") {
+                trailing: Button(NSLocalizedString("tasklist_save", comment: "儲存")) {
                     saveTask()
                 }
                 .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
             )
             .alert(isPresented: $isSaved) {
-                Alert(title: Text("任務已更新"), dismissButton: .default(Text("完成")) {
+                Alert(title: Text(NSLocalizedString("tasklist_updated", comment: "任務已更新")), dismissButton: .default(Text(NSLocalizedString("tasklist_done", comment: "完成"))) {
                     presentationMode.wrappedValue.dismiss()
                 })
             }
@@ -226,11 +222,38 @@ struct EditTaskView: View {
     }
     private func typeName(for type: Int16) -> String {
         switch type {
-        case 0: return "筆記"
-        case 1: return "圖片"
-        case 2: return "連結"
-        case 3: return "影片"
-        default: return "靈感"
+        case 0: return NSLocalizedString("note_title", comment: "筆記")
+        case 1: return NSLocalizedString("image_title", comment: "圖片")
+        case 2: return NSLocalizedString("url_title", comment: "連結")
+        case 3: return NSLocalizedString("video_url_title", comment: "影片")
+        default: return NSLocalizedString("inspiration_title", comment: "靈感")
+        }
+    }
+}
+
+// 將 taskStatusName 移到檔案最外層
+fileprivate func taskStatusName(_ status: Int16) -> String {
+    switch status {
+    case 0:
+        return NSLocalizedString("taskstatus_todo", comment: "待處理")
+    case 1:
+        return NSLocalizedString("taskstatus_doing", comment: "進行中")
+    case 2:
+        return NSLocalizedString("taskstatus_done", comment: "已完成")
+    default:
+        return NSLocalizedString("taskstatus_unknown", comment: "未知")
+    }
+}
+
+struct TaskStatusPickerRow: View {
+    let taskStatus: TaskStatus
+    let color: Color
+    let statusName: String
+    var body: some View {
+        HStack {
+            Image(systemName: taskStatus.iconName)
+                .foregroundColor(color)
+            Text(statusName)
         }
     }
 }
@@ -262,8 +285,8 @@ struct InspirationPickerView: View {
                     }
                 }
             }
-            .navigationTitle("選擇靈感")
-            .navigationBarItems(leading: Button("取消") {
+            .navigationTitle(NSLocalizedString("tasklist_select_inspiration", comment: "選擇靈感"))
+            .navigationBarItems(leading: Button(NSLocalizedString("tasklist_cancel", comment: "取消")) {
                 presentationMode.wrappedValue.dismiss()
             })
         }
@@ -297,26 +320,28 @@ struct ReminderPickerView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Text("選擇提醒時間")
+                Text(NSLocalizedString("tasklist_select_reminder_time", comment: "選擇提醒時間"))
                     .font(.headline)
                     .padding(.top)
                 
-                DatePicker("提醒時間", selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                DatePicker(NSLocalizedString("tasklist_reminder_time", comment: "提醒時間"), selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
                     .datePickerStyle(WheelDatePickerStyle())
                     .labelsHidden()
                     .padding()
                 
-                VStack(spacing: 12) {
-                    Button("設定提醒") {
+                HStack(spacing: 12) {
+                    Button(NSLocalizedString("tasklist_cancel", comment: "取消")) {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
+                    
+                    Button(NSLocalizedString("tasklist_set_reminder", comment: "設定提醒")) {
                         reminderDate = selectedDate
                         presentationMode.wrappedValue.dismiss()
                     }
                     .buttonStyle(.borderedProminent)
-                    
-                    Button("取消") {
-                        presentationMode.wrappedValue.dismiss()
-                    }
-                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
                 }
                 .padding(.bottom)
                 

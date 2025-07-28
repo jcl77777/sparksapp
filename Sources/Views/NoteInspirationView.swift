@@ -22,9 +22,9 @@ struct NoteInspirationView: View {
                         .font(.system(size: 80))
                         .foregroundColor(.green)
                     VStack(spacing: 8) {
-                        Text("儲存成功！")
+                        Text(NSLocalizedString("noteinspiration_save_success", comment: "儲存成功！"))
                             .font(.custom("HelveticaNeue-Light", size: 28))
-                        Text("筆記已成功儲存到收藏")
+                        Text(NSLocalizedString("noteinspiration_save_success_desc", comment: "筆記已成功儲存到收藏"))
                             .font(.custom("HelveticaNeue-Light", size: 15))
                             .foregroundColor(.secondary)
                     }
@@ -36,7 +36,7 @@ struct NoteInspirationView: View {
                         }) {
                             HStack {
                                 Image(systemName: "plus.circle")
-                                Text("新增任務")
+                                Text(NSLocalizedString("noteinspiration_add_task", comment: "新增任務"))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -49,7 +49,7 @@ struct NoteInspirationView: View {
                         }) {
                             HStack {
                                 Image(systemName: "checkmark")
-                                Text("完成")
+                                Text(NSLocalizedString("noteinspiration_done", comment: "完成"))
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -66,11 +66,11 @@ struct NoteInspirationView: View {
                 }
             } else {
                 Form {
-                    Section(header: Text("標題")) {
-                        TextField("輸入標題", text: $title)
+                    Section(header: Text(NSLocalizedString("noteinspiration_title_section", comment: "標題"))) {
+                        TextField(NSLocalizedString("noteinspiration_title_placeholder", comment: "輸入標題"), text: $title)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                     }
-                    Section(header: Text("內容")) {
+                    Section(header: Text(NSLocalizedString("noteinspiration_content_section", comment: "內容"))) {
                         TextEditor(text: $content)
                             .frame(minHeight: 120)
                             .overlay(
@@ -78,9 +78,9 @@ struct NoteInspirationView: View {
                                     .stroke(Color(.systemGray4), lineWidth: 1)
                             )
                     }
-                    Section(header: Text("標籤（可選）")) {
+                    Section(header: Text(NSLocalizedString("noteinspiration_tags_section", comment: "標籤（可選）"))) {
                         if viewModel.availableTags.isEmpty {
-                            Text("無可用標籤，請至設定頁新增")
+                            Text(NSLocalizedString("noteinspiration_no_tags", comment: "無可用標籤，請至設定頁新增"))
                                 .foregroundColor(.secondary)
                                 .italic()
                         } else {
@@ -98,12 +98,12 @@ struct NoteInspirationView: View {
                         }
                     }
                 }
-                .navigationTitle("新增筆記")
+                .navigationTitle(NSLocalizedString("noteinspiration_add_note_title", comment: "新增筆記"))
                 .navigationBarItems(
-                    leading: Button("取消") {
+                    leading: Button(NSLocalizedString("noteinspiration_cancel", comment: "取消")) {
                         presentationMode.wrappedValue.dismiss()
                     },
-                    trailing: Button("儲存") {
+                    trailing: Button(NSLocalizedString("noteinspiration_save", comment: "儲存")) {
                         saveNote()
                     }
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
