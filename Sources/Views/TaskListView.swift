@@ -54,69 +54,90 @@ struct TaskListView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // 搜尋欄位
-                SearchBar(text: $searchText, placeholder: NSLocalizedString("tasklist_search_placeholder", comment: "搜尋任務"))
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                
-                // 狀態篩選
-                Picker(NSLocalizedString("tasklist_status", comment: "狀態"), selection: $selectedStatus) {
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "✓ " + NSLocalizedString("tasks_navigation_title", comment: "任務"),
+                gradientColors: AppDesign.Colors.greenGradient
+            ) {
+                // Segmented Control for Status Filter
+                HStack(spacing: 8) {
                     ForEach(TaskStatusFilter.allCases, id: \.self) { status in
-                        Text(status.localized).tag(status)
+                        Button(action: {
+                            selectedStatus = status
+                        }) {
+                            Text(status.localized)
+                                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                                .foregroundColor(selectedStatus == status ? .white : .white.opacity(0.7))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(selectedStatus == status ? Color.white.opacity(0.3) : Color.clear)
+                                .cornerRadius(AppDesign.Borders.radiusButton)
+                        }
                     }
                 }
-                .pickerStyle(SegmentedPickerStyle())
+            }
+
+            // 搜尋欄位
+            SearchBar(text: $searchText, placeholder: NSLocalizedString("tasklist_search_placeholder", comment: "搜尋任務"))
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.top, 8)
                 
-                // 任務列表
-                if filteredTasks.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "checkmark.circle")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        Text(emptyStateMessage)
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGroupedBackground))
-                } else {
-                    List {
-                        ForEach(filteredTasks, id: \.objectID) { task in
-                            TaskCardView(task: task, taskViewModel: taskViewModel)
+            // 任務列表
+            if filteredTasks.isEmpty {
+                VStack(spacing: 16) {
+                    Text("✓")
+                        .font(.system(size: 60, design: .monospaced))
+                        .foregroundColor(.gray)
+                    Text(emptyStateMessage)
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGroupedBackground))
+            } else {
+                ZStack(alignment: .bottom) {
+                    ScrollView {
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            ForEach(filteredTasks, id: \.objectID) { task in
+                                PixelTaskCard(task: task, taskViewModel: taskViewModel)
+                            }
                         }
-                        .onDelete { indexSet in
-                            indexSet.map { filteredTasks[$0] }.forEach(taskViewModel.deleteTask)
+                        .padding(AppDesign.Spacing.standard)
+                        .padding(.bottom, 80) // 留空間給固定按鈕和 Tab Bar
+                    }
+
+                    // Fixed Bottom Add Button
+                    VStack {
+                        Spacer()
+                        PixelButton("➕ " + NSLocalizedString("tasklist_add_task", comment: "新增任務"), color: AppDesign.Colors.green) {
+                            showAddTaskSheet = true
                         }
-                    }
-                    .listStyle(PlainListStyle())
-                }
-            }
-            .navigationTitle(NSLocalizedString("tasks_navigation_title", comment: "任務"))
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    EditButton()
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAddTaskSheet = true }) {
-                        Image(systemName: "plus")
+                        .padding(.horizontal, AppDesign.Spacing.standard)
+                        .padding(.bottom, AppDesign.Spacing.standard)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.clear, Color(.systemGroupedBackground)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                            .frame(height: 100)
+                        )
                     }
                 }
             }
-            .onAppear {
-                if let title = appState.addTaskDefaultTitle {
-                    defaultTitle = title
-                    showAddTaskSheet = true
-                    appState.addTaskDefaultTitle = nil // 清空，避免重複彈出
-                }
+        }
+        .navigationBarHidden(true)
+        .onAppear {
+            if let title = appState.addTaskDefaultTitle {
+                defaultTitle = title
+                showAddTaskSheet = true
+                appState.addTaskDefaultTitle = nil // 清空，避免重複彈出
             }
-            .sheet(isPresented: $showAddTaskSheet) {
-                AddTaskView(inspiration: nil, defaultTitle: defaultTitle)
-            }
+        }
+        .sheet(isPresented: $showAddTaskSheet) {
+            AddTaskView(inspiration: nil, defaultTitle: defaultTitle)
         }
     }
     
@@ -152,155 +173,133 @@ fileprivate func taskStatusName(_ status: Int16) -> String {
     }
 }
 
-// 任務卡片元件
-struct TaskCardView: View {
+// 任務卡片元件 - Pixel Art Style
+struct PixelTaskCard: View {
     let task: TaskItem
     let taskViewModel: TaskViewModel
     @State private var showingDetail = false
-    
+
     var body: some View {
         Button(action: {
             showingDetail = true
         }) {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    // 狀態圖示
-                    Image(systemName: statusIcon)
-                        .foregroundColor(statusColor)
-                        .font(.system(size: 22))
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        // 標題
-                        Text(task.title ?? "Untitled")
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.primary)
-                            .lineLimit(1)
-                        
-                        // 建立時間
-                        if let createdAt = task.createdAt {
-                            Text(taskViewModel.getFormattedDate(createdAt))
-                                .font(.custom("HelveticaNeue-Light", size: 12))
-                                .foregroundColor(.secondary)
+            PixelCard(borderColor: statusColor) {
+                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                    HStack {
+                        // 狀態圖示
+                        Text(statusEmoji)
+                            .font(.system(size: 32))
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            // 標題
+                            Text(task.title ?? "Untitled")
+                                .font(.system(size: 16, weight: .bold, design: .monospaced))
+                                .foregroundColor(.primary)
+                                .lineLimit(2)
+
+                            // 建立時間
+                            if let createdAt = task.createdAt {
+                                Text(taskViewModel.getFormattedDate(createdAt))
+                                    .font(.system(size: 12, design: .monospaced))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+
+                        Spacer()
+
+                        // 狀態標籤
+                        VStack(spacing: 4) {
+                            Circle()
+                                .fill(statusColor)
+                                .frame(width: 10, height: 10)
+                            Text(taskStatusName(task.status))
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .foregroundColor(statusColor)
+
+                            // 提醒圖示
+                            if task.reminderDate != nil {
+                                Text("🔔")
+                                    .font(.system(size: 12))
+                            }
                         }
                     }
-                    
-                    Spacer()
-                    
-                    // 狀態指示器和提醒圖示
-                    HStack(spacing: 4) {
-                        Circle()
-                            .fill(statusColor)
-                            .frame(width: 8, height: 8)
-                        Text(taskStatusName(task.status))
-                            .font(.custom("HelveticaNeue-Light", size: 10))
-                            .foregroundColor(statusColor)
-                        
-                        // 提醒圖示
-                        if task.reminderDate != nil {
-                            Image(systemName: "bell")
-                                .font(.system(size: 10))
-                                .foregroundColor(.orange)
-                        }
+
+                    // 描述
+                    if let details = task.details, !details.isEmpty {
+                        Text(details)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .lineLimit(2)
                     }
-                }
-                
-                // 描述
-                if let details = task.details, !details.isEmpty {
-                    Text(details)
-                        .font(.custom("HelveticaNeue-Light", size: 12))
-                        .foregroundColor(.secondary)
-                        .lineLimit(2)
-                }
-                
-                // 關聯靈感資訊
-                if let inspiration = task.inspiration {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 8) {
-                            // 類型icon
-                            Image(systemName: typeIcon(for: inspiration.type))
-                                .foregroundColor(typeColor(for: inspiration.type))
-                                .font(.system(size: 12))
-                            Text(typeName(for: inspiration.type))
-                                .font(.custom("HelveticaNeue-Light", size: 10))
-                                .foregroundColor(.secondary)
-                            Text(inspiration.title ?? "Untitled")
-                                .font(.custom("HelveticaNeue-Light", size: 12))
-                                .foregroundColor(.orange)
-                                .lineLimit(1)
-                        }
-                        // 標籤 badge
-                        let tagNames = (inspiration.tags as? Set<Tag>)?.compactMap { $0.name }.sorted() ?? []
-                        if !tagNames.isEmpty {
-                            HStack {
-                                ForEach(tagNames, id: \.self) { tagName in
-                                    Text(tagName)
-                                        .font(.custom("HelveticaNeue-Light", size: 10))
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.blue.opacity(0.2))
-                                        .foregroundColor(.blue)
-                                        .cornerRadius(8)
-                                }
+
+                    // 關聯靈感資訊
+                    if let inspiration = task.inspiration {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Text(typeEmoji(for: inspiration.type))
+                                    .font(.system(size: 14))
+                                Text(inspiration.title ?? "Untitled")
+                                    .font(.system(size: 12, design: .monospaced))
+                                    .foregroundColor(typeColor(for: inspiration.type))
+                                    .lineLimit(1)
+                            }
+                            // 標籤
+                            let tagNames = (inspiration.tags as? Set<Tag>)?.compactMap { $0.name }.sorted() ?? []
+                            if !tagNames.isEmpty {
+                                TagList(tags: tagNames)
                             }
                         }
                     }
                 }
+                .padding(AppDesign.Spacing.standard)
+                .background(statusColor.opacity(0.05))
             }
-            .padding(.vertical, 4)
         }
-        .buttonStyle(PlainButtonStyle())
+        .buttonStyle(PixelButtonStyle())
         .sheet(isPresented: $showingDetail) {
             TaskDetailView(task: task, taskViewModel: taskViewModel)
         }
     }
     
-    private var statusIcon: String {
+    private var statusEmoji: String {
         switch taskViewModel.getTaskStatus(task) {
         case .pending:
-            return "circle"
+            return "⭕"
         case .inProgress:
-            return "clock"
+            return "⏱️"
         case .completed:
-            return "checkmark.circle.fill"
+            return "✅"
         }
     }
-    
+
     private var statusColor: Color {
         switch taskViewModel.getTaskStatus(task) {
         case .pending:
-            return .gray
+            return AppDesign.Colors.gray
         case .inProgress:
-            return .blue
+            return AppDesign.Colors.blue
         case .completed:
-            return .green
+            return AppDesign.Colors.green
         }
     }
-    
-    private func typeIcon(for type: Int16) -> String {
+
+    private func typeEmoji(for type: Int16) -> String {
         switch type {
-        case 0: return "doc.text"
-        case 1: return "photo"
-        case 2: return "link"
-        case 3: return "video"
-        default: return "lightbulb"
+        case 0: return "📝"
+        case 1: return "🖼️"
+        case 2: return "🔗"
+        case 3: return "🎬"
+        default: return "💡"
         }
     }
+
     private func typeColor(for type: Int16) -> Color {
         switch type {
-        case 0: return .blue
-        case 1: return .green
-        case 2: return .orange
-        case 3: return .purple
-        default: return .gray
-        }
-    }
-    private func typeName(for type: Int16) -> String {
-        switch type {
-        case 0: return NSLocalizedString("task_type_note", comment: "筆記")
-        case 1: return NSLocalizedString("task_type_image", comment: "圖片")
-        case 2: return NSLocalizedString("task_type_url", comment: "連結")
-        case 3: return NSLocalizedString("task_type_video", comment: "影片")
-        default: return NSLocalizedString("task_type_inspiration", comment: "靈感")
+        case 0: return AppDesign.Colors.orange
+        case 1: return AppDesign.Colors.purple
+        case 2: return AppDesign.Colors.blue
+        case 3: return AppDesign.Colors.orange
+        default: return AppDesign.Colors.gray
         }
     }
 }
@@ -412,53 +411,34 @@ struct TaskDetailView: View {
                     .padding()
                     .padding(.bottom, 100) // 預留底部icon列空間
                 }
-                // 操作icon列永遠置底
-                HStack(spacing: 0) {
-                    Button(action: {
+                // 操作按鈕列
+                HStack(spacing: AppDesign.Spacing.small) {
+                    PixelButton(
+                        "✓ " + NSLocalizedString("taskdetail_done", comment: "完成"),
+                        color: AppDesign.Colors.green
+                    ) {
                         alertType = .complete
                         showingAlert = true
-                    }) {
-                        VStack(spacing: 6) {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 28, weight: .regular))
-                            Text(NSLocalizedString("taskdetail_done", comment: "完成"))
-                                .font(.system(size: 15))
-                        }
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
                     }
-                    Divider()
-                        .frame(height: 36)
-                    Button(action: {
+
+                    PixelButton(
+                        "✏️ " + NSLocalizedString("taskdetail_edit", comment: "編輯"),
+                        style: .secondary,
+                        color: AppDesign.Colors.blue
+                    ) {
                         showingEditSheet = true
-                    }) {
-                        VStack(spacing: 6) {
-                            Image(systemName: "pencil")
-                                .font(.system(size: 28, weight: .regular))
-                            Text(NSLocalizedString("taskdetail_edit", comment: "編輯"))
-                                .font(.system(size: 15))
-                        }
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
                     }
-                    Divider()
-                        .frame(height: 36)
-                    Button(action: {
+
+                    PixelButton(
+                        "🗑️ " + NSLocalizedString("taskdetail_delete", comment: "刪除"),
+                        style: .secondary,
+                        color: .red
+                    ) {
                         alertType = .delete
                         showingAlert = true
-                    }) {
-                        VStack(spacing: 6) {
-                            Image(systemName: "trash")
-                                .font(.system(size: 28, weight: .regular))
-                            Text(NSLocalizedString("taskdetail_delete", comment: "刪除"))
-                                .font(.system(size: 15))
-                        }
-                        .foregroundColor(.primary)
-                        .frame(maxWidth: .infinity)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
+                .padding(AppDesign.Spacing.standard)
                 .background(Color(.systemBackground).ignoresSafeArea())
             }
             .navigationTitle(NSLocalizedString("taskdetail_title_page", comment: "任務詳情"))

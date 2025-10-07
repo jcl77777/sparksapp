@@ -6,35 +6,41 @@ struct LaunchScreenView: View {
     @State private var logoOpacity: Double = 0.0
     @State private var textOpacity: Double = 0.0
     @State private var breathingGlowOpacity: Double = 0.0
-    
+
     var body: some View {
         ZStack {
-            // 背景漸層
+            // 背景漸層 - Pixel Art Style
             LinearGradient(
-                gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.6)]),
+                gradient: Gradient(colors: AppDesign.Colors.purpleGradient),
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
             .ignoresSafeArea()
-            
+
             VStack(spacing: 30) {
-                // Logo/圖示
-                Image(systemName: "sparkles")
-                    .font(.system(size: 80))
-                    .foregroundColor(.white)
+                // Logo - Pixel Art Style
+                Text("✨")
+                    .font(.system(size: 100))
                     .scaleEffect(logoScale)
                     .opacity(logoOpacity)
                     .shadow(color: .white.opacity(0.3), radius: 10, x: 0, y: 0)
-                
-                // 主標題
+
+                // 主標題 - Monospaced Font
                 Text("Sparks")
-                    .font(.custom("HelveticaNeue-Light", size: 34))
+                    .font(.system(size: 42, weight: .bold, design: .monospaced))
                     .foregroundColor(.white)
                     .opacity(textOpacity)
-                    .tracking(2)
-                
-                // 呼吸光暈效果
-                BreathingGlowView()
+                    .tracking(4)
+                    .shadow(color: .black.opacity(0.3), radius: 2, x: 2, y: 2)
+
+                // 副標題
+                Text("記下讓你心動的瞬間")
+                    .font(.system(size: 14, design: .monospaced))
+                    .foregroundColor(.white.opacity(0.9))
+                    .opacity(textOpacity)
+
+                // Pixel Art Loading Bar
+                PixelLoadingBar()
                     .opacity(breathingGlowOpacity)
             }
         }
@@ -72,72 +78,66 @@ struct LaunchScreenView: View {
     }
 }
 
-// 適用於 Launch Screen 的簡化呼吸光暈組件
-struct BreathingGlowView: View {
+// Pixel Art Loading Bar
+struct PixelLoadingBar: View {
+    @State private var progress: CGFloat = 0.0
     @State private var isAnimating = false
-    
+
     var body: some View {
-        ZStack {
-            // 外層光暈
-            RoundedRectangle(cornerRadius: 3)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.3),
-                            Color.white.opacity(0.1)
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
+        VStack(spacing: 8) {
+            // Loading Bar Container
+            ZStack(alignment: .leading) {
+                // Background
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(Color.white.opacity(0.2))
+                    .frame(width: 200, height: 8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(Color.white, lineWidth: 2)
                     )
-                )
-                .frame(width: 140, height: 12)
-                .opacity(isAnimating ? 0.6 : 0.1)
-                .scaleEffect(x: isAnimating ? 1.2 : 0.8, y: isAnimating ? 1.3 : 0.9)
-                .blur(radius: 12)
-            
-            // 中層光暈
-            RoundedRectangle(cornerRadius: 2.5)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.5),
-                            Color.white.opacity(0.3)
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
+
+                // Progress Fill
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [
+                                Color.white,
+                                Color.white.opacity(0.8)
+                            ]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
-                )
-                .frame(width: 130, height: 10)
-                .opacity(isAnimating ? 0.5 : 0.15)
-                .scaleEffect(x: isAnimating ? 1.15 : 0.8, y: isAnimating ? 1.2 : 0.95)
-                .blur(radius: 6)
-            
-            // 主體線條
-            RoundedRectangle(cornerRadius: 2)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white,
-                            Color.white.opacity(0.9)
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .frame(width: 120, height: 4)
-                .opacity(isAnimating ? 0.9 : 0.5)
-                .scaleEffect(x: isAnimating ? 1.0 : 0.85, y: 1)
-                .shadow(color: .white.opacity(0.3), radius: 2, x: 0, y: 0)
+                    .frame(width: 200 * progress, height: 4)
+                    .padding(.leading, 2)
+                    .shadow(color: .white.opacity(0.5), radius: 4, x: 0, y: 0)
+            }
+
+            // Loading Dots
+            HStack(spacing: 4) {
+                ForEach(0..<3, id: \.self) { index in
+                    Circle()
+                        .fill(Color.white)
+                        .frame(width: 6, height: 6)
+                        .opacity(isAnimating ? 1.0 : 0.3)
+                        .animation(
+                            Animation.easeInOut(duration: 0.6)
+                                .repeatForever()
+                                .delay(Double(index) * 0.2),
+                            value: isAnimating
+                        )
+                }
+            }
         }
         .onAppear {
-            // 延遲開始呼吸動畫，讓整體 Launch Screen 動畫更順暢
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation(
-                    Animation.easeInOut(duration: 2.5)
-                        .repeatForever(autoreverses: true)
-                ) {
-                    isAnimating.toggle()
-                }
+            // Start progress animation
+            withAnimation(.easeInOut(duration: 2.0).repeatForever(autoreverses: false)) {
+                progress = 1.0
+            }
+
+            // Start dot animation
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isAnimating = true
             }
         }
     }

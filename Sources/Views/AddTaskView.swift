@@ -7,11 +7,11 @@ struct AddTaskView: View {
     @State private var title: String
     @State private var details: String
     @State private var isSaved = false
-    
+
     // 可選：帶入靈感 id 以建立關聯
     let inspiration: Inspiration?
     var onSave: (() -> Void)? = nil
-    
+
     init(inspiration: Inspiration?, defaultTitle: String = "", onSave: (() -> Void)? = nil) {
         self.inspiration = inspiration
         self.onSave = onSave
@@ -22,55 +22,105 @@ struct AddTaskView: View {
         }
         _details = State(initialValue: inspiration?.content ?? "")
     }
-    
+
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text(NSLocalizedString("task_title", comment: "任務標題"))) {
-                    TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                Section(header: Text(NSLocalizedString("task_details_optional", comment: "任務描述（可選）"))) {
-                    TextEditor(text: $details)
-                        .frame(minHeight: 80)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
-                        )
-                }
-                
-                // 顯示關聯的靈感資訊
-                if let inspiration = inspiration {
-                    Section(header: Text(NSLocalizedString("related_inspiration", comment: "關聯靈感"))) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(inspiration.title ?? NSLocalizedString("unnamed_task", comment: "未命名任務"))
-                                .font(.custom("HelveticaNeue-Light", size: 17))
-                            if let content = inspiration.content, !content.isEmpty {
-                                Text(content)
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(2)
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "➕ " + NSLocalizedString("add_task_title", comment: "新增任務"),
+                    gradientColors: AppDesign.Colors.greenGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 任務標題
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("task_title", comment: "任務標題"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .padding(AppDesign.Spacing.small)
+                            .background(Color.white)
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                            )
+                    }
+
+                    // 任務描述
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("task_details_optional", comment: "任務描述（可選）"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        TextEditor(text: $details)
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .frame(minHeight: 100)
+                            .padding(AppDesign.Spacing.small)
+                            .background(Color.white)
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                            )
+                    }
+
+                    // 顯示關聯的靈感資訊
+                    if let inspiration = inspiration {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("related_inspiration", comment: "關聯靈感"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.purple) {
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                    Text(inspiration.title ?? NSLocalizedString("unnamed_task", comment: "未命名任務"))
+                                        .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                    if let content = inspiration.content, !content.isEmpty {
+                                        Text(content)
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textSecondary)
+                                            .lineLimit(2)
+                                    }
+                                }
+                                .padding(AppDesign.Spacing.standard)
                             }
                         }
-                        .padding(.vertical, 4)
                     }
+
+                    // 按鈕區域
+                    VStack(spacing: AppDesign.Spacing.small) {
+                        PixelButton(
+                            "💾 " + NSLocalizedString("common_save", comment: "儲存"),
+                            color: AppDesign.Colors.green
+                        ) {
+                            saveTask()
+                        }
+                        .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .opacity(title.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+
+                        PixelButton(
+                            NSLocalizedString("common_cancel", comment: "取消"),
+                            style: .secondary,
+                            color: AppDesign.Colors.gray
+                        ) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                    .padding(.top, AppDesign.Spacing.small)
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationTitle(NSLocalizedString("add_task_title", comment: "新增任務"))
-            .navigationBarItems(
-                leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button(NSLocalizedString("common_save", comment: "儲存")) {
-                    saveTask()
-                }
-                .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
-            )
-            .alert(isPresented: $isSaved) {
-                Alert(title: Text("任務已儲存"), dismissButton: .default(Text("完成")) {
-                    presentationMode.wrappedValue.dismiss()
-                })
-            }
+        }
+        .alert(isPresented: $isSaved) {
+            Alert(title: Text("任務已儲存"), dismissButton: .default(Text("完成")) {
+                presentationMode.wrappedValue.dismiss()
+            })
         }
     }
     

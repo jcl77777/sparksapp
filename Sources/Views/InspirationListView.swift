@@ -79,110 +79,116 @@ struct InspirationListView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // 搜尋欄位
-                SearchBar(text: $searchText, placeholder: NSLocalizedString("inspiration_search_placeholder", comment: "搜尋靈感"))
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                
-                // 分類切換
-                Picker(NSLocalizedString("inspiration_category", comment: "分類"), selection: $selectedCategory) {
-                    ForEach(OrganizationCategory.allCases, id: \.self) { category in
-                        Text(category.localized).tag(category)
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "💡 " + NSLocalizedString("inspiration_collection", comment: "收藏"),
+                gradientColors: AppDesign.Colors.purpleGradient
+            ) {
+                // Category Filter + View Mode Toggle
+                HStack {
+                    // Category Segmented Control
+                    HStack(spacing: 6) {
+                        ForEach(OrganizationCategory.allCases, id: \.self) { category in
+                            Button(action: {
+                                selectedCategory = category
+                            }) {
+                                Text(categoryEmoji(category) + " " + category.localized)
+                                    .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                    .foregroundColor(selectedCategory == category ? .white : .white.opacity(0.7))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .background(selectedCategory == category ? Color.white.opacity(0.3) : Color.clear)
+                                    .cornerRadius(AppDesign.Borders.radiusButton)
+                            }
+                        }
+                    }
+
+                    Spacer()
+
+                    // View Mode Toggle
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            viewMode = viewMode == .list ? .gallery : .list
+                        }
+                    }) {
+                        Image(systemName: viewMode == .list ? "square.grid.2x2" : "list.bullet")
+                            .foregroundColor(.white)
+                            .font(.system(size: 16))
                     }
                 }
-                .pickerStyle(SegmentedPickerStyle())
+            }
+
+            // 搜尋欄位
+            SearchBar(text: $searchText, placeholder: NSLocalizedString("inspiration_search_placeholder", comment: "搜尋靈感"))
                 .padding(.horizontal)
-                .padding(.vertical, 8)
+                .padding(.top, 8)
                 
-                // 靈感列表
-                if filteredInspirations.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "lightbulb")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        Text(emptyStateMessage)
-                            .font(.custom("HelveticaNeue-Light", size: 17))
-                            .foregroundColor(.secondary)
-                            .multilineTextAlignment(.center)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color(.systemGroupedBackground))
-                } else {
-                    if viewMode == .list {
-                        // List 檢視模式
-                        List {
+            // 靈感列表
+            if filteredInspirations.isEmpty {
+                VStack(spacing: 16) {
+                    Text("💡")
+                        .font(.system(size: 60))
+                    Text(emptyStateMessage)
+                        .font(.system(size: 14, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemGroupedBackground))
+            } else {
+                if viewMode == .list {
+                    // List 檢視模式
+                    ScrollView {
+                        VStack(spacing: AppDesign.Spacing.small) {
                             ForEach(filteredInspirations, id: \.objectID) { inspiration in
-                                Button(action: {
-                                    selectedInspiration = inspiration
-                                }) {
-                                    InspirationCardView(inspiration: inspiration, viewModel: viewModel)
-                                }
-                                .buttonStyle(PlainButtonStyle())
-                            }
-                            .onDelete { indexSet in
-                                indexSet.map { filteredInspirations[$0] }.forEach(viewModel.deleteInspiration)
-                            }
-                        }
-                        .listStyle(PlainListStyle())
-                    } else {
-                        // Gallery 檢視模式
-                        ScrollView {
-                            LazyVGrid(columns: [
-                                GridItem(.flexible(), spacing: 12),
-                                GridItem(.flexible(), spacing: 12)
-                            ], spacing: 12) {
-                                ForEach(filteredInspirations, id: \.objectID) { inspiration in
-                                    Button(action: {
+                                PixelInspirationCard(inspiration: inspiration, viewModel: viewModel)
+                                    .onTapGesture {
                                         selectedInspiration = inspiration
-                                    }) {
-                                        InspirationGalleryCardView(inspiration: inspiration, viewModel: viewModel)
                                     }
-                                    .buttonStyle(PlainButtonStyle())
-                                }
                             }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
                         }
+                        .padding(AppDesign.Spacing.standard)
+                    }
+                } else {
+                    // Gallery 檢視模式
+                    ScrollView {
+                        LazyVGrid(columns: [
+                            GridItem(.flexible(), spacing: AppDesign.Spacing.small),
+                            GridItem(.flexible(), spacing: AppDesign.Spacing.small)
+                        ], spacing: AppDesign.Spacing.small) {
+                            ForEach(filteredInspirations, id: \.objectID) { inspiration in
+                                PixelInspirationGalleryCard(inspiration: inspiration, viewModel: viewModel)
+                                    .onTapGesture {
+                                        selectedInspiration = inspiration
+                                    }
+                            }
+                        }
+                        .padding(AppDesign.Spacing.standard)
                     }
                 }
             }
-            .navigationTitle(NSLocalizedString("inspiration_collection", comment: "收藏"))
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    EditButton()
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 16) {
-                        // 檢視模式切換按鈕
-                        Button(action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                viewMode = viewMode == .list ? .gallery : .list
-                            }
-                        }) {
-                            Image(systemName: viewMode == .list ? "square.grid.2x2" : "list.bullet")
-                                .foregroundColor(.blue)
-                        }
-                        
-                        Button(action: { showingAddSheet = true }) {
-                            Image(systemName: "plus")
-                        }
-                    }
-                }
+        }
+        .navigationBarHidden(true)
+        .sheet(isPresented: $showingAddSheet) {
+            AddInspirationView()
+        }
+        .sheet(item: $selectedInspiration) { inspiration in
+            EditInspirationView(inspiration: inspiration)
+        }
+        .onAppear {
+            if appState.shouldShowUnorganizedOnAppear {
+                selectedCategory = .unorganized
+                appState.shouldShowUnorganizedOnAppear = false
             }
-            .sheet(isPresented: $showingAddSheet) {
-                AddInspirationView()
-            }
-            .sheet(item: $selectedInspiration) { inspiration in
-                EditInspirationView(inspiration: inspiration)
-            }
-            .onAppear {
-                if appState.shouldShowUnorganizedOnAppear {
-                    selectedCategory = .unorganized
-                    appState.shouldShowUnorganizedOnAppear = false
-                }
-            }
+        }
+    }
+
+    private func categoryEmoji(_ category: OrganizationCategory) -> String {
+        switch category {
+        case .all: return "📚"
+        case .organized: return "✓"
+        case .unorganized: return "⋯"
         }
     }
     
@@ -231,297 +237,258 @@ struct SearchBar: View {
     }
 }
 
-// 靈感卡片元件
-struct InspirationCardView: View {
+// 靈感卡片元件 - Pixel Art Style
+struct PixelInspirationCard: View {
     let inspiration: Inspiration
     let viewModel: InspirationViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                // 類型圖示
-                Image(systemName: typeIcon)
-                    .foregroundColor(typeColor)
-                    .font(.system(size: 22))
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    // 標題
-                    Text(inspiration.title ?? "Untitled")
-                        .font(.custom("HelveticaNeue-Light", size: 17))
-                        .foregroundColor(.primary)
-                        .lineLimit(1)
-                    
-                    // 建立時間
-                    if let createdAt = inspiration.createdAt {
-                        Text(formatDate(createdAt))
-                            .font(.custom("HelveticaNeue-Light", size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                Spacer()
-                
-                // 整理狀態指示器（基於任務關聯）
-                if viewModel.isOrganized(inspiration) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.system(size: 12))
-                        Text("\(viewModel.getTaskCount(for: inspiration))")
-                            .font(.custom("HelveticaNeue-Light", size: 10))
-                            .foregroundColor(.green)
-                    }
-                }
-            }
-            
-            // 根據類型顯示不同內容
-            if inspiration.type == 1 { // 圖片類型
-                if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 120)
-                        .clipped()
-                        .cornerRadius(8)
-                }
-            } else if inspiration.type == 2 { // 網址類型
-                if let url = inspiration.url, !url.isEmpty {
-                    HStack {
-                        Image(systemName: "link")
-                            .foregroundColor(.blue)
-                            .font(.system(size: 12))
-                        Text(url)
-                            .font(.custom("HelveticaNeue-Light", size: 12))
-                            .foregroundColor(.blue)
-                            .lineLimit(1)
-                    }
-                }
-            } else if inspiration.type == 3 { // 影片類型
-                if let url = inspiration.url, !url.isEmpty {
-                    HStack {
-                        Image(systemName: "video")
-                            .foregroundColor(.purple)
-                            .font(.system(size: 12))
-                        Text(url)
-                            .font(.custom("HelveticaNeue-Light", size: 12))
-                            .foregroundColor(.purple)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            
-            // 內容預覽
-            if let content = inspiration.content, !content.isEmpty {
-                Text(content)
-                    .font(.custom("HelveticaNeue-Light", size: 12))
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-            
-            // 標籤
-            let tagNames = viewModel.getTagNames(for: inspiration)
-            if !tagNames.isEmpty {
+        PixelCard(borderColor: typeColor) {
+            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
                 HStack {
-                    ForEach(tagNames, id: \.self) { tagName in
-                        Text(tagName)
-                            .font(.custom("HelveticaNeue-Light", size: 10))
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.blue.opacity(0.2))
-                            .foregroundColor(.blue)
-                            .cornerRadius(8)
+                    // 類型圖示 (emoji)
+                    Text(typeEmoji)
+                        .font(.system(size: 32))
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        // 標題
+                        Text(inspiration.title ?? "Untitled")
+                            .font(.system(size: 16, weight: .bold, design: .monospaced))
+                            .foregroundColor(.primary)
+                            .lineLimit(2)
+
+                        // 建立時間
+                        if let createdAt = inspiration.createdAt {
+                            Text(formatDate(createdAt))
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    // 整理狀態指示器
+                    if viewModel.isOrganized(inspiration) {
+                        VStack(spacing: 4) {
+                            Text("✓")
+                                .font(.system(size: 20))
+                                .foregroundColor(AppDesign.Colors.green)
+                            Text("\(viewModel.getTaskCount(for: inspiration))")
+                                .font(.system(size: 10, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.green)
+                        }
+                    }
+                }
+            
+                // 根據類型顯示不同內容
+                if inspiration.type == 1 { // 圖片類型
+                    if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 120)
+                            .clipped()
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                    }
+                } else if inspiration.type == 2 { // 網址類型
+                    if let url = inspiration.url, !url.isEmpty {
+                        HStack {
+                            Text("🔗")
+                                .font(.system(size: 12))
+                            Text(url)
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.blue)
+                                .lineLimit(1)
+                        }
+                    }
+                } else if inspiration.type == 3 { // 影片類型
+                    if let url = inspiration.url, !url.isEmpty {
+                        HStack {
+                            Text("🎬")
+                                .font(.system(size: 12))
+                            Text(url)
+                                .font(.system(size: 12, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.orange)
+                                .lineLimit(1)
+                        }
+                    }
+                }
+
+                // 內容預覽
+                if let content = inspiration.content, !content.isEmpty {
+                    Text(content)
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+
+                // 標籤
+                let tagNames = viewModel.getTagNames(for: inspiration)
+                if !tagNames.isEmpty {
+                    TagList(tags: tagNames)
+                }
+
+                // 顯示任務數量
+                let taskCount = viewModel.getTaskCount(for: inspiration)
+                if taskCount > 0 {
+                    HStack(spacing: 4) {
+                        Text("✓")
+                            .font(.system(size: 12))
+                            .foregroundColor(AppDesign.Colors.green)
+                        Text("\(taskCount) " + NSLocalizedString("inspiration_task_count", comment: "個任務"))
+                            .font(.system(size: 10, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.green)
                     }
                 }
             }
-            
-            // 顯示任務數量（簡化顯示）
-            let taskCount = viewModel.getTaskCount(for: inspiration)
-            if taskCount > 0 {
-                HStack(spacing: 4) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.system(size: 10))
-                    Text("\(taskCount) 個任務")
-                        .font(.custom("HelveticaNeue-Light", size: 10))
-                        .foregroundColor(.green)
-                }
-            }
+            .padding(AppDesign.Spacing.standard)
+            .background(typeColor.opacity(0.05))
         }
-        .padding(.vertical, 4)
     }
     
-    private var typeIcon: String {
+    private var typeEmoji: String {
         switch inspiration.type {
-        case 0: return "doc.text"
-        case 1: return "photo"
-        case 2: return "link"
-        case 3: return "video"
-        default: return "lightbulb"
+        case 0: return "📝"
+        case 1: return "🖼️"
+        case 2: return "🔗"
+        case 3: return "🎬"
+        default: return "💡"
         }
     }
-    
+
     private var typeColor: Color {
         switch inspiration.type {
-        case 0: return .blue
-        case 1: return .green
-        case 2: return .orange
-        case 3: return .purple
-        default: return .gray
+        case 0: return AppDesign.Colors.orange
+        case 1: return AppDesign.Colors.purple
+        case 2: return AppDesign.Colors.blue
+        case 3: return AppDesign.Colors.orange
+        default: return AppDesign.Colors.gray
         }
     }
-    
+
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         return formatter.string(from: date)
     }
-    
-    private func taskStatusIcon(_ status: Int16) -> String {
-        switch status {
-        case 0: return "circle"
-        case 1: return "clock"
-        case 2: return "checkmark.circle.fill"
-        default: return "circle"
-        }
-    }
-    private func taskStatusColor(_ status: Int16) -> Color {
-        switch status {
-        case 0: return .gray
-        case 1: return .blue
-        case 2: return .green
-        default: return .gray
-        }
-    }
-    private func taskStatusName(_ status: Int16) -> String {
-        switch status {
-        case 0: return "待處理"
-        case 1: return "進行中"
-        case 2: return "已完成"
-        default: return "未知"
-        }
-    }
 }
 
-// Gallery 檢視模式的卡片元件
-struct InspirationGalleryCardView: View {
+// Gallery 檢視模式的卡片元件 - Pixel Art Style
+struct PixelInspirationGalleryCard: View {
     let inspiration: Inspiration
     let viewModel: InspirationViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // 主要內容區域
-            VStack(alignment: .leading, spacing: 6) {
+        PixelCard(borderColor: typeColor) {
+            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
                 // 類型圖示和標題
                 HStack {
-                    Image(systemName: typeIcon)
-                        .foregroundColor(typeColor)
-                        .font(.system(size: 16))
-                    
+                    Text(typeEmoji)
+                        .font(.system(size: 24))
+
                     Spacer()
-                    
+
                     // 整理狀態指示器
                     if viewModel.isOrganized(inspiration) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                            .font(.system(size: 12))
+                        Text("✓")
+                            .font(.system(size: 16))
+                            .foregroundColor(AppDesign.Colors.green)
                     }
                 }
-                
+
                 // 標題
                 Text(inspiration.title ?? "Untitled")
-                    .font(.custom("HelveticaNeue-Light", size: 14))
+                    .font(.system(size: 14, weight: .bold, design: .monospaced))
                     .foregroundColor(.primary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                
+
                 // 建立時間
                 if let createdAt = inspiration.createdAt {
                     Text(formatDate(createdAt))
-                        .font(.custom("HelveticaNeue-Light", size: 10))
+                        .font(.system(size: 10, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
-            }
-            
-            // 圖片預覽（如果有）
-            if inspiration.type == 1, let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(height: 80)
-                    .clipped()
-                    .cornerRadius(6)
-            }
-            
-            // 內容預覽
-            if let content = inspiration.content, !content.isEmpty {
-                Text(content)
-                    .font(.custom("HelveticaNeue-Light", size: 10))
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-            }
-            
-            // 標籤
-            let tagNames = viewModel.getTagNames(for: inspiration)
-            if !tagNames.isEmpty {
-                HStack {
-                    ForEach(Array(tagNames.prefix(2)), id: \.self) { tagName in
-                        Text(tagName)
-                            .font(.custom("HelveticaNeue-Light", size: 8))
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 1)
-                            .background(Color.blue.opacity(0.2))
-                            .foregroundColor(.blue)
-                            .cornerRadius(4)
+
+                // 圖片預覽（如果有）
+                if inspiration.type == 1, let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 80)
+                        .clipped()
+                        .cornerRadius(AppDesign.Borders.radiusCard)
+                }
+
+                // 內容預覽
+                if let content = inspiration.content, !content.isEmpty {
+                    Text(content)
+                        .font(.system(size: 10, design: .monospaced))
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                }
+
+                // 標籤（最多顯示2個）
+                let tagNames = viewModel.getTagNames(for: inspiration)
+                if !tagNames.isEmpty {
+                    HStack {
+                        ForEach(Array(tagNames.prefix(2)), id: \.self) { tagName in
+                            Text("#\(tagName)")
+                                .font(.system(size: 8, weight: .bold, design: .monospaced))
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 1)
+                                .background(AppDesign.Colors.tagBackground)
+                                .foregroundColor(.black)
+                                .cornerRadius(4)
+                        }
+
+                        if tagNames.count > 2 {
+                            Text("+\(tagNames.count - 2)")
+                                .font(.system(size: 8, design: .monospaced))
+                                .foregroundColor(.secondary)
+                        }
                     }
-                    
-                    if tagNames.count > 2 {
-                        Text("+\(tagNames.count - 2)")
-                            .font(.custom("HelveticaNeue-Light", size: 8))
-                            .foregroundColor(.secondary)
+                }
+
+                // 任務數量
+                let taskCount = viewModel.getTaskCount(for: inspiration)
+                if taskCount > 0 {
+                    HStack(spacing: 2) {
+                        Text("✓")
+                            .font(.system(size: 10))
+                            .foregroundColor(AppDesign.Colors.green)
+                        Text("\(taskCount)")
+                            .font(.system(size: 8, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.green)
                     }
                 }
             }
-            
-            // 任務數量
-            let taskCount = viewModel.getTaskCount(for: inspiration)
-            if taskCount > 0 {
-                HStack(spacing: 2) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.system(size: 8))
-                    Text("\(taskCount)")
-                        .font(.custom("HelveticaNeue-Light", size: 8))
-                        .foregroundColor(.green)
-                }
-            }
+            .padding(AppDesign.Spacing.small)
+            .background(typeColor.opacity(0.05))
         }
-        .padding(8)
-        .background(Color(.systemBackground))
-        .cornerRadius(8)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
     }
-    
-    private var typeIcon: String {
+
+    private var typeEmoji: String {
         switch inspiration.type {
-        case 0: return "doc.text"
-        case 1: return "photo"
-        case 2: return "link"
-        case 3: return "video"
-        default: return "lightbulb"
+        case 0: return "📝"
+        case 1: return "🖼️"
+        case 2: return "🔗"
+        case 3: return "🎬"
+        default: return "💡"
         }
     }
-    
+
     private var typeColor: Color {
         switch inspiration.type {
-        case 0: return .blue
-        case 1: return .green
-        case 2: return .orange
-        case 3: return .purple
-        default: return .gray
+        case 0: return AppDesign.Colors.orange
+        case 1: return AppDesign.Colors.purple
+        case 2: return AppDesign.Colors.blue
+        case 3: return AppDesign.Colors.orange
+        default: return AppDesign.Colors.gray
         }
     }
-    
+
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .short

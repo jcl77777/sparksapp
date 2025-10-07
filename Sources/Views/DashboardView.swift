@@ -3,52 +3,40 @@ import SwiftUI
 struct DashboardView: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
     @State private var showingRefresh = false
-    
+
     var body: some View {
-        NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 20) {
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "📊 " + NSLocalizedString("dashboard_title", comment: "儀表板"),
+                    gradientColors: AppDesign.Colors.blueGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.standard) {
                     // 今日統計區塊
                     TodayStatsSection()
-                    
+
                     // 總覽統計區塊
                     OverviewStatsSection()
-                    
+
                     // 任務狀態統計區塊
                     TaskStatsSection()
-                    
+
                     // 靈感整理狀態區塊
                     OrganizationStatsSection()
-                    
+
                     // 連續紀錄顯示區塊
                     StreakSection()
-                    
+
                     // 週趨勢圖表區塊
                     WeeklyTrendSection()
                 }
-                .padding()
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationTitle(NSLocalizedString("dashboard_title", comment: "儀表板"))
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingRefresh = true
-                            dashboardViewModel.refresh()
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            showingRefresh = false
-                        }
-                    }) {
-                        Image(systemName: showingRefresh ? "arrow.clockwise.circle.fill" : "arrow.clockwise")
-                            .rotationEffect(.degrees(showingRefresh ? 360 : 0))
-                            .animation(.linear(duration: 0.3), value: showingRefresh)
-                    }
-                }
-            }
-            .onAppear {
-                dashboardViewModel.refresh()
-            }
+        }
+        .onAppear {
+            dashboardViewModel.refresh()
         }
     }
 }
@@ -56,222 +44,145 @@ struct DashboardView: View {
 // 今日統計區塊
 struct TodayStatsSection: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "calendar")
-                    .foregroundColor(.blue)
-                    .font(.title2)
-                Text(NSLocalizedString("dashboard_today_stats", comment: "今日統計"))
-                    .font(.custom("HelveticaNeue-Light", size: 20))
-                    .fontWeight(.medium)
-                Spacer()
-            }
-            
-            HStack(spacing: 16) {
-                StatCard(
-                    title: NSLocalizedString("dashboard_new_inspirations", comment: "新增靈感"),
-                    value: "\(dashboardViewModel.todayInspirations)",
-                    icon: "lightbulb",
-                    color: .orange
-                )
-                
-                StatCard(
-                    title: NSLocalizedString("dashboard_new_tasks", comment: "新增任務"),
-                    value: "\(dashboardViewModel.todayTasks)",
-                    icon: "checkmark.circle",
-                    color: .green
-                )
-            }
+        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+            Text("📅 " + NSLocalizedString("dashboard_today_stats", comment: "今日統計"))
+                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+
+            StatsGrid(stats: [
+                (dashboardViewModel.todayInspirations, NSLocalizedString("dashboard_new_inspirations", comment: "新增靈感"), AppDesign.Colors.orange, "💡"),
+                (dashboardViewModel.todayTasks, NSLocalizedString("dashboard_new_tasks", comment: "新增任務"), AppDesign.Colors.green, "✓")
+            ])
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
     }
 }
 
 // 總覽統計區塊
 struct OverviewStatsSection: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "chart.bar")
-                    .foregroundColor(.purple)
-                    .font(.title2)
-                Text(NSLocalizedString("dashboard_overview_stats", comment: "總覽統計"))
-                    .font(.custom("HelveticaNeue-Light", size: 20))
-                    .fontWeight(.medium)
-                Spacer()
-            }
-            
-            HStack(spacing: 16) {
-                StatCard(
-                    title: NSLocalizedString("dashboard_total_inspirations", comment: "總靈感數"),
-                    value: "\(dashboardViewModel.totalInspirations)",
-                    icon: "lightbulb.fill",
-                    color: .blue
-                )
-                
-                StatCard(
-                    title: NSLocalizedString("dashboard_total_tasks", comment: "總任務數"),
-                    value: "\(dashboardViewModel.totalTasks)",
-                    icon: "checkmark.circle.fill",
-                    color: .green
-                )
-            }
+        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+            Text("📊 " + NSLocalizedString("dashboard_overview_stats", comment: "總覽統計"))
+                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+
+            StatsGrid(stats: [
+                (dashboardViewModel.totalInspirations, NSLocalizedString("dashboard_total_inspirations", comment: "總靈感數"), AppDesign.Colors.blue, "💡"),
+                (dashboardViewModel.totalTasks, NSLocalizedString("dashboard_total_tasks", comment: "總任務數"), AppDesign.Colors.green, "✓")
+            ])
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
     }
 }
 
 // 任務狀態統計區塊
 struct TaskStatsSection: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "list.clipboard")
-                    .foregroundColor(.green)
-                    .font(.title2)
-                Text(NSLocalizedString("dashboard_task_status", comment: "任務狀態"))
-                    .font(.custom("HelveticaNeue-Light", size: 20))
-                    .fontWeight(.medium)
-                Spacer()
-            }
-            
-            VStack(spacing: 12) {
-                TaskStatusRow(
-                    title: NSLocalizedString("taskstatus_todo", comment: "待處理"),
-                    count: dashboardViewModel.pendingTasks,
-                    icon: "circle",
-                    color: .gray
-                )
-                
-                TaskStatusRow(
-                    title: NSLocalizedString("taskstatus_doing", comment: "進行中"),
-                    count: dashboardViewModel.inProgressTasks,
-                    icon: "clock",
-                    color: .blue
-                )
-                
-                TaskStatusRow(
-                    title: NSLocalizedString("taskstatus_done", comment: "已完成"),
-                    count: dashboardViewModel.completedTasks,
-                    icon: "checkmark.circle.fill",
-                    color: .green
-                )
+        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+            Text("📋 " + NSLocalizedString("dashboard_task_status", comment: "任務狀態"))
+                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+
+            PixelCard(borderColor: AppDesign.Colors.green) {
+                VStack(spacing: AppDesign.Spacing.small) {
+                    TaskStatusRow(
+                        title: NSLocalizedString("taskstatus_todo", comment: "待處理"),
+                        count: dashboardViewModel.pendingTasks,
+                        icon: "⚪",
+                        color: AppDesign.Colors.gray
+                    )
+
+                    Divider()
+
+                    TaskStatusRow(
+                        title: NSLocalizedString("taskstatus_doing", comment: "進行中"),
+                        count: dashboardViewModel.inProgressTasks,
+                        icon: "⏱️",
+                        color: AppDesign.Colors.blue
+                    )
+
+                    Divider()
+
+                    TaskStatusRow(
+                        title: NSLocalizedString("taskstatus_done", comment: "已完成"),
+                        count: dashboardViewModel.completedTasks,
+                        icon: "✓",
+                        color: AppDesign.Colors.green
+                    )
+                }
+                .padding(AppDesign.Spacing.standard)
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
     }
 }
 
 // 靈感整理狀態區塊
 struct OrganizationStatsSection: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "folder")
-                    .foregroundColor(.orange)
-                    .font(.title2)
-                Text(NSLocalizedString("dashboard_organization_status", comment: "靈感整理狀態"))
-                    .font(.custom("HelveticaNeue-Light", size: 20))
-                    .fontWeight(.medium)
-                Spacer()
-            }
-            
-            HStack(spacing: 16) {
-                StatCard(
-                    title: NSLocalizedString("dashboard_organized", comment: "已整理"),
-                    value: "\(dashboardViewModel.organizedInspirations)",
-                    icon: "checkmark.circle.fill",
-                    color: .green
-                )
-                
-                StatCard(
-                    title: NSLocalizedString("dashboard_unorganized", comment: "未整理"),
-                    value: "\(dashboardViewModel.unorganizedInspirations)",
-                    icon: "exclamationmark.circle",
-                    color: .orange
-                )
-            }
+        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+            Text("📁 " + NSLocalizedString("dashboard_organization_status", comment: "靈感整理狀態"))
+                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+
+            StatsGrid(stats: [
+                (dashboardViewModel.organizedInspirations, NSLocalizedString("dashboard_organized", comment: "已整理"), AppDesign.Colors.green, "✓"),
+                (dashboardViewModel.unorganizedInspirations, NSLocalizedString("dashboard_unorganized", comment: "未整理"), AppDesign.Colors.orange, "⚠️")
+            ])
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
     }
 }
 
 // 連續紀錄顯示區塊
 struct StreakSection: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "flame")
-                    .foregroundColor(.orange)
-                    .font(.title2)
-                Text(NSLocalizedString("dashboard_streak", comment: "連續紀錄"))
-                    .font(.custom("HelveticaNeue-Light", size: 20))
-                    .fontWeight(.medium)
-                Spacer()
-            }
-            
-            HStack(spacing: 16) {
-                StreakCard(
-                    title: NSLocalizedString("dashboard_current_streak", comment: "當前連續"),
-                    value: "\(dashboardViewModel.currentStreak)",
-                    subtitle: NSLocalizedString("dashboard_days", comment: "天"),
-                    icon: "flame.fill",
-                    color: .orange,
-                    badge: getCurrentStreakBadge()
-                )
-                
-                StreakCard(
-                    title: NSLocalizedString("dashboard_longest_streak", comment: "最長連續"),
-                    value: "\(dashboardViewModel.longestStreak)",
-                    subtitle: NSLocalizedString("dashboard_days", comment: "天"),
-                    icon: "trophy.fill",
-                    color: .yellow,
-                    badge: getLongestStreakBadge()
-                )
-            }
-            
-            // 成就徽章顯示
-            if !getAchievementBadges().isEmpty {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(NSLocalizedString("dashboard_achievement_badges", comment: "成就徽章"))
-                        .font(.custom("HelveticaNeue-Light", size: 16))
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: 12) {
-                        ForEach(getAchievementBadges(), id: \.title) { badge in
-                            BadgeView(badge: badge)
+        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+            Text("🔥 " + NSLocalizedString("dashboard_streak", comment: "連續紀錄"))
+                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+
+            PixelCard(borderColor: AppDesign.Colors.orange) {
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    HStack(spacing: AppDesign.Spacing.small) {
+                        StreakCard(
+                            title: NSLocalizedString("dashboard_current_streak", comment: "當前連續"),
+                            value: "\(dashboardViewModel.currentStreak)",
+                            subtitle: NSLocalizedString("dashboard_days", comment: "天"),
+                            icon: "🔥",
+                            color: AppDesign.Colors.orange,
+                            badge: getCurrentStreakBadge()
+                        )
+
+                        StreakCard(
+                            title: NSLocalizedString("dashboard_longest_streak", comment: "最長連續"),
+                            value: "\(dashboardViewModel.longestStreak)",
+                            subtitle: NSLocalizedString("dashboard_days", comment: "天"),
+                            icon: "🏆",
+                            color: Color(hex: "#fbbf24"),
+                            badge: getLongestStreakBadge()
+                        )
+                    }
+
+                    // 成就徽章顯示
+                    if !getAchievementBadges().isEmpty {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("dashboard_achievement_badges", comment: "成就徽章"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textSecondary)
+
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 4), spacing: AppDesign.Spacing.small) {
+                                ForEach(getAchievementBadges(), id: \.title) { badge in
+                                    BadgeView(badge: badge)
+                                }
+                            }
                         }
                     }
                 }
+                .padding(AppDesign.Spacing.standard)
             }
         }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
     }
     
     private func getCurrentStreakBadge() -> String? {
@@ -340,38 +251,40 @@ struct StreakCard: View {
     let icon: String
     let color: Color
     let badge: String?
-    
+
     var body: some View {
         VStack(spacing: 8) {
             HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.title2)
-                
+                Text(icon)
+                    .font(.system(size: 24))
+
                 if let badge = badge {
                     Text(badge)
-                        .font(.title3)
+                        .font(.system(size: 20))
                 }
             }
-            
+
             Text(value)
-                .font(.custom("HelveticaNeue-Light", size: 28))
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-            
+                .font(.system(size: 32, weight: .bold, design: .monospaced))
+                .foregroundColor(color)
+
             Text(subtitle)
-                .font(.custom("HelveticaNeue-Light", size: 12))
-                .foregroundColor(.secondary)
-            
+                .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                .foregroundColor(AppDesign.Colors.textSecondary)
+
             Text(title)
-                .font(.custom("HelveticaNeue-Light", size: 12))
-                .foregroundColor(.secondary)
+                .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                .foregroundColor(AppDesign.Colors.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
-        .padding()
+        .padding(AppDesign.Spacing.standard)
         .background(color.opacity(0.1))
-        .cornerRadius(8)
+        .cornerRadius(AppDesign.Borders.radiusCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                .stroke(color, lineWidth: AppDesign.Borders.thin)
+        )
     }
 }
 
@@ -386,77 +299,43 @@ struct AchievementBadge {
 // 成就徽章元件
 struct BadgeView: View {
     let badge: AchievementBadge
-    
+
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: badge.icon)
-                .foregroundColor(badge.unlocked ? badge.color : .gray)
-                .font(.title2)
-            
+                .foregroundColor(badge.unlocked ? badge.color : AppDesign.Colors.gray)
+                .font(.system(size: 20))
+
             Text(badge.title)
-                .font(.custom("HelveticaNeue-Light", size: 10))
-                .foregroundColor(badge.unlocked ? .primary : .secondary)
+                .font(.system(size: 9, weight: .bold, design: .monospaced))
+                .foregroundColor(badge.unlocked ? AppDesign.Colors.textPrimary : AppDesign.Colors.textSecondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
         }
         .frame(width: 60, height: 60)
-        .background(badge.unlocked ? badge.color.opacity(0.1) : Color.gray.opacity(0.1))
-        .cornerRadius(8)
+        .background(badge.unlocked ? badge.color.opacity(0.1) : AppDesign.Colors.gray.opacity(0.1))
+        .cornerRadius(AppDesign.Borders.radiusCard)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                .stroke(badge.unlocked ? badge.color : AppDesign.Colors.gray, lineWidth: AppDesign.Borders.thin)
+        )
     }
 }
 
 // 週趨勢圖表區塊
 struct WeeklyTrendSection: View {
     @EnvironmentObject var dashboardViewModel: DashboardViewModel
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(.purple)
-                    .font(.title2)
-                Text(NSLocalizedString("dashboard_weekly_trend", comment: "週趨勢"))
-                    .font(.custom("HelveticaNeue-Light", size: 20))
-                    .fontWeight(.medium)
-                Spacer()
-            }
-            
-            WeeklyChartView(data: dashboardViewModel.weeklyInspirationData)
-        }
-        .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-    }
-}
 
-// 統計卡片元件
-struct StatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
-    
     var body: some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .foregroundColor(color)
-                .font(.title2)
-            
-            Text(value)
-                .font(.custom("HelveticaNeue-Light", size: 24))
-                .fontWeight(.bold)
-                .foregroundColor(.primary)
-            
-            Text(title)
-                .font(.custom("HelveticaNeue-Light", size: 12))
-                .foregroundColor(.secondary)
-                .multilineTextAlignment(.center)
+        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+            Text("📈 " + NSLocalizedString("dashboard_weekly_trend", comment: "週趨勢"))
+                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+
+            PixelCard(borderColor: AppDesign.Colors.purple) {
+                WeeklyChartView(data: dashboardViewModel.weeklyInspirationData)
+                    .padding(AppDesign.Spacing.standard)
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(color.opacity(0.1))
-        .cornerRadius(8)
     }
 }
 
@@ -466,22 +345,20 @@ struct TaskStatusRow: View {
     let count: Int
     let icon: String
     let color: Color
-    
+
     var body: some View {
         HStack {
-            Image(systemName: icon)
-                .foregroundColor(color)
+            Text(icon)
                 .font(.system(size: 16))
-            
+
             Text(title)
-                .font(.custom("HelveticaNeue-Light", size: 16))
-                .foregroundColor(.primary)
-            
+                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                .foregroundColor(AppDesign.Colors.textPrimary)
+
             Spacer()
-            
+
             Text("\(count)")
-                .font(.custom("HelveticaNeue-Light", size: 16))
-                .fontWeight(.medium)
+                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                 .foregroundColor(color)
         }
         .padding(.vertical, 4)
@@ -491,41 +368,41 @@ struct TaskStatusRow: View {
 // 週趨勢圖表元件
 struct WeeklyChartView: View {
     let data: [Date: Int]
-    
+
     private var sortedData: [(Date, Int)] {
         data.sorted { $0.key < $1.key }
     }
-    
+
     private var maxValue: Int {
         data.values.max() ?? 1
     }
-    
+
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: AppDesign.Spacing.small) {
             HStack(alignment: .bottom, spacing: 8) {
                 ForEach(sortedData, id: \.0) { date, count in
                     VStack(spacing: 4) {
                         // 柱狀圖
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.blue.opacity(0.7))
+                            .fill(AppDesign.Colors.purple.opacity(0.7))
                             .frame(width: 30, height: max(20, CGFloat(count) / CGFloat(maxValue) * 80))
-                        
+
                         // 日期標籤
                         Text(formatDate(date))
-                            .font(.custom("HelveticaNeue-Light", size: 10))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textSecondary)
                     }
                 }
             }
             .frame(height: 100)
-            
+
             // 圖表說明
             Text(NSLocalizedString("dashboard_weekly_inspiration_count", comment: "過去7天新增靈感數量"))
-                .font(.custom("HelveticaNeue-Light", size: 12))
-                .foregroundColor(.secondary)
+                .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                .foregroundColor(AppDesign.Colors.textSecondary)
         }
     }
-    
+
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd"

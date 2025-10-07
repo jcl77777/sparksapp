@@ -19,180 +19,235 @@ struct VideoInspirationView: View {
     @State private var errorMessage: String?
     
     var body: some View {
-        NavigationView {
-            if showingSuccessView {
-                VStack(spacing: 30) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.green)
-                    VStack(spacing: 8) {
-                        Text(NSLocalizedString("video_success", comment: "儲存成功！"))
-                            .font(.custom("HelveticaNeue-Light", size: 28))
+        if showingSuccessView {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Success Header
+                    GradientHeader(
+                        title: "✓ " + NSLocalizedString("video_success", comment: "儲存成功！"),
+                        gradientColors: AppDesign.Colors.purpleGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.large) {
+                        Text("✓")
+                            .font(.system(size: 80, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.purple)
+
                         Text(NSLocalizedString("video_saved", comment: "影片已成功儲存到收藏"))
-                            .font(.custom("HelveticaNeue-Light", size: 15))
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    VStack(spacing: 16) {
-                        Button(action: {
-                            showAddTaskSheet = true
-                        }) {
-                            HStack {
-                                Image(systemName: "plus.circle")
-                                Text(NSLocalizedString("video_add_task", comment: "新增任務"))
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textSecondary)
+
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "➕ " + NSLocalizedString("video_add_task", comment: "新增任務"),
+                                color: AppDesign.Colors.green
+                            ) {
+                                showAddTaskSheet = true
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                        }
-                        Button(action: {
-                            onComplete(0) // 跳到 Collection 分頁
-                        }) {
-                            HStack {
-                                Image(systemName: "checkmark")
-                                Text(NSLocalizedString("video_done", comment: "完成"))
+
+                            PixelButton(
+                                "✓ " + NSLocalizedString("video_done", comment: "完成"),
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                onComplete(0) // 跳到 Collection 分頁
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray5))
-                            .foregroundColor(.primary)
-                            .cornerRadius(12)
                         }
                     }
-                    .padding(.horizontal, 40)
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationBarHidden(true)
-                .sheet(isPresented: $showAddTaskSheet) {
-                    AddTaskView(inspiration: savedInspiration)
-                }
-            } else {
-                Form {
-                    Section(header: Text(NSLocalizedString("video_url_title", comment: "影片連結"))) {
-                        HStack {
-                            TextField(NSLocalizedString("video_url_placeholder", comment: "輸入影片連結"), text: $videoURL)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                                .onChange(of: videoURL) { _, newValue in
-                                    // 當URL變化時，自動抓取影片資訊
-                                    if !newValue.isEmpty && isValidVideoURL(newValue) {
-                                        fetchVideoInfo()
+            }
+            .sheet(isPresented: $showAddTaskSheet) {
+                AddTaskView(inspiration: savedInspiration)
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Gradient Header
+                    GradientHeader(
+                        title: "🎬 " + NSLocalizedString("add_video_title", comment: "新增影片"),
+                        gradientColors: AppDesign.Colors.purpleGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.standard) {
+                        // 影片連結
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("video_url_title", comment: "影片連結"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            HStack(spacing: AppDesign.Spacing.small) {
+                                TextField(NSLocalizedString("video_url_placeholder", comment: "輸入影片連結"), text: $videoURL)
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .padding(AppDesign.Spacing.small)
+                                    .background(Color.white)
+                                    .cornerRadius(AppDesign.Borders.radiusCard)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                            .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                    )
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+                                    .onChange(of: videoURL) { _, newValue in
+                                        // 當URL變化時，自動抓取影片資訊
+                                        if !newValue.isEmpty && isValidVideoURL(newValue) {
+                                            fetchVideoInfo()
+                                        }
                                     }
+
+                                Button(action: fetchVideoInfo) {
+                                    Text("⬇️")
+                                        .font(.system(size: 20))
                                 }
-                            
-                            Button(action: fetchVideoInfo) {
-                                Image(systemName: "arrow.down.circle")
-                                    .foregroundColor(.blue)
+                                .disabled(videoURL.isEmpty || isLoading)
+                                .opacity(videoURL.isEmpty || isLoading ? 0.5 : 1.0)
                             }
-                            .disabled(videoURL.isEmpty || isLoading)
-                        }
-                        .padding(.vertical, 4)
-                        
-                        if isLoading {
-                            HStack {
-                                ProgressView()
-                                    .scaleEffect(0.8)
-                                Text(NSLocalizedString("video_loading", comment: "正在抓取影片資訊..."))
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                    .foregroundColor(.secondary)
+
+                            if isLoading {
+                                HStack {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                    Text(NSLocalizedString("video_loading", comment: "正在抓取影片資訊..."))
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                }
+                            }
+
+                            if let errorMessage = errorMessage {
+                                Text(errorMessage)
+                                    .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                    .foregroundColor(.red)
                             }
                         }
-                        
-                        if let errorMessage = errorMessage {
-                            Text(errorMessage)
-                                .font(.custom("HelveticaNeue-Light", size: 12))
-                                .foregroundColor(.red)
-                        }
-                    }
-                    
-                    if !videoTitle.isEmpty {
-                        Section(header: Text(NSLocalizedString("video_preview", comment: "影片預覽"))) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                // 影片預覽卡片
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack {
-                                        Image(systemName: "video")
-                                            .foregroundColor(.purple)
-                                        Text(videoTitle)
-                                            .font(.custom("HelveticaNeue-Light", size: 17))
-                                            .lineLimit(2)
+
+
+                        // 影片預覽
+                        if !videoTitle.isEmpty {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("video_preview", comment: "影片預覽"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                PixelCard(borderColor: AppDesign.Colors.purple) {
+                                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                        HStack {
+                                            Text("🎬")
+                                                .font(.system(size: 20))
+                                            Text(videoTitle)
+                                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textPrimary)
+                                                .lineLimit(2)
+                                        }
+
+                                        Text(videoURL)
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textSecondary)
+                                            .lineLimit(1)
+
+                                        // 影片預覽圖示
+                                        RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                            .fill(Color(.systemGray5))
+                                            .frame(height: 120)
+                                            .overlay(
+                                                VStack(spacing: AppDesign.Spacing.small) {
+                                                    Text("🎬")
+                                                        .font(.system(size: 32))
+                                                    Text(NSLocalizedString("video_preview", comment: "影片預覽"))
+                                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                                }
+                                            )
                                     }
-                                    
-                                    Text(videoURL)
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
-                                    
-                                    // 影片預覽圖示
-                                    Rectangle()
-                                        .fill(Color(.systemGray5))
-                                        .frame(height: 120)
-                                        .cornerRadius(8)
-                                        .overlay(
-                                            VStack(spacing: 8) {
-                                                Image(systemName: "video.fill")
-                                                    .font(.system(size: 32))
-                                                    .foregroundColor(.purple)
-                                                Text(NSLocalizedString("video_preview", comment: "影片預覽"))
-                                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                                    .foregroundColor(.secondary)
+                                    .padding(AppDesign.Spacing.standard)
+                                }
+                            }
+                        }
+
+                        // 標題
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("video_title", comment: "標題"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextField(NSLocalizedString("video_title_placeholder", comment: "輸入標題"), text: $videoTitle)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 描述
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("video_description_optional", comment: "描述（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextEditor(text: $description)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .frame(minHeight: 100)
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 標籤
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("video_tags_optional", comment: "標籤（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            if viewModel.availableTags.isEmpty {
+                                Text(NSLocalizedString("video_no_tags", comment: "無可用標籤，請至設定頁新增"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                    .italic()
+                            } else {
+                                VStack(spacing: AppDesign.Spacing.small) {
+                                    ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                        MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
+                                            let name = tag.name ?? ""
+                                            if selectedTags.contains(name) {
+                                                selectedTags.remove(name)
+                                            } else {
+                                                selectedTags.insert(name)
                                             }
-                                        )
-                                }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
-                            }
-                        }
-                    }
-                    
-                    Section(header: Text(NSLocalizedString("video_title", comment: "標題"))) {
-                        TextField(NSLocalizedString("video_title_placeholder", comment: "輸入標題"), text: $videoTitle)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding(.vertical, 4)
-                    }
-                    
-                    Section(header: Text(NSLocalizedString("video_description_optional", comment: "描述（可選）"))) {
-                        TextEditor(text: $description)
-                            .frame(minHeight: 80)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                            )
-                            .padding(.vertical, 4)
-                    }
-                    
-                    Section(header: Text(NSLocalizedString("video_tags_optional", comment: "標籤（可選）"))) {
-                        if viewModel.availableTags.isEmpty {
-                            Text(NSLocalizedString("video_no_tags", comment: "無可用標籤，請至設定頁新增"))
-                                .foregroundColor(.secondary)
-                                .italic()
-                        } else {
-                            ForEach(viewModel.availableTags, id: \.objectID) { tag in
-                                MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
-                                    let name = tag.name ?? ""
-                                    if selectedTags.contains(name) {
-                                        selectedTags.remove(name)
-                                    } else {
-                                        selectedTags.insert(name)
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        // 按鈕區域
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "💾 " + NSLocalizedString("video_save", comment: "儲存"),
+                                color: AppDesign.Colors.purple
+                            ) {
+                                saveVideoInspiration()
+                            }
+                            .disabled(videoTitle.trimmingCharacters(in: .whitespaces).isEmpty || videoURL.isEmpty)
+                            .opacity((videoTitle.trimmingCharacters(in: .whitespaces).isEmpty || videoURL.isEmpty) ? 0.5 : 1.0)
+
+                            PixelButton(
+                                NSLocalizedString("video_cancel", comment: "取消"),
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                        .padding(.top, AppDesign.Spacing.small)
                     }
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationTitle(NSLocalizedString("add_video_title", comment: "新增影片"))
-                .navigationBarItems(
-                    leading: Button(NSLocalizedString("video_cancel", comment: "取消")) {
-                        presentationMode.wrappedValue.dismiss()
-                    },
-                    trailing: Button(NSLocalizedString("video_save", comment: "儲存")) {
-                        saveVideoInspiration()
-                    }
-                    .disabled(videoTitle.trimmingCharacters(in: .whitespaces).isEmpty || videoURL.isEmpty)
-                )
             }
         }
     }

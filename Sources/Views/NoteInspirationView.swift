@@ -15,99 +15,142 @@ struct NoteInspirationView: View {
     @State private var showAddTaskSheet = false
     
     var body: some View {
-        NavigationView {
-            if showingSuccessView {
-                VStack(spacing: 30) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.green)
-                    VStack(spacing: 8) {
-                        Text(NSLocalizedString("noteinspiration_save_success", comment: "儲存成功！"))
-                            .font(.custom("HelveticaNeue-Light", size: 28))
+        if showingSuccessView {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Success Header
+                    GradientHeader(
+                        title: "✓ " + NSLocalizedString("noteinspiration_save_success", comment: "儲存成功！"),
+                        gradientColors: AppDesign.Colors.blueGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.large) {
+                        Text("✓")
+                            .font(.system(size: 80, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.blue)
+
                         Text(NSLocalizedString("noteinspiration_save_success_desc", comment: "筆記已成功儲存到收藏"))
-                            .font(.custom("HelveticaNeue-Light", size: 15))
-                            .foregroundColor(.secondary)
-                    }
-                    VStack(spacing: 16) {
-                        Button(action: {
-                            showAddTaskSheet = true
-                            // 不再只設 appState.addTaskDefaultTitle
-                            // 直接觸發 sheet，AddTaskView 會自動帶入 savedInspiration
-                        }) {
-                            HStack {
-                                Image(systemName: "plus.circle")
-                                Text(NSLocalizedString("noteinspiration_add_task", comment: "新增任務"))
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textSecondary)
+
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "➕ " + NSLocalizedString("noteinspiration_add_task", comment: "新增任務"),
+                                color: AppDesign.Colors.green
+                            ) {
+                                showAddTaskSheet = true
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                        }
-                        Button(action: {
-                            onComplete(0) // 跳到 Collection 分頁
-                        }) {
-                            HStack {
-                                Image(systemName: "checkmark")
-                                Text(NSLocalizedString("noteinspiration_done", comment: "完成"))
+
+                            PixelButton(
+                                "✓ " + NSLocalizedString("noteinspiration_done", comment: "完成"),
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                onComplete(0) // 跳到 Collection 分頁
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray5))
-                            .foregroundColor(.primary)
-                            .cornerRadius(12)
                         }
                     }
-                    .padding(.horizontal, 40)
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationBarHidden(true)
-                .sheet(isPresented: $showAddTaskSheet) {
-                    AddTaskView(inspiration: savedInspiration)
-                }
-            } else {
-                Form {
-                    Section(header: Text(NSLocalizedString("noteinspiration_title_section", comment: "標題"))) {
-                        TextField(NSLocalizedString("noteinspiration_title_placeholder", comment: "輸入標題"), text: $title)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                    }
-                    Section(header: Text(NSLocalizedString("noteinspiration_content_section", comment: "內容"))) {
-                        TextEditor(text: $content)
-                            .frame(minHeight: 120)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                            )
-                    }
-                    Section(header: Text(NSLocalizedString("noteinspiration_tags_section", comment: "標籤（可選）"))) {
-                        if viewModel.availableTags.isEmpty {
-                            Text(NSLocalizedString("noteinspiration_no_tags", comment: "無可用標籤，請至設定頁新增"))
-                                .foregroundColor(.secondary)
-                                .italic()
-                        } else {
-                            // 多選現有標籤
-                            ForEach(viewModel.availableTags, id: \.objectID) { tag in
-                                MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
-                                    let name = tag.name ?? ""
-                                    if selectedTags.contains(name) {
-                                        selectedTags.remove(name)
-                                    } else {
-                                        selectedTags.insert(name)
+            }
+            .sheet(isPresented: $showAddTaskSheet) {
+                AddTaskView(inspiration: savedInspiration)
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Gradient Header
+                    GradientHeader(
+                        title: "📝 " + NSLocalizedString("noteinspiration_add_note_title", comment: "新增筆記"),
+                        gradientColors: AppDesign.Colors.blueGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.standard) {
+                        // 標題
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("noteinspiration_title_section", comment: "標題"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextField(NSLocalizedString("noteinspiration_title_placeholder", comment: "輸入標題"), text: $title)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 內容
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("noteinspiration_content_section", comment: "內容"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextEditor(text: $content)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .frame(minHeight: 150)
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 標籤
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("noteinspiration_tags_section", comment: "標籤（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            if viewModel.availableTags.isEmpty {
+                                Text(NSLocalizedString("noteinspiration_no_tags", comment: "無可用標籤，請至設定頁新增"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                    .italic()
+                            } else {
+                                VStack(spacing: AppDesign.Spacing.small) {
+                                    ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                        MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
+                                            let name = tag.name ?? ""
+                                            if selectedTags.contains(name) {
+                                                selectedTags.remove(name)
+                                            } else {
+                                                selectedTags.insert(name)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        // 按鈕區域
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "💾 " + NSLocalizedString("noteinspiration_save", comment: "儲存"),
+                                color: AppDesign.Colors.blue
+                            ) {
+                                saveNote()
+                            }
+                            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                            .opacity(title.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+
+                            PixelButton(
+                                NSLocalizedString("noteinspiration_cancel", comment: "取消"),
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                        .padding(.top, AppDesign.Spacing.small)
                     }
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationTitle(NSLocalizedString("noteinspiration_add_note_title", comment: "新增筆記"))
-                .navigationBarItems(
-                    leading: Button(NSLocalizedString("noteinspiration_cancel", comment: "取消")) {
-                        presentationMode.wrappedValue.dismiss()
-                    },
-                    trailing: Button(NSLocalizedString("noteinspiration_save", comment: "儲存")) {
-                        saveNote()
-                    }
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
-                )
             }
         }
     }

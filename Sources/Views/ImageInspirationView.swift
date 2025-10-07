@@ -25,157 +25,198 @@ struct ImageInspirationView: View {
     }
     
     var body: some View {
-        NavigationView {
-            if showingSuccessView {
-                VStack(spacing: 30) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.green)
-                    VStack(spacing: 8) {
-                        Text("儲存成功！")
-                            .font(.custom("HelveticaNeue-Light", size: 28))
+        if showingSuccessView {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Success Header
+                    GradientHeader(
+                        title: "✓ 儲存成功！",
+                        gradientColors: AppDesign.Colors.greenGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.large) {
+                        Text("✓")
+                            .font(.system(size: 80, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.green)
+
                         Text("圖片已成功儲存到收藏")
-                            .font(.custom("HelveticaNeue-Light", size: 15))
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    VStack(spacing: 16) {
-                        Button(action: {
-                            showAddTaskSheet = true
-                        }) {
-                            HStack {
-                                Image(systemName: "plus.circle")
-                                Text("新增任務")
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textSecondary)
+
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "➕ 新增任務",
+                                color: AppDesign.Colors.green
+                            ) {
+                                showAddTaskSheet = true
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                        }
-                        Button(action: {
-                            onComplete(0) // 跳到 Collection 分頁
-                        }) {
-                            HStack {
-                                Image(systemName: "checkmark")
-                                Text("完成")
+
+                            PixelButton(
+                                "✓ 完成",
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                onComplete(0) // 跳到 Collection 分頁
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray5))
-                            .foregroundColor(.primary)
-                            .cornerRadius(12)
                         }
                     }
-                    .padding(.horizontal, 40)
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationBarHidden(true)
-                .sheet(isPresented: $showAddTaskSheet) {
-                    AddTaskView(inspiration: savedInspiration)
-                }
-            } else {
-                Form {
-                    Section(header: Text(NSLocalizedString("image_title", comment: "圖片"))) {
-                        VStack(spacing: 16) {
-                            if let selectedImage = selectedImage {
-                                Image(uiImage: selectedImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(maxHeight: 200)
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color(.systemGray4), lineWidth: 1)
-                                    )
-                            } else {
-                                VStack(spacing: 12) {
-                                    Image(systemName: "photo")
-                                        .font(.system(size: 40))
-                                        .foregroundColor(.gray)
-                                    Text(NSLocalizedString("image_select", comment: "尚未選擇圖片"))
-                                        .font(.custom("HelveticaNeue-Light", size: 16))
-                                        .foregroundColor(.secondary)
-                                }
-                                .frame(height: 120)
-                                .frame(maxWidth: .infinity)
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
-                            }
-                            Button(action: {
-                                showingImageSourceAlert = true
-                            }) {
-                                HStack {
-                                    Image(systemName: selectedImage == nil ? "plus.circle" : "arrow.clockwise")
-                                    Text(selectedImage == nil ? NSLocalizedString("image_select", comment: "選擇圖片") : NSLocalizedString("image_reselect", comment: "重新選擇"))
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                            }
-                        }
-                    }
-                    Section(header: Text(NSLocalizedString("image_title", comment: "標題"))) {
-                        TextField(NSLocalizedString("image_title_placeholder", comment: "輸入標題"), text: $title)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                    }
-                    Section(header: Text(NSLocalizedString("image_desc_optional", comment: "描述（可選）"))) {
-                        TextEditor(text: $content)
-                            .frame(minHeight: 80)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                            )
-                    }
-                    Section(header: Text(NSLocalizedString("tag_manager_section_title", comment: "標籤（可選）"))) {
-                        if viewModel.availableTags.isEmpty {
-                            Text(NSLocalizedString("no_tags_available", comment: "無可用標籤，請至設定頁新增"))
-                                .foregroundColor(.secondary)
-                                .italic()
-                        } else {
-                            ForEach(viewModel.availableTags, id: \.objectID) { tag in
-                                MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
-                                    let name = tag.name ?? ""
-                                    if selectedTags.contains(name) {
-                                        selectedTags.remove(name)
+            }
+            .sheet(isPresented: $showAddTaskSheet) {
+                AddTaskView(inspiration: savedInspiration)
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Gradient Header
+                    GradientHeader(
+                        title: "🖼️ " + NSLocalizedString("add_image_title", comment: "新增圖片"),
+                        gradientColors: AppDesign.Colors.greenGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.standard) {
+                        // 圖片選擇
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("image_title", comment: "圖片"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.green) {
+                                VStack(spacing: AppDesign.Spacing.standard) {
+                                    if let selectedImage = selectedImage {
+                                        Image(uiImage: selectedImage)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(maxHeight: 200)
+                                            .cornerRadius(AppDesign.Borders.radiusCard)
                                     } else {
-                                        selectedTags.insert(name)
+                                        VStack(spacing: AppDesign.Spacing.small) {
+                                            Text("📷")
+                                                .font(.system(size: 40))
+                                            Text(NSLocalizedString("image_select", comment: "尚未選擇圖片"))
+                                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textSecondary)
+                                        }
+                                        .frame(height: 120)
+                                        .frame(maxWidth: .infinity)
+                                    }
+
+                                    PixelButton(
+                                        selectedImage == nil ? "➕ " + NSLocalizedString("image_select", comment: "選擇圖片") : "🔄 " + NSLocalizedString("image_reselect", comment: "重新選擇"),
+                                        color: AppDesign.Colors.blue
+                                    ) {
+                                        showingImageSourceAlert = true
+                                    }
+                                }
+                                .padding(AppDesign.Spacing.standard)
+                            }
+                        }
+
+                        // 標題
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("image_title", comment: "標題"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextField(NSLocalizedString("image_title_placeholder", comment: "輸入標題"), text: $title)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 描述
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("image_desc_optional", comment: "描述（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextEditor(text: $content)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .frame(minHeight: 100)
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 標籤
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("tag_manager_section_title", comment: "標籤（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            if viewModel.availableTags.isEmpty {
+                                Text(NSLocalizedString("no_tags_available", comment: "無可用標籤，請至設定頁新增"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                    .italic()
+                            } else {
+                                VStack(spacing: AppDesign.Spacing.small) {
+                                    ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                        MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
+                                            let name = tag.name ?? ""
+                                            if selectedTags.contains(name) {
+                                                selectedTags.remove(name)
+                                            } else {
+                                                selectedTags.insert(name)
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
+
+                        // 按鈕區域
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "💾 " + NSLocalizedString("common_save", comment: "儲存"),
+                                color: AppDesign.Colors.green
+                            ) {
+                                saveImageInspiration()
+                            }
+                            .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || selectedImage == nil)
+                            .opacity((title.trimmingCharacters(in: .whitespaces).isEmpty || selectedImage == nil) ? 0.5 : 1.0)
+
+                            PixelButton(
+                                NSLocalizedString("common_cancel", comment: "取消"),
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                        .padding(.top, AppDesign.Spacing.small)
                     }
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationTitle(NSLocalizedString("add_image_title", comment: "新增圖片"))
-                .navigationBarItems(
-                    leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {
-                        presentationMode.wrappedValue.dismiss()
-                    },
-                    trailing: Button(NSLocalizedString("common_save", comment: "儲存")) {
-                        saveImageInspiration()
-                    }
-                    .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || selectedImage == nil)
-                )
-                .alert(NSLocalizedString("image_source_select", comment: "選擇圖片來源"), isPresented: $showingImageSourceAlert) {
-                    Button(NSLocalizedString("image_source_album", comment: "相簿")) {
-                        imageSource = .photoLibrary
-                        showingImagePicker = true
-                    }
-                    Button(NSLocalizedString("image_source_camera", comment: "相機")) {
-                        imageSource = .camera
-                        showingImagePicker = true
-                    }
-                    Button(NSLocalizedString("common_cancel", comment: "取消"), role: .cancel) { }
-                } message: {
-                    Text(NSLocalizedString("image_source_select_message", comment: "請選擇要從哪裡取得圖片"))
+            }
+            .alert(NSLocalizedString("image_source_select", comment: "選擇圖片來源"), isPresented: $showingImageSourceAlert) {
+                Button(NSLocalizedString("image_source_album", comment: "相簿")) {
+                    imageSource = .photoLibrary
+                    showingImagePicker = true
                 }
-                .sheet(isPresented: $showingImagePicker) {
-                    if imageSource == .photoLibrary {
-                        ImagePicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
-                    } else {
-                        ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
-                    }
+                Button(NSLocalizedString("image_source_camera", comment: "相機")) {
+                    imageSource = .camera
+                    showingImagePicker = true
+                }
+                Button(NSLocalizedString("common_cancel", comment: "取消"), role: .cancel) { }
+            } message: {
+                Text(NSLocalizedString("image_source_select_message", comment: "請選擇要從哪裡取得圖片"))
+            }
+            .sheet(isPresented: $showingImagePicker) {
+                if imageSource == .photoLibrary {
+                    ImagePicker(selectedImage: $selectedImage, sourceType: .photoLibrary)
+                } else {
+                    ImagePicker(selectedImage: $selectedImage, sourceType: .camera)
                 }
             }
         }

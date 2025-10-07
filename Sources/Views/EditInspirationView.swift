@@ -28,168 +28,280 @@ struct EditInspirationView: View {
     }
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text(NSLocalizedString("editspark_title_section", comment: "標題"))) {
-                    TextField(NSLocalizedString("editspark_title_placeholder", comment: "輸入標題"), text: $title)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                
-                if inspiration.type == 1 {
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "✏️ " + NSLocalizedString("editspark_navigation_title", comment: "編輯靈感"),
+                    gradientColors: AppDesign.Colors.purpleGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 標題
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("editspark_title_section", comment: "標題"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        TextField(NSLocalizedString("editspark_title_placeholder", comment: "輸入標題"), text: $title)
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .padding(AppDesign.Spacing.small)
+                            .background(Color.white)
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                            )
+                    }
+
                     // 圖片類型
-                    Section(header: Text(NSLocalizedString("editspark_image_section", comment: "圖片"))) {
-                        if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(maxHeight: 200)
-                                .cornerRadius(12)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 12)
-                                        .stroke(Color(.systemGray4), lineWidth: 1)
-                                )
-                        } else {
-                            Text(NSLocalizedString("editspark_image_load_failed", comment: "圖片載入失敗"))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                
-                if inspiration.type == 2 {
-                    // 網址類型
-                    Section(header: Text(NSLocalizedString("editspark_url_section", comment: "網址"))) {
-                        HStack {
-                            TextField(NSLocalizedString("editspark_url_placeholder", comment: "輸入網址"), text: $url)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                            Button(action: fetchWebsiteInfo) {
-                                Image(systemName: "arrow.down.circle")
-                                    .foregroundColor(.blue)
-                            }
-                            .disabled(url.isEmpty || isURLLoading)
-                        }
-                        if isURLLoading {
-                            HStack {
-                                ProgressView()
-                                    .scaleEffect(0.8)
-                                Text(NSLocalizedString("editspark_url_loading", comment: "正在抓取網站資訊..."))
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        if let urlErrorMessage = urlErrorMessage {
-                            Text(urlErrorMessage)
-                                .font(.custom("HelveticaNeue-Light", size: 12))
-                                .foregroundColor(.red)
-                        }
-                    }
-                } else if inspiration.type == 3 {
-                    // 影片類型
-                    Section(header: Text(NSLocalizedString("editspark_video_section", comment: "影片連結"))) {
-                        HStack {
-                            Image(systemName: "video")
-                                .foregroundColor(.purple)
-                            Text(inspiration.url ?? "")
-                                .font(.custom("HelveticaNeue-Light", size: 12))
-                                .foregroundColor(.secondary)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-                
-                if (inspiration.type == 2 || inspiration.type == 3), !websiteTitle.isEmpty {
-                    Section(header: Text(NSLocalizedString("editspark_preview_section", comment: "預覽"))) {
-                        VStack(alignment: .leading, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                HStack {
-                                    Image(systemName: "link")
-                                        .foregroundColor(.blue)
-                                    Text(websiteTitle)
-                                        .font(.custom("HelveticaNeue-Light", size: 17))
-                                        .lineLimit(2)
-                                }
-                                Text(url)
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(1)
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(12)
-                        }
-                    }
-                }
-                
-                Section(header: Text(NSLocalizedString("editspark_content_section", comment: "內容"))) {
-                    TextEditor(text: $content)
-                        .frame(minHeight: 120)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
-                        )
-                }
-                
-                // 新增：顯示所有關聯任務，並可新增/連結
-                Section(header: Text(NSLocalizedString("editspark_tags_section", comment: "標籤（可選）"))) {
-                    if viewModel.availableTags.isEmpty {
-                        Text(NSLocalizedString("editspark_no_tags", comment: "無可用標籤，請至設定頁新增"))
-                            .foregroundColor(.secondary)
-                            .italic()
-                    } else {
-                        ForEach(viewModel.availableTags, id: \.objectID) { tag in
-                            MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
-                                let name = tag.name ?? ""
-                                if selectedTags.contains(name) {
-                                    selectedTags.remove(name)
+                    if inspiration.type == 1 {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("editspark_image_section", comment: "圖片"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.green) {
+                                if let imageData = inspiration.imageData, let uiImage = UIImage(data: imageData) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(maxHeight: 200)
+                                        .cornerRadius(AppDesign.Borders.radiusCard)
+                                        .padding(AppDesign.Spacing.standard)
                                 } else {
-                                    selectedTags.insert(name)
+                                    Text(NSLocalizedString("editspark_image_load_failed", comment: "圖片載入失敗"))
+                                        .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                        .padding(AppDesign.Spacing.standard)
                                 }
                             }
                         }
                     }
-                }
-                Section(header: Text(NSLocalizedString("editspark_related_tasks_section", comment: "關聯任務"))) {
-                    let tasks = viewModel.getTasks(for: inspiration)
-                    if tasks.isEmpty {
-                        Text(NSLocalizedString("editspark_no_related_task", comment: "尚未有關聯任務"))
-                            .font(.custom("HelveticaNeue-Light", size: 12))
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(tasks, id: \.objectID) { task in
-                            HStack(spacing: 8) {
-                                Image(systemName: taskStatusIcon(task.status))
-                                    .foregroundColor(taskStatusColor(task.status))
-                                Text(task.title ?? NSLocalizedString("editspark_unnamed_task", comment: "未命名任務"))
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                Text(taskStatusName(task.status))
-                                    .font(.custom("HelveticaNeue-Light", size: 10))
-                                    .foregroundColor(taskStatusColor(task.status))
+
+                    // 網址類型
+                    if inspiration.type == 2 {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("editspark_url_section", comment: "網址"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            HStack(spacing: AppDesign.Spacing.small) {
+                                TextField(NSLocalizedString("editspark_url_placeholder", comment: "輸入網址"), text: $url)
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .padding(AppDesign.Spacing.small)
+                                    .background(Color.white)
+                                    .cornerRadius(AppDesign.Borders.radiusCard)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                            .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                    )
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+
+                                Button(action: fetchWebsiteInfo) {
+                                    Text("⬇️")
+                                        .font(.system(size: 20))
+                                }
+                                .disabled(url.isEmpty || isURLLoading)
+                                .opacity(url.isEmpty || isURLLoading ? 0.5 : 1.0)
+                            }
+
+                            if isURLLoading {
+                                HStack {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                    Text(NSLocalizedString("editspark_url_loading", comment: "正在抓取網站資訊..."))
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                }
+                            }
+
+                            if let urlErrorMessage = urlErrorMessage {
+                                Text(urlErrorMessage)
+                                    .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                    .foregroundColor(.red)
                             }
                         }
                     }
-                    Button(action: { showTaskSheet = true }) {
-                        Label(NSLocalizedString("editspark_add_task", comment: "新增任務"), systemImage: "plus.circle")
+
+                    // 影片類型
+                    if inspiration.type == 3 {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("editspark_video_section", comment: "影片連結"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.purple) {
+                                HStack {
+                                    Text("🎬")
+                                        .font(.system(size: 20))
+                                    Text(inspiration.url ?? "")
+                                        .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                        .lineLimit(1)
+                                }
+                                .padding(AppDesign.Spacing.standard)
+                            }
+                        }
                     }
+
+                    // 預覽
+                    if (inspiration.type == 2 || inspiration.type == 3), !websiteTitle.isEmpty {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("editspark_preview_section", comment: "預覽"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.blue) {
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                    HStack {
+                                        Text("🔗")
+                                            .font(.system(size: 20))
+                                        Text(websiteTitle)
+                                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textPrimary)
+                                            .lineLimit(2)
+                                    }
+
+                                    Text(url)
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                        .lineLimit(1)
+                                }
+                                .padding(AppDesign.Spacing.standard)
+                            }
+                        }
+                    }
+
+                    // 內容
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("editspark_content_section", comment: "內容"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        TextEditor(text: $content)
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .frame(minHeight: 120)
+                            .padding(AppDesign.Spacing.small)
+                            .background(Color.white)
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                            )
+                    }
+
+                    // 標籤
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("editspark_tags_section", comment: "標籤（可選）"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        if viewModel.availableTags.isEmpty {
+                            Text(NSLocalizedString("editspark_no_tags", comment: "無可用標籤，請至設定頁新增"))
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textSecondary)
+                                .italic()
+                        } else {
+                            VStack(spacing: AppDesign.Spacing.small) {
+                                ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                    MultipleSelectionRow(title: tag.name ?? "", isSelected: selectedTags.contains(tag.name ?? "")) {
+                                        let name = tag.name ?? ""
+                                        if selectedTags.contains(name) {
+                                            selectedTags.remove(name)
+                                        } else {
+                                            selectedTags.insert(name)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // 關聯任務
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("editspark_related_tasks_section", comment: "關聯任務"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        let tasks = viewModel.getTasks(for: inspiration)
+
+                        if tasks.isEmpty {
+                            PixelCard(borderColor: AppDesign.Colors.gray) {
+                                Text(NSLocalizedString("editspark_no_related_task", comment: "尚未有關聯任務"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                    .padding(AppDesign.Spacing.standard)
+                            }
+                        } else {
+                            PixelCard(borderColor: AppDesign.Colors.green) {
+                                VStack(spacing: AppDesign.Spacing.small) {
+                                    ForEach(tasks, id: \.objectID) { task in
+                                        HStack(spacing: 8) {
+                                            Text(taskStatusEmoji(task.status))
+                                                .font(.system(size: 16))
+
+                                            Text(task.title ?? NSLocalizedString("editspark_unnamed_task", comment: "未命名任務"))
+                                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                            Spacer()
+
+                                            Text(taskStatusName(task.status))
+                                                .font(.system(size: AppDesign.Typography.labelSize, weight: .bold, design: .monospaced))
+                                                .foregroundColor(taskStatusColor(task.status))
+                                        }
+                                        .padding(.vertical, 4)
+
+                                        if task != tasks.last {
+                                            Divider()
+                                        }
+                                    }
+                                }
+                                .padding(AppDesign.Spacing.standard)
+                            }
+                        }
+
+                        PixelButton(
+                            "➕ " + NSLocalizedString("editspark_add_task", comment: "新增任務"),
+                            style: .secondary,
+                            color: AppDesign.Colors.green
+                        ) {
+                            showTaskSheet = true
+                        }
+                    }
+
+                    // 按鈕區域
+                    VStack(spacing: AppDesign.Spacing.small) {
+                        PixelButton(
+                            "💾 " + NSLocalizedString("editspark_save", comment: "儲存"),
+                            color: AppDesign.Colors.purple
+                        ) {
+                            saveChanges()
+                        }
+                        .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .opacity(title.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+
+                        PixelButton(
+                            NSLocalizedString("editspark_cancel", comment: "取消"),
+                            style: .secondary,
+                            color: AppDesign.Colors.gray
+                        ) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                    .padding(.top, AppDesign.Spacing.small)
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationTitle(NSLocalizedString("editspark_navigation_title", comment: "編輯靈感"))
-            .navigationBarItems(
-                leading: Button(NSLocalizedString("editspark_cancel", comment: "取消")) {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button(NSLocalizedString("editspark_save", comment: "儲存")) {
-                    saveChanges()
-                }
-                .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
-            )
-            .sheet(isPresented: $showTaskSheet, onDismiss: {
-                viewModel.fetchInspirations()
-            }) {
-                InspirationTaskSheetView(inspiration: inspiration, viewModel: viewModel, taskViewModel: taskViewModel, onComplete: {
-                    showTaskSheet = false
-                })
-            }
+        }
+        .sheet(isPresented: $showTaskSheet, onDismiss: {
+            viewModel.fetchInspirations()
+        }) {
+            InspirationTaskSheetView(inspiration: inspiration, viewModel: viewModel, taskViewModel: taskViewModel, onComplete: {
+                showTaskSheet = false
+            })
         }
     }
     
@@ -244,6 +356,15 @@ struct EditInspirationView: View {
         presentationMode.wrappedValue.dismiss()
     }
     
+    private func taskStatusEmoji(_ status: Int16) -> String {
+        switch status {
+        case 0: return "⚪"
+        case 1: return "⏱️"
+        case 2: return "✓"
+        default: return "⚪"
+        }
+    }
+
     private func taskStatusIcon(_ status: Int16) -> String {
         switch status {
         case 0: return "circle"
@@ -254,10 +375,10 @@ struct EditInspirationView: View {
     }
     private func taskStatusColor(_ status: Int16) -> Color {
         switch status {
-        case 0: return .gray
-        case 1: return .blue
-        case 2: return .green
-        default: return .gray
+        case 0: return AppDesign.Colors.gray
+        case 1: return AppDesign.Colors.blue
+        case 2: return AppDesign.Colors.green
+        default: return AppDesign.Colors.gray
         }
     }
     private func taskStatusName(_ status: Int16) -> String {

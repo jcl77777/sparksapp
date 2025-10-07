@@ -10,38 +10,95 @@ struct SettingsView: View {
     @State private var showLanguageSettings: Bool = false
 
     var body: some View {
-        NavigationView {
-            List {
-                Button(action: { showNotification = true }) {
-                    Label(NSLocalizedString("settings_notification", comment: "通知設定"), systemImage: "bell")
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "⚙️ " + NSLocalizedString("settings_title", comment: "設定"),
+                    gradientColors: AppDesign.Colors.grayGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 通知設定
+                    SettingButton(
+                        icon: "🔔",
+                        title: NSLocalizedString("settings_notification", comment: "通知設定")
+                    ) {
+                        showNotification = true
+                    }
+
+                    // 標籤管理
+                    SettingButton(
+                        icon: "🏷️",
+                        title: NSLocalizedString("settings_tag_manager", comment: "標籤管理")
+                    ) {
+                        showTagManager = true
+                    }
+
+                    // 語言設定
+                    SettingButton(
+                        icon: "🌐",
+                        title: NSLocalizedString("settings_language", comment: "語言")
+                    ) {
+                        showLanguageSettings = true
+                    }
+
+                    // 關於
+                    SettingButton(
+                        icon: "ℹ️",
+                        title: NSLocalizedString("settings_about", comment: "關於頁面")
+                    ) {
+                        showAbout = true
+                    }
                 }
-                .sheet(isPresented: $showNotification) {
-                    NotificationSettingsView()
-                        .environmentObject(notificationManager)
-                }
-                Button(action: { showTagManager = true }) {
-                    Label(NSLocalizedString("settings_tag_manager", comment: "標籤管理"), systemImage: "tag")
-                }
-                .sheet(isPresented: $showTagManager) {
-                    TagManagerView()
-                        .environmentObject(viewModel)
-                }
-                Button(action: { showAbout = true }) {
-                    Label(NSLocalizedString("settings_about", comment: "關於頁面"), systemImage: "info.circle")
-                }
-                .sheet(isPresented: $showAbout) {
-                    AboutView()
-                }
-                Button(action: { showLanguageSettings = true }) {
-                    Label(NSLocalizedString("settings_language", comment: "語言"), systemImage: "globe")
-                }
-                .sheet(isPresented: $showLanguageSettings) {
-                    LanguageSettingsView()
-                        .environmentObject(appState)
-                }
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationTitle(NSLocalizedString("settings_title", comment: "設定"))
         }
+        .sheet(isPresented: $showNotification) {
+            NotificationSettingsView()
+                .environmentObject(notificationManager)
+        }
+        .sheet(isPresented: $showTagManager) {
+            TagManagerView()
+                .environmentObject(viewModel)
+        }
+        .sheet(isPresented: $showAbout) {
+            AboutView()
+        }
+        .sheet(isPresented: $showLanguageSettings) {
+            LanguageSettingsView()
+                .environmentObject(appState)
+        }
+    }
+}
+
+// 設定按鈕元件
+struct SettingButton: View {
+    let icon: String
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            PixelCard(borderColor: AppDesign.Colors.borderPrimary) {
+                HStack(spacing: AppDesign.Spacing.small) {
+                    Text(icon)
+                        .font(.system(size: 32))
+
+                    Text(title)
+                        .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                        .foregroundColor(AppDesign.Colors.textPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(AppDesign.Colors.textSecondary)
+                }
+                .padding(AppDesign.Spacing.standard)
+            }
+        }
+        .buttonStyle(PixelButtonStyle())
     }
 }
 
@@ -215,41 +272,64 @@ struct NotificationSettingsView: View {
     }
 }
 
-// 關於頁面（佔位）
+// 關於頁面
 struct AboutView: View {
+    @Environment(\.presentationMode) var presentationMode
+
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Image(systemName: "sparkles")
-                    .font(.system(size: 60))
-                    .foregroundColor(.accentColor)
-                Text("Sparks")
-                    .font(.custom("HelveticaNeue-Light", size: 28))
-                Text(NSLocalizedString("about_version_and_desc", comment: "版本 1.0.0\n\n記下讓你心動的瞬間，等你準備好出發。\n\n© 2025 NanNova Labs"))
-                    .font(.custom("HelveticaNeue-Light", size: 16))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                Button(action: {
-                    let subject = NSLocalizedString("about_feedback_subject", comment: "Sparks App 意見回饋")
-                    let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-                    if let url = URL(string: "mailto:feedback@nannova.com?subject=\(encodedSubject)") {
-                        UIApplication.shared.open(url)
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "ℹ️ " + NSLocalizedString("about_title", comment: "關於"),
+                    gradientColors: AppDesign.Colors.greenGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.large) {
+                    // App Icon & Name
+                    VStack(spacing: AppDesign.Spacing.standard) {
+                        Text("✨")
+                            .font(.system(size: 80))
+
+                        Text("Sparks")
+                            .font(.system(size: 32, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
                     }
-                }) {
-                    HStack {
-                        Image(systemName: "envelope")
-                        Text(NSLocalizedString("about_feedback", comment: "意見回饋"))
+
+                    // Version & Description
+                    PixelCard(borderColor: AppDesign.Colors.purple) {
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("about_version_and_desc", comment: "版本 1.0.0\n\n記下讓你心動的瞬間，等你準備好出發。\n\n© 2025 NanNova Labs"))
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding(AppDesign.Spacing.large)
                     }
-                    .font(.custom("HelveticaNeue-Light", size: 18))
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
-                    .background(Color.blue.opacity(0.1))
-                    .foregroundColor(.blue)
-                    .cornerRadius(10)
+
+                    // Feedback Button
+                    PixelButton(
+                        "✉️ " + NSLocalizedString("about_feedback", comment: "意見回饋"),
+                        color: AppDesign.Colors.blue
+                    ) {
+                        let subject = NSLocalizedString("about_feedback_subject", comment: "Sparks App 意見回饋")
+                        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                        if let url = URL(string: "mailto:feedback@nannova.com?subject=\(encodedSubject)") {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+
+                    // Close Button
+                    PixelButton(
+                        NSLocalizedString("common_close", comment: "關閉"),
+                        style: .secondary,
+                        color: AppDesign.Colors.gray
+                    ) {
+                        presentationMode.wrappedValue.dismiss()
+                    }
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .padding()
-            .navigationTitle(NSLocalizedString("about_title", comment: "關於"))
         }
     }
 }

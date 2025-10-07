@@ -29,135 +29,216 @@ struct EditTaskView: View {
     }
     
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text(NSLocalizedString("tasklist_title", comment: "標題"))) {
-                    TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
-                
-                Section(header: Text(NSLocalizedString("tasklist_description", comment: "描述"))) {
-                    TextEditor(text: $details)
-                        .frame(minHeight: 80)
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "✏️ " + NSLocalizedString("tasklist_edit_task", comment: "編輯任務"),
+                    gradientColors: AppDesign.Colors.blueGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 任務標題
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tasklist_title", comment: "標題"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .padding(AppDesign.Spacing.small)
+                            .background(Color.white)
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                            )
+                    }
+
+                    // 任務描述
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tasklist_description", comment: "描述"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        TextEditor(text: $details)
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .frame(minHeight: 100)
+                            .padding(AppDesign.Spacing.small)
+                            .background(Color.white)
+                            .cornerRadius(AppDesign.Borders.radiusCard)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                            )
+                    }
+
+                    // 任務狀態
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tasklist_status", comment: "狀態"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        Picker(NSLocalizedString("tasklist_status", comment: "狀態"), selection: $status) {
+                            ForEach(TaskStatus.allCases, id: \.self) { taskStatus in
+                                TaskStatusPickerRow(taskStatus: taskStatus, color: statusColor(for: taskStatus), statusName: taskStatusName(taskStatus.rawValue))
+                                    .tag(taskStatus)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .padding(AppDesign.Spacing.small)
+                        .background(Color.white)
+                        .cornerRadius(AppDesign.Borders.radiusCard)
                         .overlay(
-                            RoundedRectangle(cornerRadius: 8)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
+                            RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
                         )
-                }
-                
-                Section(header: Text(NSLocalizedString("tasklist_status", comment: "狀態"))) {
-                    Picker(NSLocalizedString("tasklist_status", comment: "狀態"), selection: $status) {
-                        ForEach(TaskStatus.allCases, id: \.self) { taskStatus in
-                            TaskStatusPickerRow(taskStatus: taskStatus, color: statusColor(for: taskStatus), statusName: taskStatusName(taskStatus.rawValue))
-                                .tag(taskStatus)
-                        }
                     }
-                    .pickerStyle(MenuPickerStyle())
-                }
-                
-                // 任務提醒設定
-                Section(header: Text(NSLocalizedString("tasklist_reminder", comment: "任務提醒"))) {
-                    Toggle(NSLocalizedString("tasklist_enable_reminder", comment: "啟用提醒"), isOn: $isReminderEnabled)
-                        .onChange(of: isReminderEnabled) { _, newValue in
-                            if !newValue {
-                                reminderDate = nil
-                                // 取消現有提醒
-                                if let taskId = task.id?.uuidString {
-                                    notificationManager.cancelTaskReminder(for: taskId)
-                                }
-                            }
-                        }
-                    
-                    if isReminderEnabled {
-                        HStack {
-                            Image(systemName: "bell")
-                                .foregroundColor(.orange)
-                            VStack(alignment: .leading, spacing: 4) {
-                                if let reminderDate = reminderDate {
-                                    Text(NSLocalizedString("tasklist_reminder_time", comment: "提醒時間") + ": \(formatReminderDate(reminderDate))")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.primary)
-                                } else {
-                                    Text(NSLocalizedString("tasklist_reminder_not_set", comment: "尚未設定提醒時間"))
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            Spacer()
-                            Button(NSLocalizedString("tasklist_set_time", comment: "設定時間")) {
-                                showReminderPicker = true
-                            }
-                            .font(.system(size: 14))
-                            .foregroundColor(.blue)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                }
-                
-                // 顯示與選擇關聯靈感
-                Section(header: Text(NSLocalizedString("tasklist_related_inspiration", comment: "關聯靈感"))) {
-                    if let inspiration = selectedInspiration {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 8) {
-                                Image(systemName: typeIcon(for: inspiration.type))
-                                    .foregroundColor(typeColor(for: inspiration.type))
-                                    .font(.system(size: 12))
-                                Text(typeName(for: inspiration.type))
-                                    .font(.custom("HelveticaNeue-Light", size: 10))
-                                    .foregroundColor(.secondary)
-                                Text(inspiration.title ?? "Untitled")
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                    .foregroundColor(.orange)
-                                    .lineLimit(1)
-                            }
-                            // 標籤 badge
-                            let tagNames = (inspiration.tags as? Set<Tag>)?.compactMap { $0.name }.sorted() ?? []
-                            if !tagNames.isEmpty {
-                                HStack {
-                                    ForEach(tagNames, id: \.self) { tagName in
-                                        Text(tagName)
-                                            .font(.custom("HelveticaNeue-Light", size: 10))
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.blue.opacity(0.2))
-                                            .foregroundColor(.blue)
-                                            .cornerRadius(8)
+
+                    // 任務提醒設定
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tasklist_reminder", comment: "任務提醒"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        PixelCard(borderColor: AppDesign.Colors.orange) {
+                            VStack(spacing: AppDesign.Spacing.small) {
+                                Toggle(NSLocalizedString("tasklist_enable_reminder", comment: "啟用提醒"), isOn: $isReminderEnabled)
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .onChange(of: isReminderEnabled) { _, newValue in
+                                        if !newValue {
+                                            reminderDate = nil
+                                            // 取消現有提醒
+                                            if let taskId = task.id?.uuidString {
+                                                notificationManager.cancelTaskReminder(for: taskId)
+                                            }
+                                        }
+                                    }
+
+                                if isReminderEnabled {
+                                    Divider()
+
+                                    HStack {
+                                        Text("🔔")
+                                            .font(.system(size: 20))
+
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            if let reminderDate = reminderDate {
+                                                Text(NSLocalizedString("tasklist_reminder_time", comment: "提醒時間") + ":")
+                                                    .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                                Text(formatReminderDate(reminderDate))
+                                                    .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                                    .foregroundColor(AppDesign.Colors.textPrimary)
+                                            } else {
+                                                Text(NSLocalizedString("tasklist_reminder_not_set", comment: "尚未設定提醒時間"))
+                                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                            }
+                                        }
+
+                                        Spacer()
+
+                                        Button(action: { showReminderPicker = true }) {
+                                            Text(NSLocalizedString("tasklist_set_time", comment: "設定時間"))
+                                                .font(.system(size: AppDesign.Typography.labelSize, weight: .bold, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.orange)
+                                        }
                                     }
                                 }
                             }
+                            .padding(AppDesign.Spacing.standard)
                         }
-                    } else {
-                        Text(NSLocalizedString("tasklist_no_related_inspiration", comment: "尚未選擇關聯靈感"))
-                            .font(.custom("HelveticaNeue-Light", size: 12))
-                            .foregroundColor(.secondary)
                     }
-                    Button(NSLocalizedString("tasklist_select_inspiration", comment: "選擇靈感")) {
-                        showInspirationPicker = true
+
+                    // 顯示與選擇關聯靈感
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tasklist_related_inspiration", comment: "關聯靈感"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        if let inspiration = selectedInspiration {
+                            PixelCard(borderColor: AppDesign.Colors.purple) {
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                    HStack(spacing: 8) {
+                                        Text(typeEmoji(for: inspiration.type))
+                                            .font(.system(size: 20))
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(typeName(for: inspiration.type))
+                                                .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textSecondary)
+
+                                            Text(inspiration.title ?? "Untitled")
+                                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textPrimary)
+                                                .lineLimit(1)
+                                        }
+
+                                        Spacer()
+                                    }
+
+                                    // 標籤 badge
+                                    let tagNames = (inspiration.tags as? Set<Tag>)?.compactMap { $0.name }.sorted() ?? []
+                                    if !tagNames.isEmpty {
+                                        TagList(tags: tagNames, selectedTags: [])
+                                    }
+                                }
+                                .padding(AppDesign.Spacing.standard)
+                            }
+                        } else {
+                            PixelCard(borderColor: AppDesign.Colors.gray) {
+                                Text(NSLocalizedString("tasklist_no_related_inspiration", comment: "尚未選擇關聯靈感"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                    .padding(AppDesign.Spacing.standard)
+                            }
+                        }
+
+                        PixelButton(
+                            "🔗 " + NSLocalizedString("tasklist_select_inspiration", comment: "選擇靈感"),
+                            style: .secondary,
+                            color: AppDesign.Colors.purple
+                        ) {
+                            showInspirationPicker = true
+                        }
                     }
+
+                    // 按鈕區域
+                    VStack(spacing: AppDesign.Spacing.small) {
+                        PixelButton(
+                            "💾 " + NSLocalizedString("tasklist_save", comment: "儲存"),
+                            color: AppDesign.Colors.green
+                        ) {
+                            saveTask()
+                        }
+                        .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .opacity(title.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+
+                        PixelButton(
+                            NSLocalizedString("tasklist_cancel", comment: "取消"),
+                            style: .secondary,
+                            color: AppDesign.Colors.gray
+                        ) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                    .padding(.top, AppDesign.Spacing.small)
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationTitle(NSLocalizedString("tasklist_edit_task", comment: "編輯任務"))
-            .navigationBarItems(
-                leading: Button(NSLocalizedString("tasklist_cancel", comment: "取消")) {
-                    presentationMode.wrappedValue.dismiss()
-                },
-                trailing: Button(NSLocalizedString("tasklist_save", comment: "儲存")) {
-                    saveTask()
-                }
-                .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
-            )
-            .alert(isPresented: $isSaved) {
-                Alert(title: Text(NSLocalizedString("tasklist_updated", comment: "任務已更新")), dismissButton: .default(Text(NSLocalizedString("tasklist_done", comment: "完成"))) {
-                    presentationMode.wrappedValue.dismiss()
-                })
-            }
-            .sheet(isPresented: $showInspirationPicker) {
-                InspirationPickerView(selectedInspiration: $selectedInspiration)
-                    .environmentObject(inspirationViewModel)
-            }
-            .sheet(isPresented: $showReminderPicker) {
-                ReminderPickerView(reminderDate: $reminderDate)
-            }
+        }
+        .alert(isPresented: $isSaved) {
+            Alert(title: Text(NSLocalizedString("tasklist_updated", comment: "任務已更新")), dismissButton: .default(Text(NSLocalizedString("tasklist_done", comment: "完成"))) {
+                presentationMode.wrappedValue.dismiss()
+            })
+        }
+        .sheet(isPresented: $showInspirationPicker) {
+            InspirationPickerView(selectedInspiration: $selectedInspiration)
+                .environmentObject(inspirationViewModel)
+        }
+        .sheet(isPresented: $showReminderPicker) {
+            ReminderPickerView(reminderDate: $reminderDate)
         }
     }
     
@@ -202,6 +283,16 @@ struct EditTaskView: View {
             return .green
         }
     }
+    private func typeEmoji(for type: Int16) -> String {
+        switch type {
+        case 0: return "📝"
+        case 1: return "🖼️"
+        case 2: return "🔗"
+        case 3: return "🎬"
+        default: return "💡"
+        }
+    }
+
     private func typeIcon(for type: Int16) -> String {
         switch type {
         case 0: return "doc.text"
@@ -316,38 +407,42 @@ struct ReminderPickerView: View {
     @Environment(\.presentationMode) var presentationMode
     @Binding var reminderDate: Date?
     @State private var selectedDate = Date()
-    
+
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                Text(NSLocalizedString("tasklist_select_reminder_time", comment: "選擇提醒時間"))
-                    .font(.headline)
-                    .padding(.top)
-                
-                DatePicker(NSLocalizedString("tasklist_reminder_time", comment: "提醒時間"), selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
-                    .datePickerStyle(WheelDatePickerStyle())
-                    .labelsHidden()
-                    .padding()
-                
-                HStack(spacing: 12) {
-                    Button(NSLocalizedString("tasklist_cancel", comment: "取消")) {
-                        presentationMode.wrappedValue.dismiss()
+        ScrollView {
+            VStack(spacing: 0) {
+                // Gradient Header
+                GradientHeader(
+                    title: "⏰ " + NSLocalizedString("tasklist_select_reminder_time", comment: "選擇提醒時間"),
+                    gradientColors: AppDesign.Colors.orangeGradient
+                )
+
+                VStack(spacing: AppDesign.Spacing.large) {
+                    DatePicker(NSLocalizedString("tasklist_reminder_time", comment: "提醒時間"), selection: $selectedDate, displayedComponents: [.date, .hourAndMinute])
+                        .datePickerStyle(WheelDatePickerStyle())
+                        .labelsHidden()
+                        .padding(AppDesign.Spacing.standard)
+
+                    VStack(spacing: AppDesign.Spacing.small) {
+                        PixelButton(
+                            "✓ " + NSLocalizedString("tasklist_set_reminder", comment: "設定提醒"),
+                            color: AppDesign.Colors.orange
+                        ) {
+                            reminderDate = selectedDate
+                            presentationMode.wrappedValue.dismiss()
+                        }
+
+                        PixelButton(
+                            NSLocalizedString("tasklist_cancel", comment: "取消"),
+                            style: .secondary,
+                            color: AppDesign.Colors.gray
+                        ) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
                     }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
-                    
-                    Button(NSLocalizedString("tasklist_set_reminder", comment: "設定提醒")) {
-                        reminderDate = selectedDate
-                        presentationMode.wrappedValue.dismiss()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity)
                 }
-                .padding(.bottom)
-                
-                Spacer()
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationBarHidden(true)
         }
     }
 }

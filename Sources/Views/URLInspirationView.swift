@@ -14,144 +14,190 @@ struct URLInspirationView: View {
     @State private var errorMessage: String?
     
     var body: some View {
-        NavigationView {
-            if showingSuccessView {
-                // 儲存成功後的選項介面
-                VStack(spacing: 30) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.green)
-                    VStack(spacing: 8) {
-                        Text(NSLocalizedString("url_success", comment: "儲存成功！"))
-                            .font(.custom("HelveticaNeue-Light", size: 28))
+        if showingSuccessView {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Success Header
+                    GradientHeader(
+                        title: "✓ " + NSLocalizedString("url_success", comment: "儲存成功！"),
+                        gradientColors: AppDesign.Colors.orangeGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.large) {
+                        Text("✓")
+                            .font(.system(size: 80, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.orange)
+
                         Text(NSLocalizedString("url_saved", comment: "網址已成功儲存到收藏"))
-                            .font(.custom("HelveticaNeue-Light", size: 15))
-                            .foregroundColor(.secondary)
-                    }
-                    VStack(spacing: 16) {
-                        Button(action: {
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            HStack {
-                                Image(systemName: "plus.circle")
-                                Text(NSLocalizedString("url_add_task", comment: "新增任務"))
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textSecondary)
+
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "✓ " + NSLocalizedString("url_done", comment: "完成"),
+                                color: AppDesign.Colors.orange
+                            ) {
+                                presentationMode.wrappedValue.dismiss()
                             }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(12)
-                        }
-                        Button(action: {
-                            presentationMode.wrappedValue.dismiss()
-                        }) {
-                            HStack {
-                                Image(systemName: "checkmark")
-                                Text(NSLocalizedString("url_done", comment: "完成"))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray5))
-                            .foregroundColor(.primary)
-                            .cornerRadius(12)
                         }
                     }
-                    .padding(.horizontal, 40)
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationBarHidden(true)
-            } else {
-                Form {
-                    Section(header: Text(NSLocalizedString("url_title", comment: "網址"))) {
-                        HStack {
-                            TextField(NSLocalizedString("url_placeholder", comment: "輸入網址"), text: $urlString)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                                .autocapitalization(.none)
-                                .disableAutocorrection(true)
-                            Button(action: fetchWebsiteInfo) {
-                                Image(systemName: "arrow.down.circle")
-                                    .foregroundColor(.blue)
-                            }
-                            .disabled(urlString.isEmpty || isLoading)
-                        }
-                        if isLoading {
-                            HStack {
-                                ProgressView()
-                                    .scaleEffect(0.8)
-                                Text(NSLocalizedString("url_loading", comment: "正在抓取網站資訊..."))
-                                    .font(.custom("HelveticaNeue-Light", size: 12))
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        if let errorMessage = errorMessage {
-                            Text(errorMessage)
-                                .font(.custom("HelveticaNeue-Light", size: 12))
-                                .foregroundColor(.red)
-                        }
-                    }
-                    if !websiteTitle.isEmpty {
-                        Section(header: Text(NSLocalizedString("url_preview", comment: "預覽"))) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    HStack {
-                                        Image(systemName: "link")
-                                            .foregroundColor(.blue)
-                                        Text(websiteTitle)
-                                            .font(.custom("HelveticaNeue-Light", size: 17))
-                                            .lineLimit(2)
-                                    }
-                                    Text(urlString)
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
-                                        .foregroundColor(.secondary)
-                                        .lineLimit(1)
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Gradient Header
+                    GradientHeader(
+                        title: "🔗 " + NSLocalizedString("add_url_title", comment: "新增網址"),
+                        gradientColors: AppDesign.Colors.orangeGradient
+                    )
+
+                    VStack(spacing: AppDesign.Spacing.standard) {
+                        // 網址輸入
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("url_title", comment: "網址"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            HStack(spacing: AppDesign.Spacing.small) {
+                                TextField(NSLocalizedString("url_placeholder", comment: "輸入網址"), text: $urlString)
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .padding(AppDesign.Spacing.small)
+                                    .background(Color.white)
+                                    .cornerRadius(AppDesign.Borders.radiusCard)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                            .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                    )
+                                    .autocapitalization(.none)
+                                    .disableAutocorrection(true)
+
+                                Button(action: fetchWebsiteInfo) {
+                                    Text("⬇️")
+                                        .font(.system(size: 20))
                                 }
-                                .padding()
-                                .background(Color(.systemGray6))
-                                .cornerRadius(12)
+                                .disabled(urlString.isEmpty || isLoading)
+                                .opacity(urlString.isEmpty || isLoading ? 0.5 : 1.0)
+                            }
+
+                            if isLoading {
+                                HStack {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                    Text(NSLocalizedString("url_loading", comment: "正在抓取網站資訊..."))
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                }
+                            }
+
+                            if let errorMessage = errorMessage {
+                                Text(errorMessage)
+                                    .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                    .foregroundColor(.red)
                             }
                         }
-                    }
-                    Section(header: Text(NSLocalizedString("url_description_optional", comment: "描述（可選）"))) {
-                        TextEditor(text: $description)
-                            .frame(minHeight: 80)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color(.systemGray4), lineWidth: 1)
-                            )
-                    }
-                    Section(header: Text(NSLocalizedString("url_tags_optional", comment: "標籤（可選）"))) {
-                        if viewModel.availableTags.isEmpty {
-                            Text(NSLocalizedString("url_no_tags", comment: "還沒有標籤，請先在設定中新增標籤"))
-                                .font(.custom("HelveticaNeue-Light", size: 14))
-                                .foregroundColor(.secondary)
-                        } else {
-                            ForEach(viewModel.availableTags, id: \.objectID) { tag in
-                                MultipleSelectionRow(
-                                    title: tag.name ?? "",
-                                    isSelected: selectedTags.contains(tag.name ?? ""),
-                                    action: {
-                                        if let tagName = tag.name {
-                                            if selectedTags.contains(tagName) {
-                                                selectedTags.remove(tagName)
-                                            } else {
-                                                selectedTags.insert(tagName)
-                                            }
+
+                        // 預覽
+                        if !websiteTitle.isEmpty {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("url_preview", comment: "預覽"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                PixelCard(borderColor: AppDesign.Colors.blue) {
+                                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                        HStack {
+                                            Text("🔗")
+                                                .font(.system(size: 20))
+                                            Text(websiteTitle)
+                                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textPrimary)
+                                                .lineLimit(2)
                                         }
+
+                                        Text(urlString)
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textSecondary)
+                                            .lineLimit(1)
                                     }
-                                )
+                                    .padding(AppDesign.Spacing.standard)
+                                }
                             }
                         }
+
+                        // 描述
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("url_description_optional", comment: "描述（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            TextEditor(text: $description)
+                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                .frame(minHeight: 100)
+                                .padding(AppDesign.Spacing.small)
+                                .background(Color.white)
+                                .cornerRadius(AppDesign.Borders.radiusCard)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
+                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
+                                )
+                        }
+
+                        // 標籤
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("url_tags_optional", comment: "標籤（可選）"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            if viewModel.availableTags.isEmpty {
+                                Text(NSLocalizedString("url_no_tags", comment: "還沒有標籤，請先在設定中新增標籤"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                            } else {
+                                VStack(spacing: AppDesign.Spacing.small) {
+                                    ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                        MultipleSelectionRow(
+                                            title: tag.name ?? "",
+                                            isSelected: selectedTags.contains(tag.name ?? ""),
+                                            action: {
+                                                if let tagName = tag.name {
+                                                    if selectedTags.contains(tagName) {
+                                                        selectedTags.remove(tagName)
+                                                    } else {
+                                                        selectedTags.insert(tagName)
+                                                    }
+                                                }
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // 按鈕區域
+                        VStack(spacing: AppDesign.Spacing.small) {
+                            PixelButton(
+                                "💾 " + NSLocalizedString("url_save", comment: "儲存"),
+                                color: AppDesign.Colors.orange
+                            ) {
+                                saveURL()
+                            }
+                            .disabled(urlString.isEmpty || websiteTitle.isEmpty)
+                            .opacity((urlString.isEmpty || websiteTitle.isEmpty) ? 0.5 : 1.0)
+
+                            PixelButton(
+                                NSLocalizedString("url_cancel", comment: "取消"),
+                                style: .secondary,
+                                color: AppDesign.Colors.gray
+                            ) {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                        .padding(.top, AppDesign.Spacing.small)
                     }
+                    .padding(AppDesign.Spacing.standard)
                 }
-                .navigationTitle(NSLocalizedString("add_url_title", comment: "新增網址"))
-                .navigationBarItems(
-                    leading: Button(NSLocalizedString("url_cancel", comment: "取消")) {
-                        presentationMode.wrappedValue.dismiss()
-                    },
-                    trailing: Button(NSLocalizedString("url_save", comment: "儲存")) {
-                        saveURL()
-                    }
-                    .disabled(urlString.isEmpty || websiteTitle.isEmpty)
-                )
             }
         }
     }

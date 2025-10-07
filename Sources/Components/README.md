@@ -1,4 +1,4 @@
-# Sparks Component Library
+I# Sparks Component Library
 
 A reusable SwiftUI component library with **pixel art / retro gaming aesthetic**.
 
