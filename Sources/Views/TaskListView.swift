@@ -97,34 +97,26 @@ struct TaskListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color(.systemGroupedBackground))
             } else {
-                ZStack(alignment: .bottom) {
-                    ScrollView {
-                        VStack(spacing: AppDesign.Spacing.small) {
-                            ForEach(filteredTasks, id: \.objectID) { task in
-                                PixelTaskCard(task: task, taskViewModel: taskViewModel)
-                            }
+                ScrollView {
+                    VStack(spacing: AppDesign.Spacing.small) {
+                        ForEach(filteredTasks, id: \.objectID) { task in
+                            PixelTaskCard(task: task, taskViewModel: taskViewModel)
                         }
-                        .padding(AppDesign.Spacing.standard)
-                        .padding(.bottom, 80) // 留空間給固定按鈕和 Tab Bar
                     }
-
-                    // Fixed Bottom Add Button
-                    VStack {
-                        Spacer()
-                        PixelButton("➕ " + NSLocalizedString("tasklist_add_task", comment: "新增任務"), color: AppDesign.Colors.green) {
-                            showAddTaskSheet = true
-                        }
-                        .padding(.horizontal, AppDesign.Spacing.standard)
-                        .padding(.bottom, AppDesign.Spacing.standard)
-                        .background(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.clear, Color(.systemGroupedBackground)]),
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            .frame(height: 100)
-                        )
+                    .padding(AppDesign.Spacing.standard)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                }
+                .background(Color(.systemGroupedBackground))
+                .safeAreaInset(edge: .bottom) {
+                    PixelButton("➕ " + NSLocalizedString("tasklist_add_task", comment: "新增任務"), color: AppDesign.Colors.green) {
+                        showAddTaskSheet = true
                     }
+                    .padding(.horizontal, AppDesign.Spacing.standard)
+                    .padding(.vertical, AppDesign.Spacing.small)
+                    .background(
+                        Color(.systemGroupedBackground)
+                            .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: -2)
+                    )
                 }
             }
         }
@@ -323,87 +315,93 @@ struct TaskDetailView: View {
         NavigationView {
             ZStack(alignment: .bottom) {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.standard) {
                         // 標題
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
                             Text(NSLocalizedString("taskdetail_title", comment: "標題"))
-                                .font(.custom("HelveticaNeue-Light", size: 17))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textSecondary)
                             Text(currentTask?.title ?? task.title ?? NSLocalizedString("taskdetail_untitled", comment: "未命名"))
-                                .font(.custom("HelveticaNeue-Light", size: 22))
+                                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
                         }
-                        
+
                         // 描述
                         if let details = currentTask?.details ?? task.details, !details.isEmpty {
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
                                 Text(NSLocalizedString("taskdetail_description", comment: "描述"))
-                                    .font(.custom("HelveticaNeue-Light", size: 17))
-                                    .foregroundColor(.secondary)
+                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
                                 Text(details)
-                                    .font(.custom("HelveticaNeue-Light", size: 16))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
                             }
                         }
-                        
+
                         // 狀態
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
                             Text(NSLocalizedString("taskdetail_status", comment: "狀態"))
-                                .font(.custom("HelveticaNeue-Light", size: 17))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textSecondary)
                             HStack {
                                 Image(systemName: statusIcon)
                                     .foregroundColor(statusColor)
                                 Text(taskStatusName((currentTask ?? task).status))
-                                    .font(.custom("HelveticaNeue-Light", size: 15))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
                                     .foregroundColor(statusColor)
                             }
                         }
-                        
+
                         // 關聯靈感
                         if let inspiration = (currentTask ?? task).inspiration {
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
                                 Text(NSLocalizedString("taskdetail_related_spark", comment: "關聯靈感"))
-                                    .font(.custom("HelveticaNeue-Light", size: 17))
-                                    .foregroundColor(.secondary)
+                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
                                 HStack {
                                     Image(systemName: typeIcon(for: inspiration.type))
                                         .foregroundColor(typeColor(for: inspiration.type))
                                     Text(typeName(for: inspiration.type))
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
-                                        .foregroundColor(.secondary)
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
                                 }
                                 Text(inspiration.title ?? NSLocalizedString("taskdetail_untitled", comment: "未命名"))
-                                    .font(.custom("HelveticaNeue-Light", size: 16))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
                             }
                         }
-                        
+
                         // 提醒設定
                         if let reminderDate = (currentTask ?? task).reminderDate {
-                            VStack(alignment: .leading, spacing: 8) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
                                 Text(NSLocalizedString("taskdetail_reminder", comment: "提醒設定"))
-                                    .font(.custom("HelveticaNeue-Light", size: 17))
-                                    .foregroundColor(.secondary)
+                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
                                 HStack {
                                     Image(systemName: "bell")
-                                        .foregroundColor(.orange)
+                                        .foregroundColor(AppDesign.Colors.orange)
                                     Text(NSLocalizedString("taskdetail_reminder_time", comment: "提醒時間：") + taskViewModel.getFormattedDate(reminderDate))
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textPrimary)
                                 }
                             }
                         }
-                        
+
                         // 時間資訊
-                        VStack(alignment: .leading, spacing: 8) {
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
                             Text(NSLocalizedString("taskdetail_time_info", comment: "時間資訊"))
-                                .font(.custom("HelveticaNeue-Light", size: 17))
-                                .foregroundColor(.secondary)
-                            VStack(alignment: .leading, spacing: 4) {
+                                .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textSecondary)
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.tiny) {
                                 if let createdAt = (currentTask ?? task).createdAt {
                                     Text(NSLocalizedString("taskdetail_created_at", comment: "建立時間：") + taskViewModel.getFormattedDate(createdAt))
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textPrimary)
                                 }
                                 if let updatedAt = (currentTask ?? task).updatedAt {
                                     Text(NSLocalizedString("taskdetail_updated_at", comment: "更新時間：") + taskViewModel.getFormattedDate(updatedAt))
-                                        .font(.custom("HelveticaNeue-Light", size: 12))
+                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textPrimary)
                                 }
                             }
                         }
@@ -498,14 +496,14 @@ struct TaskDetailView: View {
     private var statusColor: Color {
         switch taskViewModel.getTaskStatus(task) {
         case .pending:
-            return .gray
+            return AppDesign.Colors.gray
         case .inProgress:
-            return .blue
+            return AppDesign.Colors.blue
         case .completed:
-            return .green
+            return AppDesign.Colors.green
         }
     }
-    
+
     private func typeIcon(for type: Int16) -> String {
         switch type {
         case 0: return "doc.text"
@@ -517,11 +515,11 @@ struct TaskDetailView: View {
     }
     private func typeColor(for type: Int16) -> Color {
         switch type {
-        case 0: return .blue
-        case 1: return .green
-        case 2: return .orange
-        case 3: return .purple
-        default: return .gray
+        case 0: return AppDesign.Colors.blue
+        case 1: return AppDesign.Colors.green
+        case 2: return AppDesign.Colors.orange
+        case 3: return AppDesign.Colors.purple
+        default: return AppDesign.Colors.gray
         }
     }
     private func typeName(for type: Int16) -> String {

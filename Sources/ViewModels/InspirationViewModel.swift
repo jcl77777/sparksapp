@@ -7,13 +7,22 @@ class InspirationViewModel: ObservableObject {
     @Published var inspirations: [Inspiration] = []
     @Published var availableTags: [Tag] = []
     private var cancellables = Set<AnyCancellable>()
-    
+
     let context: NSManagedObjectContext
-    
+
     init(context: NSManagedObjectContext) {
         self.context = context
         fetchInspirations()
         fetchTags()
+
+        // 監聽 TaskViewModel 的更新
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("TaskDidChange"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.fetchInspirations()
+        }
     }
     
     // MARK: - Read
@@ -226,6 +235,8 @@ class InspirationViewModel: ObservableObject {
             try context.save()
             fetchInspirations()
             fetchTags()
+            // 通知 TaskViewModel 更新
+            NotificationCenter.default.post(name: NSNotification.Name("InspirationDidChange"), object: nil)
         } catch {
             print("Error saving context: \(error)")
         }

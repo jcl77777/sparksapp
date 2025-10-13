@@ -35,14 +35,29 @@ struct AppDesign {
     // MARK: - Typography
 
     struct Typography {
+        // Font sizes
         static let headerSize: CGFloat = 24
+        static let titleSize: CGFloat = 18
+        static let subtitleSize: CGFloat = 16
         static let bodySize: CGFloat = 14
         static let labelSize: CGFloat = 12
+        static let captionSize: CGFloat = 10
         static let statSize: CGFloat = 36
 
+        // Helper methods for creating Text views
         static func header(_ text: String) -> some View {
             Text(text)
                 .font(.system(size: headerSize, weight: .bold, design: .monospaced))
+        }
+
+        static func title(_ text: String) -> some View {
+            Text(text)
+                .font(.system(size: titleSize, weight: .bold, design: .monospaced))
+        }
+
+        static func subtitle(_ text: String) -> some View {
+            Text(text)
+                .font(.system(size: subtitleSize, weight: .semibold, design: .monospaced))
         }
 
         static func body(_ text: String) -> some View {
@@ -55,6 +70,11 @@ struct AppDesign {
                 .font(.system(size: labelSize, design: .monospaced))
         }
 
+        static func caption(_ text: String) -> some View {
+            Text(text)
+                .font(.system(size: captionSize, design: .monospaced))
+        }
+
         static func stat(_ text: String) -> some View {
             Text(text)
                 .font(.system(size: statSize, weight: .bold, design: .monospaced))
@@ -64,9 +84,12 @@ struct AppDesign {
     // MARK: - Spacing
 
     struct Spacing {
+        static let tiny: CGFloat = 4
+        static let extraSmall: CGFloat = 8
         static let small: CGFloat = 12
         static let standard: CGFloat = 16
         static let large: CGFloat = 24
+        static let extraLarge: CGFloat = 32
 
         static let itemGap: CGFloat = 12
     }

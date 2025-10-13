@@ -64,3 +64,11 @@ fastlane/test_output
 architeture.md
 codingStyling.md
 tasks.md
+component.md
+Sources/Components/README.md
+
+.cursor/rules/
+.cursor/rules/codingstyle.mdc
+.cursor/rules/githubupdaterules.mdc
+.cursor/rules/prettier.mdc
+.cursor/rules/prettier.mdc

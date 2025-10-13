@@ -5,14 +5,14 @@ struct DashboardView: View {
     @State private var showingRefresh = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                // Gradient Header
-                GradientHeader(
-                    title: "📊 " + NSLocalizedString("dashboard_title", comment: "儀表板"),
-                    gradientColors: AppDesign.Colors.blueGradient
-                )
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "📊 " + NSLocalizedString("dashboard_title", comment: "儀表板"),
+                gradientColors: AppDesign.Colors.blueGradient
+            )
 
+            ScrollView {
                 VStack(spacing: AppDesign.Spacing.standard) {
                     // 今日統計區塊
                     TodayStatsSection()

@@ -333,9 +333,11 @@ struct TaskStatusPickerRow: View {
     let color: Color
     let statusName: String
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Image(systemName: taskStatus.iconName)
+                .font(.system(size: 18))
                 .foregroundColor(color)
+                .frame(width: 24)
             Text(statusName)
         }
     }

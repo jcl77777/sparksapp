@@ -10,14 +10,14 @@ struct SettingsView: View {
     @State private var showLanguageSettings: Bool = false
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
-                // Gradient Header
-                GradientHeader(
-                    title: "⚙️ " + NSLocalizedString("settings_title", comment: "設定"),
-                    gradientColors: AppDesign.Colors.grayGradient
-                )
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "⚙️ " + NSLocalizedString("settings_title", comment: "設定"),
+                gradientColors: AppDesign.Colors.grayGradient
+            )
 
+            ScrollView {
                 VStack(spacing: AppDesign.Spacing.standard) {
                     // 通知設定
                     SettingButton(
@@ -52,7 +52,9 @@ struct SettingsView: View {
                     }
                 }
                 .padding(AppDesign.Spacing.standard)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
+            .background(Color(.systemGroupedBackground))
         }
         .sheet(isPresented: $showNotification) {
             NotificationSettingsView()

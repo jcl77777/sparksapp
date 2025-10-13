@@ -72,15 +72,11 @@ struct NoteInspirationView: View {
                                 .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
-                            TextField(NSLocalizedString("noteinspiration_title_placeholder", comment: "輸入標題"), text: $title)
-                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                .padding(AppDesign.Spacing.small)
-                                .background(Color.white)
-                                .cornerRadius(AppDesign.Borders.radiusCard)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                )
+                            PixelTextField(
+                                text: $title,
+                                placeholder: NSLocalizedString("noteinspiration_title_placeholder", comment: "輸入標題"),
+                                icon: "📝"
+                            )
                         }
 
                         // 內容
@@ -89,16 +85,12 @@ struct NoteInspirationView: View {
                                 .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
-                            TextEditor(text: $content)
-                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                .frame(minHeight: 150)
-                                .padding(AppDesign.Spacing.small)
-                                .background(Color.white)
-                                .cornerRadius(AppDesign.Borders.radiusCard)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                )
+                            PixelTextEditor(
+                                text: $content,
+                                placeholder: NSLocalizedString("noteinspiration_content_placeholder", comment: "輸入筆記內容"),
+                                minHeight: 150,
+                                icon: "📄"
+                            )
                         }
 
                         // 標籤

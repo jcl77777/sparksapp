@@ -39,15 +39,11 @@ struct AddTaskView: View {
                             .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                             .foregroundColor(AppDesign.Colors.textPrimary)
 
-                        TextField(NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"), text: $title)
-                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                            .padding(AppDesign.Spacing.small)
-                            .background(Color.white)
-                            .cornerRadius(AppDesign.Borders.radiusCard)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                            )
+                        PixelTextField(
+                            text: $title,
+                            placeholder: NSLocalizedString("task_title_placeholder", comment: "輸入任務標題"),
+                            icon: "✓"
+                        )
                     }
 
                     // 任務描述
@@ -56,16 +52,12 @@ struct AddTaskView: View {
                             .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                             .foregroundColor(AppDesign.Colors.textPrimary)
 
-                        TextEditor(text: $details)
-                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                            .frame(minHeight: 100)
-                            .padding(AppDesign.Spacing.small)
-                            .background(Color.white)
-                            .cornerRadius(AppDesign.Borders.radiusCard)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                            )
+                        PixelTextEditor(
+                            text: $details,
+                            placeholder: NSLocalizedString("task_details_placeholder", comment: "輸入任務描述"),
+                            minHeight: 100,
+                            icon: "📝"
+                        )
                     }
 
                     // 顯示關聯的靈感資訊

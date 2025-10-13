@@ -208,35 +208,6 @@ struct InspirationListView: View {
     }
 }
 
-// 搜尋欄位元件
-struct SearchBar: View {
-    @Binding var text: String
-    var placeholder: String = ""
-    
-    var body: some View {
-        HStack {
-            Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
-            
-            TextField(placeholder, text: $text)
-                .textFieldStyle(PlainTextFieldStyle())
-            
-            if !text.isEmpty {
-                Button(action: {
-                    text = ""
-                }) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
-            }
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
-    }
-}
-
 // 靈感卡片元件 - Pixel Art Style
 struct PixelInspirationCard: View {
     let inspiration: Inspiration

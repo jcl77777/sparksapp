@@ -6,12 +6,21 @@ import Combine
 class TaskViewModel: ObservableObject {
     @Published var tasks: [TaskItem] = []
     private var cancellables = Set<AnyCancellable>()
-    
+
     private let context: NSManagedObjectContext
-    
+
     init(context: NSManagedObjectContext) {
         self.context = context
         fetchTasks()
+
+        // 監聽 InspirationViewModel 的更新
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name("InspirationDidChange"),
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.fetchTasks()
+        }
     }
     
     // MARK: - Read
@@ -106,6 +115,8 @@ class TaskViewModel: ObservableObject {
         do {
             try context.save()
             fetchTasks()
+            // 通知 InspirationViewModel 更新
+            NotificationCenter.default.post(name: NSNotification.Name("TaskDidChange"), object: nil)
         } catch {
             print("Error saving context: \(error)")
         }

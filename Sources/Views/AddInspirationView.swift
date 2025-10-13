@@ -47,33 +47,37 @@ struct AddInspirationView: View {
                 gradientColors: AppDesign.Colors.orangeGradient
             )
 
-            ScrollView {
-                VStack(spacing: AppDesign.Spacing.standard) {
-                    Text(NSLocalizedString("addinspiration_select_type", comment: "選擇靈感類型"))
-                        .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                        .foregroundColor(.secondary)
-                        .padding(.top, AppDesign.Spacing.standard)
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: AppDesign.Spacing.standard) {
+                        Text(NSLocalizedString("addinspiration_select_type", comment: "選擇靈感類型"))
+                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                            .foregroundColor(.secondary)
+                            .padding(.top, AppDesign.Spacing.standard)
 
-                    // Type Selection Grid (2x2)
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: AppDesign.Spacing.small),
-                            GridItem(.flexible(), spacing: AppDesign.Spacing.small)
-                        ],
-                        spacing: AppDesign.Spacing.small
-                    ) {
-                        ForEach(InspirationType.allCases, id: \.self) { type in
-                            TypeButton(type: type) {
-                                if type == .note {
-                                    showNoteSheet = true
-                                } else {
-                                    selectedType = type
+                        // Type Selection Grid (2x2)
+                        LazyVGrid(
+                            columns: [
+                                GridItem(.flexible(), spacing: AppDesign.Spacing.small),
+                                GridItem(.flexible(), spacing: AppDesign.Spacing.small)
+                            ],
+                            spacing: AppDesign.Spacing.small
+                        ) {
+                            ForEach(InspirationType.allCases, id: \.self) { type in
+                                TypeButton(type: type) {
+                                    if type == .note {
+                                        showNoteSheet = true
+                                    } else {
+                                        selectedType = type
+                                    }
                                 }
                             }
                         }
+                        .padding(.horizontal, AppDesign.Spacing.standard)
                     }
-                    .padding(.horizontal, AppDesign.Spacing.standard)
+                    .frame(minHeight: geometry.size.height, alignment: .top)
                 }
+                .background(Color(.systemGroupedBackground))
             }
         }
         .navigationBarHidden(true)
