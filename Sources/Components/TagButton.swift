@@ -30,8 +30,8 @@ struct TagButton: View {
         Text("#\(tag)")
             .font(.system(size: AppDesign.Typography.labelSize, weight: .bold, design: .monospaced))
             .foregroundColor(isSelected ? .white : AppDesign.Colors.textPrimary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
+            .padding(.horizontal, AppDesign.Spacing.small)
+            .padding(.vertical, AppDesign.Spacing.tiny)
             .background(backgroundColor)
             .cornerRadius(AppDesign.Borders.radiusTag)
             .overlay(
@@ -70,7 +70,7 @@ struct TagList: View {
     }
 
     var body: some View {
-        FlowLayout(spacing: 8) {
+        FlowLayout(spacing: AppDesign.Spacing.extraSmall) {
             ForEach(tags, id: \.self) { tag in
                 TagButton(
                     tag,
@@ -84,7 +84,7 @@ struct TagList: View {
 
 /// Flow layout for wrapping tags
 struct FlowLayout: Layout {
-    var spacing: CGFloat = 8
+    var spacing: CGFloat = AppDesign.Spacing.extraSmall
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let result = FlowResult(in: proposal.replacingUnspecifiedDimensions().width, subviews: subviews, spacing: spacing)

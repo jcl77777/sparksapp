@@ -74,26 +74,18 @@ struct InspirationTaskSheetView: View {
                             .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                             .foregroundColor(AppDesign.Colors.textPrimary)
 
-                        TextField(NSLocalizedString("inspirationtask_task_title_placeholder", comment: "任務標題"), text: $newTaskTitle)
-                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                            .padding(AppDesign.Spacing.small)
-                            .background(Color.white)
-                            .cornerRadius(AppDesign.Borders.radiusCard)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                            )
+                        PixelTextField(
+                            text: $newTaskTitle,
+                            placeholder: NSLocalizedString("inspirationtask_task_title_placeholder", comment: "任務標題"),
+                            icon: "✏️"
+                        )
 
-                        TextEditor(text: $newTaskDetails)
-                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                            .frame(minHeight: 80)
-                            .padding(AppDesign.Spacing.small)
-                            .background(Color.white)
-                            .cornerRadius(AppDesign.Borders.radiusCard)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                            )
+                        PixelTextEditor(
+                            text: $newTaskDetails,
+                            placeholder: NSLocalizedString("inspirationtask_task_title_placeholder", comment: "任務標題"),
+                            minHeight: 80,
+                            icon: "📝"
+                        )
                     }
 
                     // 可連結既有任務

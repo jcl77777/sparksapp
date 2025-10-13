@@ -119,15 +119,11 @@ struct ImageInspirationView: View {
                                 .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
-                            TextField(NSLocalizedString("image_title_placeholder", comment: "輸入標題"), text: $title)
-                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                .padding(AppDesign.Spacing.small)
-                                .background(Color.white)
-                                .cornerRadius(AppDesign.Borders.radiusCard)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                )
+                            PixelTextField(
+                                text: $title,
+                                placeholder: NSLocalizedString("image_title_placeholder", comment: "輸入標題"),
+                                icon: "🖼️"
+                            )
                         }
 
                         // 描述
@@ -136,16 +132,12 @@ struct ImageInspirationView: View {
                                 .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
-                            TextEditor(text: $content)
-                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                .frame(minHeight: 100)
-                                .padding(AppDesign.Spacing.small)
-                                .background(Color.white)
-                                .cornerRadius(AppDesign.Borders.radiusCard)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                )
+                            PixelTextEditor(
+                                text: $content,
+                                placeholder: NSLocalizedString("image_desc_optional", comment: "輸入描述"),
+                                minHeight: 100,
+                                icon: "📝"
+                            )
                         }
 
                         // 標籤

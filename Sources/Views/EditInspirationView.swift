@@ -43,15 +43,11 @@ struct EditInspirationView: View {
                             .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                             .foregroundColor(AppDesign.Colors.textPrimary)
 
-                        TextField(NSLocalizedString("editspark_title_placeholder", comment: "輸入標題"), text: $title)
-                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                            .padding(AppDesign.Spacing.small)
-                            .background(Color.white)
-                            .cornerRadius(AppDesign.Borders.radiusCard)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                            )
+                        PixelTextField(
+                            text: $title,
+                            placeholder: NSLocalizedString("editspark_title_placeholder", comment: "輸入標題"),
+                            icon: "✏️"
+                        )
                     }
 
                     // 圖片類型
@@ -87,17 +83,13 @@ struct EditInspirationView: View {
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
                             HStack(spacing: AppDesign.Spacing.small) {
-                                TextField(NSLocalizedString("editspark_url_placeholder", comment: "輸入網址"), text: $url)
-                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                    .padding(AppDesign.Spacing.small)
-                                    .background(Color.white)
-                                    .cornerRadius(AppDesign.Borders.radiusCard)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                            .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                    )
-                                    .autocapitalization(.none)
-                                    .disableAutocorrection(true)
+                                PixelTextField(
+                                    text: $url,
+                                    placeholder: NSLocalizedString("editspark_url_placeholder", comment: "輸入網址"),
+                                    icon: "🔗",
+                                    keyboardType: .URL,
+                                    autocapitalization: .never
+                                )
 
                                 Button(action: fetchWebsiteInfo) {
                                     Text("⬇️")
@@ -180,16 +172,12 @@ struct EditInspirationView: View {
                             .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                             .foregroundColor(AppDesign.Colors.textPrimary)
 
-                        TextEditor(text: $content)
-                            .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                            .frame(minHeight: 120)
-                            .padding(AppDesign.Spacing.small)
-                            .background(Color.white)
-                            .cornerRadius(AppDesign.Borders.radiusCard)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                    .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                            )
+                        PixelTextEditor(
+                            text: $content,
+                            placeholder: NSLocalizedString("editspark_content_section", comment: "內容"),
+                            minHeight: 120,
+                            icon: "📝"
+                        )
                     }
 
                     // 標籤

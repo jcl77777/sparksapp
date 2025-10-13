@@ -119,9 +119,13 @@ struct TagManagerView: View {
             Form {
                 Section(header: Text(NSLocalizedString("tag_manager_section_title", comment: "標籤管理"))) {
                     HStack {
-                        TextField(NSLocalizedString("tag_manager_new_tag_placeholder", comment: "新增標籤名稱"), text: $newTagName)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .focused($isTextFieldFocused)
+                        PixelTextField(
+                            text: $newTagName,
+                            placeholder: NSLocalizedString("tag_manager_new_tag_placeholder", comment: "新增標籤名稱"),
+                            icon: "🏷️"
+                        )
+                        .focused($isTextFieldFocused)
+
                         Button(action: addTag) {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
@@ -170,8 +174,11 @@ struct TagManagerView: View {
                 NavigationView {
                     Form {
                         Section(header: Text(NSLocalizedString("tag_manager_edit_section", comment: "編輯標籤"))) {
-                            TextField(NSLocalizedString("tag_manager_edit_placeholder", comment: "標籤名稱"), text: $editingTagName)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            PixelTextField(
+                                text: $editingTagName,
+                                placeholder: NSLocalizedString("tag_manager_edit_placeholder", comment: "標籤名稱"),
+                                icon: "✏️"
+                            )
                         }
                     }
                     .navigationBarItems(leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {

@@ -77,23 +77,19 @@ struct VideoInspirationView: View {
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
                             HStack(spacing: AppDesign.Spacing.small) {
-                                TextField(NSLocalizedString("video_url_placeholder", comment: "輸入影片連結"), text: $videoURL)
-                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                    .padding(AppDesign.Spacing.small)
-                                    .background(Color.white)
-                                    .cornerRadius(AppDesign.Borders.radiusCard)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                            .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                    )
-                                    .autocapitalization(.none)
-                                    .disableAutocorrection(true)
-                                    .onChange(of: videoURL) { _, newValue in
-                                        // 當URL變化時，自動抓取影片資訊
-                                        if !newValue.isEmpty && isValidVideoURL(newValue) {
-                                            fetchVideoInfo()
-                                        }
+                                PixelTextField(
+                                    text: $videoURL,
+                                    placeholder: NSLocalizedString("video_url_placeholder", comment: "輸入影片連結"),
+                                    icon: "🎬",
+                                    keyboardType: .URL,
+                                    autocapitalization: .never
+                                )
+                                .onChange(of: videoURL) { _, newValue in
+                                    // 當URL變化時，自動抓取影片資訊
+                                    if !newValue.isEmpty && isValidVideoURL(newValue) {
+                                        fetchVideoInfo()
                                     }
+                                }
 
                                 Button(action: fetchVideoInfo) {
                                     Text("⬇️")
@@ -169,15 +165,11 @@ struct VideoInspirationView: View {
                                 .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
-                            TextField(NSLocalizedString("video_title_placeholder", comment: "輸入標題"), text: $videoTitle)
-                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                .padding(AppDesign.Spacing.small)
-                                .background(Color.white)
-                                .cornerRadius(AppDesign.Borders.radiusCard)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                )
+                            PixelTextField(
+                                text: $videoTitle,
+                                placeholder: NSLocalizedString("video_title_placeholder", comment: "輸入標題"),
+                                icon: "📝"
+                            )
                         }
 
                         // 描述
@@ -186,16 +178,12 @@ struct VideoInspirationView: View {
                                 .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
                                 .foregroundColor(AppDesign.Colors.textPrimary)
 
-                            TextEditor(text: $description)
-                                .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                .frame(minHeight: 100)
-                                .padding(AppDesign.Spacing.small)
-                                .background(Color.white)
-                                .cornerRadius(AppDesign.Borders.radiusCard)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppDesign.Borders.radiusCard)
-                                        .stroke(AppDesign.Colors.borderPrimary, lineWidth: AppDesign.Borders.thin)
-                                )
+                            PixelTextEditor(
+                                text: $description,
+                                placeholder: NSLocalizedString("video_description_optional", comment: "輸入描述"),
+                                minHeight: 100,
+                                icon: "📝"
+                            )
                         }
 
                         // 標籤
