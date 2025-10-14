@@ -122,44 +122,44 @@ struct EditTagView: View {
                 gradientColors: AppDesign.Colors.blueGradient
             )
 
-            VStack(spacing: AppDesign.Spacing.standard) {
-                // 編輯標籤名稱
-                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
-                    Text(NSLocalizedString("tag_manager_new_tag_placeholder", comment: "標籤名稱"))
-                        .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
-                        .foregroundColor(AppDesign.Colors.textPrimary)
+            ScrollView {
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 編輯標籤名稱
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tag_manager_new_tag_placeholder", comment: "標籤名稱"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
 
-                    PixelTextField(
-                        text: $tagName,
-                        placeholder: NSLocalizedString("tag_manager_new_tag_placeholder", comment: "輸入標籤名稱"),
-                        icon: "�️"
-                    )
-                    .focused($isTextFieldFocused)
-                }
-
-                Spacer()
-
-                // 按鈕區域
-                VStack(spacing: AppDesign.Spacing.small) {
-                    PixelButton(
-                        "💾 " + NSLocalizedString("common_save", comment: "儲存"),
-                        color: AppDesign.Colors.green
-                    ) {
-                        onSave()
+                        PixelTextField(
+                            text: $tagName,
+                            placeholder: NSLocalizedString("tag_manager_new_tag_placeholder", comment: "輸入標籤名稱"),
+                            icon: "🏷️"
+                        )
+                        .focused($isTextFieldFocused)
                     }
-                    .disabled(tagName.trimmingCharacters(in: .whitespaces).isEmpty)
-                    .opacity(tagName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
 
-                    PixelButton(
-                        NSLocalizedString("common_cancel", comment: "取消"),
-                        style: .secondary,
-                        color: AppDesign.Colors.gray
-                    ) {
-                        onCancel()
+                    // 按鈕區域
+                    VStack(spacing: AppDesign.Spacing.small) {
+                        PixelButton(
+                            "💾 " + NSLocalizedString("common_save", comment: "儲存"),
+                            color: AppDesign.Colors.green
+                        ) {
+                            onSave()
+                        }
+                        .disabled(tagName.trimmingCharacters(in: .whitespaces).isEmpty)
+                        .opacity(tagName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+
+                        PixelButton(
+                            NSLocalizedString("common_cancel", comment: "取消"),
+                            style: .secondary,
+                            color: AppDesign.Colors.gray
+                        ) {
+                            onCancel()
+                        }
                     }
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .padding(AppDesign.Spacing.standard)
             .background(Color(.systemGroupedBackground))
         }
         .onAppear {

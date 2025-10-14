@@ -312,104 +312,130 @@ struct TaskDetailView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: AppDesign.Spacing.standard) {
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "✓ " + NSLocalizedString("taskdetail_title_page", comment: "任務詳情"),
+                gradientColors: AppDesign.Colors.greenGradient
+            )
+
+            ScrollView {
+                VStack(spacing: AppDesign.Spacing.standard) {
                         // 標題
-                        VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
-                            Text(NSLocalizedString("taskdetail_title", comment: "標題"))
-                                .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
-                                .foregroundColor(AppDesign.Colors.textSecondary)
-                            Text(currentTask?.title ?? task.title ?? NSLocalizedString("taskdetail_untitled", comment: "未命名"))
-                                .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
-                                .foregroundColor(AppDesign.Colors.textPrimary)
+                        PixelCard(borderColor: AppDesign.Colors.green) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("taskdetail_title", comment: "標題"))
+                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                Text(currentTask?.title ?? task.title ?? NSLocalizedString("taskdetail_untitled", comment: "未命名"))
+                                    .font(.system(size: AppDesign.Typography.headerSize, weight: .bold, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
+                            }
+                            .padding(AppDesign.Spacing.standard)
                         }
 
                         // 描述
                         if let details = currentTask?.details ?? task.details, !details.isEmpty {
-                            VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
-                                Text(NSLocalizedString("taskdetail_description", comment: "描述"))
-                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
-                                    .foregroundColor(AppDesign.Colors.textSecondary)
-                                Text(details)
-                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                    .foregroundColor(AppDesign.Colors.textPrimary)
+                            PixelCard(borderColor: AppDesign.Colors.gray) {
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                    Text(NSLocalizedString("taskdetail_description", comment: "描述"))
+                                        .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                    Text(details)
+                                        .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textPrimary)
+                                }
+                                .padding(AppDesign.Spacing.standard)
                             }
                         }
 
                         // 狀態
-                        VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
-                            Text(NSLocalizedString("taskdetail_status", comment: "狀態"))
-                                .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
-                                .foregroundColor(AppDesign.Colors.textSecondary)
-                            HStack {
-                                Image(systemName: statusIcon)
-                                    .foregroundColor(statusColor)
-                                Text(taskStatusName((currentTask ?? task).status))
-                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                    .foregroundColor(statusColor)
+                        PixelCard(borderColor: statusColor) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("taskdetail_status", comment: "狀態"))
+                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                HStack {
+                                    Image(systemName: statusIcon)
+                                        .foregroundColor(statusColor)
+                                    Text(taskStatusName((currentTask ?? task).status))
+                                        .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                        .foregroundColor(statusColor)
+                                }
                             }
+                            .padding(AppDesign.Spacing.standard)
                         }
 
                         // 關聯靈感
                         if let inspiration = (currentTask ?? task).inspiration {
-                            VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
-                                Text(NSLocalizedString("taskdetail_related_spark", comment: "關聯靈感"))
-                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
-                                    .foregroundColor(AppDesign.Colors.textSecondary)
-                                HStack {
-                                    Image(systemName: typeIcon(for: inspiration.type))
-                                        .foregroundColor(typeColor(for: inspiration.type))
-                                    Text(typeName(for: inspiration.type))
-                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                            PixelCard(borderColor: AppDesign.Colors.purple) {
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                    Text(NSLocalizedString("taskdetail_related_spark", comment: "關聯靈感"))
+                                        .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
                                         .foregroundColor(AppDesign.Colors.textSecondary)
+                                    HStack {
+                                        Image(systemName: typeIcon(for: inspiration.type))
+                                            .foregroundColor(typeColor(for: inspiration.type))
+                                        Text(typeName(for: inspiration.type))
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textSecondary)
+                                    }
+                                    Text(inspiration.title ?? NSLocalizedString("taskdetail_untitled", comment: "未命名"))
+                                        .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textPrimary)
                                 }
-                                Text(inspiration.title ?? NSLocalizedString("taskdetail_untitled", comment: "未命名"))
-                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
-                                    .foregroundColor(AppDesign.Colors.textPrimary)
+                                .padding(AppDesign.Spacing.standard)
                             }
                         }
 
                         // 提醒設定
                         if let reminderDate = (currentTask ?? task).reminderDate {
-                            VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
-                                Text(NSLocalizedString("taskdetail_reminder", comment: "提醒設定"))
-                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
-                                    .foregroundColor(AppDesign.Colors.textSecondary)
-                                HStack {
-                                    Image(systemName: "bell")
-                                        .foregroundColor(AppDesign.Colors.orange)
-                                    Text(NSLocalizedString("taskdetail_reminder_time", comment: "提醒時間：") + taskViewModel.getFormattedDate(reminderDate))
-                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
-                                        .foregroundColor(AppDesign.Colors.textPrimary)
+                            PixelCard(borderColor: AppDesign.Colors.orange) {
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                    Text(NSLocalizedString("taskdetail_reminder", comment: "提醒設定"))
+                                        .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                        .foregroundColor(AppDesign.Colors.textSecondary)
+                                    HStack {
+                                        Image(systemName: "bell")
+                                            .foregroundColor(AppDesign.Colors.orange)
+                                        Text(NSLocalizedString("taskdetail_reminder_time", comment: "提醒時間：") + taskViewModel.getFormattedDate(reminderDate))
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textPrimary)
+                                    }
                                 }
+                                .padding(AppDesign.Spacing.standard)
                             }
                         }
 
                         // 時間資訊
-                        VStack(alignment: .leading, spacing: AppDesign.Spacing.extraSmall) {
-                            Text(NSLocalizedString("taskdetail_time_info", comment: "時間資訊"))
-                                .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
-                                .foregroundColor(AppDesign.Colors.textSecondary)
-                            VStack(alignment: .leading, spacing: AppDesign.Spacing.tiny) {
-                                if let createdAt = (currentTask ?? task).createdAt {
-                                    Text(NSLocalizedString("taskdetail_created_at", comment: "建立時間：") + taskViewModel.getFormattedDate(createdAt))
-                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
-                                        .foregroundColor(AppDesign.Colors.textPrimary)
-                                }
-                                if let updatedAt = (currentTask ?? task).updatedAt {
-                                    Text(NSLocalizedString("taskdetail_updated_at", comment: "更新時間：") + taskViewModel.getFormattedDate(updatedAt))
-                                        .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
-                                        .foregroundColor(AppDesign.Colors.textPrimary)
+                        PixelCard(borderColor: AppDesign.Colors.gray) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("taskdetail_time_info", comment: "時間資訊"))
+                                    .font(.system(size: AppDesign.Typography.subtitleSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                VStack(alignment: .leading, spacing: AppDesign.Spacing.tiny) {
+                                    if let createdAt = (currentTask ?? task).createdAt {
+                                        Text(NSLocalizedString("taskdetail_created_at", comment: "建立時間：") + taskViewModel.getFormattedDate(createdAt))
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textPrimary)
+                                    }
+                                    if let updatedAt = (currentTask ?? task).updatedAt {
+                                        Text(NSLocalizedString("taskdetail_updated_at", comment: "更新時間：") + taskViewModel.getFormattedDate(updatedAt))
+                                            .font(.system(size: AppDesign.Typography.labelSize, design: .monospaced))
+                                            .foregroundColor(AppDesign.Colors.textPrimary)
+                                    }
                                 }
                             }
+                            .padding(AppDesign.Spacing.standard)
                         }
                     }
-                    .padding()
-                    .padding(.bottom, 100) // 預留底部icon列空間
+                    .padding(AppDesign.Spacing.standard)
                 }
-                // 操作按鈕列
+                .background(Color(.systemGroupedBackground))
+            }
+
+            // 操作按鈕列
+            VStack(spacing: AppDesign.Spacing.small) {
                 HStack(spacing: AppDesign.Spacing.small) {
                     PixelButton(
                         "✓ " + NSLocalizedString("taskdetail_done", comment: "完成"),
@@ -436,16 +462,18 @@ struct TaskDetailView: View {
                         showingAlert = true
                     }
                 }
-                .padding(AppDesign.Spacing.standard)
-                .background(Color(.systemBackground).ignoresSafeArea())
-            }
-            .navigationTitle(NSLocalizedString("taskdetail_title_page", comment: "任務詳情"))
-            .navigationBarItems(
-                leading: Button(NSLocalizedString("taskdetail_close", comment: "關閉")) {
+
+                PixelButton(
+                    NSLocalizedString("taskdetail_close", comment: "關閉"),
+                    style: .secondary,
+                    color: AppDesign.Colors.gray
+                ) {
                     presentationMode.wrappedValue.dismiss()
                 }
-            )
-            .sheet(isPresented: $showingEditSheet) {
+            }
+            .padding(AppDesign.Spacing.standard)
+            .background(Color(.systemGroupedBackground))
+        .sheet(isPresented: $showingEditSheet) {
                 EditTaskView(task: currentTask ?? task, taskViewModel: taskViewModel)
             }
             .alert(isPresented: $showingAlert) {
@@ -474,10 +502,9 @@ struct TaskDetailView: View {
                     )
                 }
             }
-            .onAppear {
-                if let updated = taskViewModel.tasks.first(where: { $0.objectID == task.objectID }) {
-                    currentTask = updated
-                }
+        .onAppear {
+            if let updated = taskViewModel.tasks.first(where: { $0.objectID == task.objectID }) {
+                currentTask = updated
             }
         }
     }
