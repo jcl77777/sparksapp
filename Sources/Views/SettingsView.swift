@@ -104,6 +104,72 @@ struct SettingButton: View {
     }
 }
 
+// 編輯標籤子頁面
+struct EditTagView: View {
+    @EnvironmentObject var viewModel: InspirationViewModel
+    @Environment(\.presentationMode) var presentationMode
+    let tag: Tag
+    @Binding var tagName: String
+    let onSave: () -> Void
+    let onCancel: () -> Void
+    @FocusState private var isTextFieldFocused: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "✏️ " + NSLocalizedString("tag_manager_edit_tag", comment: "編輯標籤"),
+                gradientColors: AppDesign.Colors.orangeGradient
+            )
+
+            VStack(spacing: AppDesign.Spacing.standard) {
+                // 編輯標籤名稱
+                VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                    Text(NSLocalizedString("tag_manager_new_tag_placeholder", comment: "標籤名稱"))
+                        .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                        .foregroundColor(AppDesign.Colors.textPrimary)
+
+                    PixelTextField(
+                        text: $tagName,
+                        placeholder: NSLocalizedString("tag_manager_new_tag_placeholder", comment: "輸入標籤名稱"),
+                        icon: "�️"
+                    )
+                    .focused($isTextFieldFocused)
+                }
+
+                Spacer()
+
+                // 按鈕區域
+                VStack(spacing: AppDesign.Spacing.small) {
+                    PixelButton(
+                        "💾 " + NSLocalizedString("common_save", comment: "儲存"),
+                        color: AppDesign.Colors.green
+                    ) {
+                        onSave()
+                    }
+                    .disabled(tagName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .opacity(tagName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+
+                    PixelButton(
+                        NSLocalizedString("common_cancel", comment: "取消"),
+                        style: .secondary,
+                        color: AppDesign.Colors.gray
+                    ) {
+                        onCancel()
+                    }
+                }
+            }
+            .padding(AppDesign.Spacing.standard)
+            .background(Color(.systemGroupedBackground))
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isTextFieldFocused = true
+            }
+        }
+    }
+}
+
 // 標籤管理子頁面
 struct TagManagerView: View {
     @EnvironmentObject var viewModel: InspirationViewModel
@@ -117,89 +183,132 @@ struct TagManagerView: View {
     @FocusState private var isTextFieldFocused: Bool
 
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text(NSLocalizedString("tag_manager_section_title", comment: "標籤管理"))) {
-                    HStack {
-                        PixelTextField(
-                            text: $newTagName,
-                            placeholder: NSLocalizedString("tag_manager_new_tag_placeholder", comment: "新增標籤名稱"),
-                            icon: "🏷️"
-                        )
-                        .focused($isTextFieldFocused)
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "🏷️ " + NSLocalizedString("tag_manager_section_title", comment: "標籤管理"),
+                gradientColors: AppDesign.Colors.purpleGradient
+            )
 
-                        Button(action: addTag) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
+            ScrollView {
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 新增標籤區域
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tag_manager_new_tag_placeholder", comment: "新增標籤名稱"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        HStack(spacing: AppDesign.Spacing.small) {
+                            PixelTextField(
+                                text: $newTagName,
+                                placeholder: NSLocalizedString("tag_manager_new_tag_placeholder", comment: "新增標籤名稱"),
+                                icon: "🏷️"
+                            )
+                            .focused($isTextFieldFocused)
+
+                            PixelButton(
+                                "➕",
+                                color: AppDesign.Colors.green
+                            ) {
+                                addTag()
+                            }
+                            .disabled(newTagName.trimmingCharacters(in: .whitespaces).isEmpty)
+                            .opacity(newTagName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1.0)
+                            .frame(width: 60)
                         }
-                        .disabled(newTagName.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
-                    if viewModel.availableTags.isEmpty {
-                        Text(NSLocalizedString("tag_manager_no_tag", comment: "目前沒有標籤"))
-                            .foregroundColor(.secondary)
-                    } else {
-                        ForEach(viewModel.availableTags, id: \.objectID) { tag in
-                            HStack {
-                                Text(tag.name ?? "")
-                                Spacer()
-                                Button(action: {
-                                    editingTag = tag
-                                    editingTagName = tag.name ?? ""
-                                    showEditSheet = true
-                                }) {
-                                    Image(systemName: "pencil")
+
+                    // 標籤列表
+                    VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                        Text(NSLocalizedString("tag_manager_section_title", comment: "標籤管理"))
+                            .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                            .foregroundColor(AppDesign.Colors.textPrimary)
+
+                        if viewModel.availableTags.isEmpty {
+                            PixelCard(borderColor: AppDesign.Colors.gray) {
+                                Text(NSLocalizedString("tag_manager_no_tag", comment: "目前沒有標籤"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                                    .padding(AppDesign.Spacing.standard)
+                            }
+                        } else {
+                            VStack(spacing: AppDesign.Spacing.small) {
+                                ForEach(viewModel.availableTags, id: \.objectID) { tag in
+                                    PixelCard(borderColor: AppDesign.Colors.purple) {
+                                        HStack {
+                                            Text("🏷️")
+                                                .font(.system(size: 20))
+
+                                            Text(tag.name ?? "")
+                                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                            Spacer()
+
+                                            Button(action: {
+                                                editingTag = tag
+                                                editingTagName = tag.name ?? ""
+                                                showEditSheet = true
+                                            }) {
+                                                Text("✏️")
+                                                    .font(.system(size: 18))
+                                            }
+
+                                            Button(action: {
+                                                tagToDelete = tag
+                                                showDeleteAlert = true
+                                            }) {
+                                                Text("🗑️")
+                                                    .font(.system(size: 18))
+                                            }
+                                        }
+                                        .padding(AppDesign.Spacing.standard)
+                                    }
                                 }
-                                .buttonStyle(BorderlessButtonStyle())
-                                Button(action: {
-                                    tagToDelete = tag
-                                    showDeleteAlert = true
-                                }) {
-                                    Image(systemName: "trash")
-                                        .foregroundColor(.red)
-                                }
-                                .buttonStyle(BorderlessButtonStyle())
                             }
                         }
                     }
-                }
-            }
-            .navigationTitle(NSLocalizedString("tag_manager_section_title", comment: "標籤管理"))
-            .navigationBarItems(leading: Button(NSLocalizedString("common_close", comment: "關閉")) {
-                presentationMode.wrappedValue.dismiss()
-            })
-            .onAppear {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    isTextFieldFocused = true
-                }
-            }
-            .sheet(isPresented: $showEditSheet) {
-                NavigationView {
-                    Form {
-                        Section(header: Text(NSLocalizedString("tag_manager_edit_section", comment: "編輯標籤"))) {
-                            PixelTextField(
-                                text: $editingTagName,
-                                placeholder: NSLocalizedString("tag_manager_edit_placeholder", comment: "標籤名稱"),
-                                icon: "✏️"
-                            )
-                        }
+
+                    // 關閉按鈕
+                    PixelButton(
+                        NSLocalizedString("common_close", comment: "關閉"),
+                        style: .secondary,
+                        color: AppDesign.Colors.gray
+                    ) {
+                        presentationMode.wrappedValue.dismiss()
                     }
-                    .navigationBarItems(leading: Button(NSLocalizedString("common_cancel", comment: "取消")) {
-                        showEditSheet = false
-                    }, trailing: Button(NSLocalizedString("common_save", comment: "儲存")) {
-                        if let tag = editingTag {
-                            updateTag(tag: tag, newName: editingTagName)
-                        }
-                        showEditSheet = false
-                    }.disabled(editingTagName.trimmingCharacters(in: .whitespaces).isEmpty))
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .alert(isPresented: $showDeleteAlert) {
-                Alert(title: Text(NSLocalizedString("tag_manager_delete_confirm_title", comment: "確定要刪除這個標籤嗎？")), message: Text(tagToDelete?.name ?? ""), primaryButton: .destructive(Text(NSLocalizedString("common_delete", comment: "刪除"))) {
+            .background(Color(.systemGroupedBackground))
+        }
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isTextFieldFocused = true
+            }
+        }
+        .sheet(isPresented: $showEditSheet) {
+            if let tag = editingTag {
+                EditTagView(tag: tag, tagName: $editingTagName) {
+                    updateTag(tag: tag, newName: editingTagName)
+                    showEditSheet = false
+                } onCancel: {
+                    showEditSheet = false
+                }
+                .environmentObject(viewModel)
+            }
+        }
+        .alert(isPresented: $showDeleteAlert) {
+            Alert(
+                title: Text(NSLocalizedString("tag_manager_delete_confirm_title", comment: "確定要刪除這個標籤嗎？")),
+                message: Text(tagToDelete?.name ?? ""),
+                primaryButton: .destructive(Text(NSLocalizedString("common_delete", comment: "刪除"))) {
                     if let tag = tagToDelete {
                         deleteTag(tag: tag)
                     }
-                }, secondaryButton: .cancel())
-            }
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
     private func addTag() {

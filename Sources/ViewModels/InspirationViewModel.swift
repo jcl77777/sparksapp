@@ -21,7 +21,9 @@ class InspirationViewModel: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.fetchInspirations()
+            Task { @MainActor in
+                self?.fetchInspirations()
+            }
         }
     }
     

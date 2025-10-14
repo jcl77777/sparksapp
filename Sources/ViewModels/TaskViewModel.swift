@@ -19,7 +19,9 @@ class TaskViewModel: ObservableObject {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            self?.fetchTasks()
+            Task { @MainActor in
+                self?.fetchTasks()
+            }
         }
     }
     
