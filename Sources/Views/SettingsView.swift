@@ -119,7 +119,7 @@ struct EditTagView: View {
             // Gradient Header
             GradientHeader(
                 title: "✏️ " + NSLocalizedString("tag_manager_edit_tag", comment: "編輯標籤"),
-                gradientColors: AppDesign.Colors.orangeGradient
+                gradientColors: AppDesign.Colors.blueGradient
             )
 
             VStack(spacing: AppDesign.Spacing.standard) {
@@ -187,7 +187,7 @@ struct TagManagerView: View {
             // Gradient Header
             GradientHeader(
                 title: "🏷️ " + NSLocalizedString("tag_manager_section_title", comment: "標籤管理"),
-                gradientColors: AppDesign.Colors.purpleGradient
+                gradientColors: AppDesign.Colors.blueGradient
             )
 
             ScrollView {
@@ -329,64 +329,168 @@ struct NotificationSettingsView: View {
     @Environment(\.presentationMode) var presentationMode
     @AppStorage("unorganizedReminderSetting") private var unorganizedReminderSettingData: Data = Data()
     @State private var setting: UnorganizedReminderSetting = UnorganizedReminderSetting()
-    
+
     var body: some View {
-        NavigationView {
-            Form {
-                Section(header: Text(NSLocalizedString("notification_unorganized_section_title", comment: "未整理靈感提醒"))) {
-                    Toggle(NSLocalizedString("notification_unorganized_toggle", comment: "未整理提醒"), isOn: $setting.enabled)
-                        .onChange(of: setting.enabled) { _, _ in saveAndSchedule() }
+        VStack(spacing: 0) {
+            // Gradient Header
+            GradientHeader(
+                title: "🔔 " + NSLocalizedString("notification_settings_title", comment: "通知設定"),
+                gradientColors: AppDesign.Colors.blueGradient
+            )
+
+            ScrollView {
+                VStack(spacing: AppDesign.Spacing.standard) {
+                    // 啟用/停用提醒
+                    PixelCard(borderColor: AppDesign.Colors.blue) {
+                        HStack(spacing: AppDesign.Spacing.standard) {
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("notification_unorganized_toggle", comment: "未整理提醒"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                Text(NSLocalizedString("notification_unorganized_section_title", comment: "未整理靈感提醒"))
+                                    .font(.system(size: AppDesign.Typography.captionSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                            }
+
+                            Spacer()
+
+                            Toggle("", isOn: $setting.enabled)
+                                .labelsHidden()
+                                .onChange(of: setting.enabled) { _, _ in saveAndSchedule() }
+                        }
+                        .padding(AppDesign.Spacing.standard)
+                    }
+
                     if setting.enabled {
-                        Picker(NSLocalizedString("notification_unorganized_frequency", comment: "提醒頻率"), selection: $setting.frequency) {
-                            ForEach(ReminderFrequency.allCases) { freq in
-                                Text(freq.displayName).tag(freq)
+                        // 提醒頻率
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("notification_unorganized_frequency", comment: "提醒頻率"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.blue) {
+                                Picker("", selection: $setting.frequency) {
+                                    ForEach(ReminderFrequency.allCases) { freq in
+                                        Text(freq.displayName).tag(freq)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .onChange(of: setting.frequency) { _, _ in saveAndSchedule() }
+                                .padding(AppDesign.Spacing.standard)
                             }
                         }
-                        .onChange(of: setting.frequency) { _, _ in saveAndSchedule() }
+
+                        // 週幾提醒
                         if setting.frequency == .weekly {
-                            Picker(NSLocalizedString("notification_unorganized_weekday", comment: "提醒星期"), selection: Binding(get: { setting.weekday ?? 2 }, set: { setting.weekday = $0; saveAndSchedule() })) {
-                                ForEach(1...7, id: \ .self) { i in
-                                    Text(weekdayName(i)).tag(i)
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("notification_unorganized_weekday", comment: "提醒星期"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                PixelCard(borderColor: AppDesign.Colors.blue) {
+                                    Picker("", selection: Binding(get: { setting.weekday ?? 2 }, set: { setting.weekday = $0; saveAndSchedule() })) {
+                                        ForEach(1...7, id: \.self) { i in
+                                            Text(weekdayName(i)).tag(i)
+                                        }
+                                    }
+                                    .pickerStyle(.wheel)
+                                    .frame(height: 120)
+                                    .padding(AppDesign.Spacing.small)
                                 }
                             }
                         }
+
+                        // 每月幾號提醒
                         if setting.frequency == .monthly {
-                            Picker(NSLocalizedString("notification_unorganized_day", comment: "提醒日"), selection: Binding(get: { setting.day ?? 1 }, set: { setting.day = $0; saveAndSchedule() })) {
-                                ForEach(1...31, id: \ .self) { d in
-                                    Text(String(format: NSLocalizedString("notification_unorganized_day_format", comment: "每月%d日"), d)).tag(d)
+                            VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                                Text(NSLocalizedString("notification_unorganized_day", comment: "提醒日"))
+                                    .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textPrimary)
+
+                                PixelCard(borderColor: AppDesign.Colors.blue) {
+                                    Picker("", selection: Binding(get: { setting.day ?? 1 }, set: { setting.day = $0; saveAndSchedule() })) {
+                                        ForEach(1...31, id: \.self) { d in
+                                            Text("\(d)").tag(d)
+                                        }
+                                    }
+                                    .pickerStyle(.wheel)
+                                    .frame(height: 120)
+                                    .padding(AppDesign.Spacing.small)
                                 }
                             }
                         }
-                        DatePicker(NSLocalizedString("notification_unorganized_time", comment: "提醒時間"), selection: $setting.time, displayedComponents: .hourAndMinute)
-                            .onChange(of: setting.time) { _, _ in saveAndSchedule() }
-                        Text(NSLocalizedString("notification_unorganized_hint", comment: "提醒您整理未分類的靈感，保持創意流暢"))
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+
+                        // 提醒時間
+                        VStack(alignment: .leading, spacing: AppDesign.Spacing.small) {
+                            Text(NSLocalizedString("notification_unorganized_time", comment: "提醒時間"))
+                                .font(.system(size: AppDesign.Typography.bodySize, weight: .bold, design: .monospaced))
+                                .foregroundColor(AppDesign.Colors.textPrimary)
+
+                            PixelCard(borderColor: AppDesign.Colors.blue) {
+                                DatePicker("", selection: $setting.time, displayedComponents: .hourAndMinute)
+                                    .labelsHidden()
+                                    .datePickerStyle(.wheel)
+                                    .frame(maxWidth: .infinity)
+                                    .onChange(of: setting.time) { _, _ in saveAndSchedule() }
+                                    .padding(AppDesign.Spacing.standard)
+                            }
+                        }
+
+                        // 提示文字
+                        PixelCard(borderColor: AppDesign.Colors.gray) {
+                            HStack {
+                                Text("💡")
+                                    .font(.system(size: 20))
+
+                                Text(NSLocalizedString("notification_unorganized_hint", comment: "提醒您整理未分類的靈感，保持創意流暢"))
+                                    .font(.system(size: AppDesign.Typography.captionSize, design: .monospaced))
+                                    .foregroundColor(AppDesign.Colors.textSecondary)
+                            }
+                            .padding(AppDesign.Spacing.standard)
+                        }
+                    }
+
+                    // 關閉按鈕
+                    PixelButton(
+                        NSLocalizedString("common_close", comment: "關閉"),
+                        style: .secondary,
+                        color: AppDesign.Colors.gray
+                    ) {
+                        presentationMode.wrappedValue.dismiss()
                     }
                 }
+                .padding(AppDesign.Spacing.standard)
             }
-            .navigationTitle(NSLocalizedString("notification_settings_title", comment: "通知設定"))
-            .navigationBarItems(leading: Button(NSLocalizedString("common_close", comment: "關閉")) {
-                presentationMode.wrappedValue.dismiss()
-            })
-            .onAppear {
-                if let loaded = try? JSONDecoder().decode(UnorganizedReminderSetting.self, from: unorganizedReminderSettingData), unorganizedReminderSettingData.count > 0 {
-                    setting = loaded
-                }
+            .background(Color(.systemGroupedBackground))
+        }
+        .onAppear {
+            if let loaded = try? JSONDecoder().decode(UnorganizedReminderSetting.self, from: unorganizedReminderSettingData), unorganizedReminderSettingData.count > 0 {
+                setting = loaded
             }
         }
     }
-    
+
     private func saveAndSchedule() {
         if let data = try? JSONEncoder().encode(setting) {
             unorganizedReminderSettingData = data
         }
         notificationManager.scheduleUnorganizedReminder(setting: setting)
     }
-    
+
     private func weekdayName(_ i: Int) -> String {
-        let names = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"]
-        return names[(i-1)%7]
+        let keys = [
+            "notification_weekday_sunday",
+            "notification_weekday_monday",
+            "notification_weekday_tuesday",
+            "notification_weekday_wednesday",
+            "notification_weekday_thursday",
+            "notification_weekday_friday",
+            "notification_weekday_saturday"
+        ]
+        let comments = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"]
+        let index = (i-1) % 7
+        return NSLocalizedString(keys[index], comment: comments[index])
     }
 }
 

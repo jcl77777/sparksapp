@@ -34,7 +34,7 @@ struct EditTaskView: View {
                 // Gradient Header
                 GradientHeader(
                     title: "✏️ " + NSLocalizedString("tasklist_edit_task", comment: "編輯任務"),
-                    gradientColors: AppDesign.Colors.blueGradient
+                    gradientColors: AppDesign.Colors.greenGradient
                 )
 
                 VStack(spacing: AppDesign.Spacing.standard) {

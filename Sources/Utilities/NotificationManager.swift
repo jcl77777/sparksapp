@@ -10,9 +10,9 @@ enum ReminderFrequency: Int, Codable, CaseIterable, Identifiable {
     var id: Int { rawValue }
     var displayName: String {
         switch self {
-        case .daily: return "每天"
-        case .weekly: return "每週"
-        case .monthly: return "每月"
+        case .daily: return NSLocalizedString("notification_frequency_daily", comment: "每天")
+        case .weekly: return NSLocalizedString("notification_frequency_weekly", comment: "每週")
+        case .monthly: return NSLocalizedString("notification_frequency_monthly", comment: "每月")
         }
     }
 }

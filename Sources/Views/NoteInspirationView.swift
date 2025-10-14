@@ -21,7 +21,7 @@ struct NoteInspirationView: View {
                     // Success Header
                     GradientHeader(
                         title: "✓ " + NSLocalizedString("noteinspiration_save_success", comment: "儲存成功！"),
-                        gradientColors: AppDesign.Colors.blueGradient
+                        gradientColors: AppDesign.Colors.greenGradient
                     )
 
                     VStack(spacing: AppDesign.Spacing.large) {
@@ -62,7 +62,7 @@ struct NoteInspirationView: View {
                     // Gradient Header
                     GradientHeader(
                         title: "📝 " + NSLocalizedString("noteinspiration_add_note_title", comment: "新增筆記"),
-                        gradientColors: AppDesign.Colors.blueGradient
+                        gradientColors: AppDesign.Colors.orangeGradient
                     )
 
                     VStack(spacing: AppDesign.Spacing.standard) {
