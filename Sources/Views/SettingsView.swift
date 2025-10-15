@@ -108,7 +108,6 @@ struct SettingButton: View {
 struct EditTagView: View {
     @EnvironmentObject var viewModel: InspirationViewModel
     @Environment(\.presentationMode) var presentationMode
-    let tag: Tag
     @Binding var tagName: String
     let onSave: () -> Void
     let onCancel: () -> Void
@@ -162,6 +161,7 @@ struct EditTagView: View {
             }
             .background(Color(.systemGroupedBackground))
         }
+        .background(Color(.systemGroupedBackground))
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 isTextFieldFocused = true
@@ -177,7 +177,6 @@ struct TagManagerView: View {
     @State private var newTagName: String = ""
     @State private var editingTag: Tag?
     @State private var editingTagName: String = ""
-    @State private var showEditSheet: Bool = false
     @State private var showDeleteAlert: Bool = false
     @State private var tagToDelete: Tag?
     @FocusState private var isTextFieldFocused: Bool
@@ -246,9 +245,8 @@ struct TagManagerView: View {
                                             Spacer()
 
                                             Button(action: {
-                                                editingTag = tag
                                                 editingTagName = tag.name ?? ""
-                                                showEditSheet = true
+                                                editingTag = tag
                                             }) {
                                                 Text("✏️")
                                                     .font(.system(size: 18))
@@ -287,16 +285,14 @@ struct TagManagerView: View {
                 isTextFieldFocused = true
             }
         }
-        .sheet(isPresented: $showEditSheet) {
-            if let tag = editingTag {
-                EditTagView(tag: tag, tagName: $editingTagName) {
-                    updateTag(tag: tag, newName: editingTagName)
-                    showEditSheet = false
-                } onCancel: {
-                    showEditSheet = false
-                }
-                .environmentObject(viewModel)
+        .sheet(item: $editingTag) { tag in
+            EditTagView(tagName: $editingTagName) {
+                updateTag(tag: tag, newName: editingTagName)
+                editingTag = nil
+            } onCancel: {
+                editingTag = nil
             }
+            .environmentObject(viewModel)
         }
         .alert(isPresented: $showDeleteAlert) {
             Alert(
